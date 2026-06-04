@@ -19,6 +19,22 @@ export interface User {
   updatedAt: string;
 }
 
+export interface Report {
+  id: string;
+  title: string;
+  description: string;
+  categoryId: string;
+  categoryName: string;
+  categoryIcon?: string;
+  status: ReportStatus;
+  address: string | null;
+  latitude: number;
+  longitude: number;
+  voteCount: number;
+  createdAt: string;
+  resolvedAt: string | null;
+}
+
 export interface ApiErrorResponse {
   error: {
     code: string;
