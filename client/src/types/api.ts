@@ -30,6 +30,7 @@ export interface Report {
   address: string | null;
   latitude: number;
   longitude: number;
+  photos: string[];
   voteCount: number;
   createdAt: string;
   resolvedAt: string | null;
