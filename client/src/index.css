@@ -1,0 +1,263 @@
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/inter";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+    --font-heading: var(--font-sans);
+    --font-sans: 'Inter Variable', sans-serif;
+    --color-ring: var(--ring);
+    --color-input: var(--input);
+    --color-border: var(--border);
+    --color-destructive: var(--destructive);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-accent: var(--accent);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-muted: var(--muted);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-secondary: var(--secondary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-primary: var(--primary);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-popover: var(--popover);
+    --color-card-foreground: var(--card-foreground);
+    --color-card: var(--card);
+    --color-foreground: var(--foreground);
+    --color-background: var(--background);
+    --radius-sm: 0.25rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.5rem;
+    --radius-xl: 0.75rem;
+
+    /* Typography — font-size utilities */
+    --text-display-lg: 48px;
+    --text-display-lg--line-height: 56px;
+    --text-display-lg--font-weight: 700;
+    --text-display-lg--letter-spacing: -0.02em;
+
+    --text-headline-lg: 32px;
+    --text-headline-lg--line-height: 40px;
+    --text-headline-lg--font-weight: 700;
+    --text-headline-lg--letter-spacing: -0.01em;
+
+    --text-headline-lg-mobile: 28px;
+    --text-headline-lg-mobile--line-height: 36px;
+    --text-headline-lg-mobile--font-weight: 700;
+    --text-headline-lg-mobile--letter-spacing: -0.01em;
+
+    --text-headline-md: 24px;
+    --text-headline-md--line-height: 32px;
+    --text-headline-md--font-weight: 600;
+
+    --text-headline-sm: 20px;
+    --text-headline-sm--line-height: 28px;
+    --text-headline-sm--font-weight: 600;
+
+    --text-body-lg: 18px;
+    --text-body-lg--line-height: 28px;
+    --text-body-lg--font-weight: 400;
+
+    --text-body-md: 16px;
+    --text-body-md--line-height: 24px;
+    --text-body-md--font-weight: 400;
+
+    --text-body-sm: 14px;
+    --text-body-sm--line-height: 20px;
+    --text-body-sm--font-weight: 400;
+
+    --text-label-md: 14px;
+    --text-label-md--line-height: 20px;
+    --text-label-md--font-weight: 600;
+    --text-label-md--letter-spacing: 0.05em;
+
+    --text-label-sm: 12px;
+    --text-label-sm--line-height: 16px;
+    --text-label-sm--font-weight: 500;
+
+    /* Colors — missing tokens */
+    --color-primary-container: #0052cc;
+    --color-primary-fixed: #dae2ff;
+    --color-primary-fixed-dim: #b2c5ff;
+    --color-on-primary-container: #c4d2ff;
+    --color-on-primary-fixed: #001848;
+    --color-on-primary-fixed-variant: #0040a2;
+
+    --color-secondary-container: #6bff8f;
+    --color-secondary-fixed: #6bff8f;
+    --color-secondary-fixed-dim: #4ae176;
+    --color-on-secondary-container: #007432;
+    --color-on-secondary-fixed: #002109;
+    --color-on-secondary-fixed-variant: #005321;
+
+    --color-tertiary: #603b00;
+    --color-tertiary-container: #805000;
+    --color-tertiary-fixed: #ffddb8;
+    --color-tertiary-fixed-dim: #ffb95f;
+    --color-on-tertiary: #ffffff;
+    --color-on-tertiary-container: #ffc988;
+    --color-on-tertiary-fixed: #2a1700;
+    --color-on-tertiary-fixed-variant: #653e00;
+
+    --color-error: #ba1a1a;
+    --color-error-container: #ffdad6;
+    --color-on-error: #ffffff;
+    --color-on-error-container: #93000a;
+
+    --color-surface-dim: #cbdbf5;
+    --color-surface-bright: #f8f9ff;
+    --color-surface-container: #e5eeff;
+    --color-surface-container-low: #eff4ff;
+    --color-surface-container-lowest: #ffffff;
+    --color-surface-container-high: #dce9ff;
+    --color-surface-container-highest: #d3e4fe;
+    --color-surface-variant: #d3e4fe;
+    --color-surface-tint: #0c56d0;
+
+    --color-outline: #737685;
+    --color-outline-variant: #c3c6d6;
+    --color-on-surface: #0b1c30;
+    --color-on-surface-variant: #434654;
+    --color-on-background: #0b1c30;
+
+    --color-inverse-surface: #213145;
+    --color-inverse-on-surface: #eaf1ff;
+    --color-inverse-primary: #b2c5ff;
+
+    /* Missing tokens */
+    --color-on-primary: #ffffff;
+    --color-on-secondary: #ffffff;
+    --color-surface: #f8f9ff;
+}
+
+:root {
+    --background: #f8f9ff;
+    --foreground: #0b1c30;
+    --card: #ffffff;
+    --card-foreground: #0b1c30;
+    --popover: #ffffff;
+    --popover-foreground: #0b1c30;
+    --primary: #003d9b;
+    --primary-foreground: #ffffff;
+    --secondary: #006e2f;
+    --secondary-foreground: #ffffff;
+    --muted: #e5eeff;
+    --muted-foreground: #434654;
+    --accent: #0052cc;
+    --accent-foreground: #c4d2ff;
+    --destructive: #ba1a1a;
+    --destructive-foreground: #ffffff;
+    --border: #c3c6d6;
+    --input: #c3c6d6;
+    --ring: #0c56d0;
+
+    --primary-container: #0052cc;
+    --primary-fixed: #dae2ff;
+    --primary-fixed-dim: #b2c5ff;
+    --on-primary-container: #c4d2ff;
+    --on-primary-fixed: #001848;
+    --on-primary-fixed-variant: #0040a2;
+
+    --secondary-container: #6bff8f;
+    --secondary-fixed: #6bff8f;
+    --secondary-fixed-dim: #4ae176;
+    --on-secondary-container: #007432;
+    --on-secondary-fixed: #002109;
+    --on-secondary-fixed-variant: #005321;
+
+    --tertiary: #603b00;
+    --tertiary-container: #805000;
+    --tertiary-fixed: #ffddb8;
+    --tertiary-fixed-dim: #ffb95f;
+    --on-tertiary: #ffffff;
+    --on-tertiary-container: #ffc988;
+    --on-tertiary-fixed: #2a1700;
+    --on-tertiary-fixed-variant: #653e00;
+
+    --error: #ba1a1a;
+    --error-container: #ffdad6;
+    --on-error: #ffffff;
+    --on-error-container: #93000a;
+
+    --surface-dim: #cbdbf5;
+    --surface-bright: #f8f9ff;
+    --surface-container: #e5eeff;
+    --surface-container-low: #eff4ff;
+    --surface-container-lowest: #ffffff;
+    --surface-container-high: #dce9ff;
+    --surface-container-highest: #d3e4fe;
+    --surface-variant: #d3e4fe;
+    --surface-tint: #0c56d0;
+
+    --outline: #737685;
+    --outline-variant: #c3c6d6;
+    --on-surface: #0b1c30;
+    --on-surface-variant: #434654;
+    --on-background: #0b1c30;
+
+    --inverse-surface: #213145;
+    --inverse-on-surface: #eaf1ff;
+    --inverse-primary: #b2c5ff;
+
+    /* Missing tokens */
+    --on-primary: #ffffff;
+    --on-secondary: #ffffff;
+    --surface: #f8f9ff;
+}
+
+.dark {
+    --background: oklch(0.147 0.004 49.3);
+    --foreground: oklch(0.986 0.002 67.8);
+    --card: oklch(0.214 0.009 43.1);
+    --card-foreground: oklch(0.986 0.002 67.8);
+    --popover: oklch(0.214 0.009 43.1);
+    --popover-foreground: oklch(0.986 0.002 67.8);
+    --primary: oklch(0.437 0.078 188.216);
+    --primary-foreground: oklch(0.984 0.014 180.72);
+    --secondary: oklch(0.274 0.006 286.033);
+    --secondary-foreground: oklch(0.985 0 0);
+    --muted: oklch(0.268 0.011 36.5);
+    --muted-foreground: oklch(0.714 0.014 41.2);
+    --accent: oklch(0.268 0.011 36.5);
+    --accent-foreground: oklch(0.986 0.002 67.8);
+    --destructive: oklch(0.704 0.191 22.216);
+    --border: oklch(1 0 0 / 10%);
+    --input: oklch(1 0 0 / 15%);
+    --ring: oklch(0.547 0.021 43.1);
+    --chart-1: oklch(0.81 0.117 11.638);
+    --chart-2: oklch(0.645 0.246 16.439);
+    --chart-3: oklch(0.586 0.253 17.585);
+    --chart-4: oklch(0.514 0.222 16.935);
+    --chart-5: oklch(0.455 0.188 13.697);
+    --sidebar: oklch(0.214 0.009 43.1);
+    --sidebar-foreground: oklch(0.986 0.002 67.8);
+    --sidebar-primary: oklch(0.704 0.14 182.503);
+    --sidebar-primary-foreground: oklch(0.277 0.046 192.524);
+    --sidebar-accent: oklch(0.268 0.011 36.5);
+    --sidebar-accent-foreground: oklch(0.986 0.002 67.8);
+    --sidebar-border: oklch(1 0 0 / 10%);
+    --sidebar-ring: oklch(0.547 0.021 43.1);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    }
+  body {
+    @apply bg-background text-foreground;
+    }
+  html {
+    @apply font-sans;
+    }
+}
+
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0;
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 1;
+  display: inline-block;
+  vertical-align: middle;
+}
