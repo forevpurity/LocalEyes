@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import { CivicShield } from "./civic-shield";
+import { CivicShield } from "@/components/civic-shield";
 
 export function AuthHeader() {
   return (

@@ -1,13 +1,55 @@
-import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Link } from "react-router";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { api, ApiRequestError } from "@/lib/api";
+import type { User } from "@/types/api";
 import { AuthHeader } from "./components/auth-header";
 
-export function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+const loginSchema = z.object({
+  email: z.email("Please enter a valid email address"),
+  password: z.string().min(1, "Password is required"),
+});
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+type LoginFormData = z.infer<typeof loginSchema>;
+
+export function LoginPage() {
+  const queryClient = useQueryClient();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setError,
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+  });
+
+  const loginMutation = useMutation({
+    mutationFn: (data: LoginFormData) =>
+      api<User>("/auth/login", {
+        method: "POST",
+        body: JSON.stringify(data),
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["me"] });
+    },
+    onError: (err) => {
+      if (err instanceof ApiRequestError) {
+        if (err.details) {
+          for (const [field, messages] of Object.entries(err.details)) {
+            const formField = field as keyof LoginFormData;
+            if (formField in loginSchema.shape) {
+              setError(formField, { message: messages[0] });
+            }
+          }
+        }
+      }
+    },
+  });
+
+  const onSubmit = (data: LoginFormData) => {
+    loginMutation.mutate(data);
   };
 
   return (
@@ -84,7 +126,16 @@ export function LoginPage() {
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
+              {/* Server-level error banner */}
+              {loginMutation.isError &&
+                loginMutation.error instanceof ApiRequestError &&
+                !loginMutation.error.details && (
+                  <div className="rounded-lg bg-error-container/50 border border-error/30 p-3 text-body-sm text-error">
+                    {loginMutation.error.message}
+                  </div>
+                )}
+
               <div className="space-y-1">
                 <label
                   className="block text-label-md font-label-md text-on-surface"
@@ -99,16 +150,18 @@ export function LoginPage() {
                     </span>
                   </div>
                   <input
-                    className="block w-full pl-16 pr-3 py-3 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary bg-surface-bright text-on-surface text-body-md font-body-md transition-all outline-none"
+                    className={`block w-full pl-16 pr-3 py-3 border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary bg-surface-bright text-on-surface text-body-md font-body-md transition-all outline-none placeholder-on-surface-variant/50 ${errors.email ? "border-error" : "border-outline-variant"}`}
                     id="email"
-                    name="email"
                     type="email"
                     placeholder="citizen@hcmc.gov.vn"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    {...register("email")}
                   />
                 </div>
+                {errors.email && (
+                  <p className="text-body-sm text-error mt-1">
+                    {errors.email.message}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-1">
@@ -133,24 +186,27 @@ export function LoginPage() {
                     </span>
                   </div>
                   <input
-                    className="block w-full pl-16 pr-3 py-3 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary bg-surface-bright text-on-surface text-body-md font-body-md transition-all outline-none"
+                    className={`block w-full pl-16 pr-3 py-3 border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary bg-surface-bright text-on-surface text-body-md font-body-md transition-all outline-none placeholder-on-surface-variant/50 ${errors.password ? "border-error" : "border-outline-variant"}`}
                     id="password"
-                    name="password"
                     type="password"
                     placeholder="••••••••"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    {...register("password")}
                   />
                 </div>
+                {errors.password && (
+                  <p className="text-body-sm text-error mt-1">
+                    {errors.password.message}
+                  </p>
+                )}
               </div>
 
               <div className="pt-3">
                 <button
-                  className="w-full flex justify-center items-center py-3 px-6 border border-transparent rounded-lg shadow-sm text-label-md font-label-md text-on-primary bg-primary hover:bg-on-primary-fixed-variant focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors h-12 active:scale-[0.98]"
+                  className="w-full flex justify-center items-center py-3 px-6 border border-transparent rounded-lg shadow-sm text-label-md font-label-md text-on-primary bg-primary hover:bg-on-primary-fixed-variant focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors h-12 active:scale-[0.98] gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   type="submit"
+                  disabled={loginMutation.isPending}
                 >
-                  Log In
+                  {loginMutation.isPending ? "Logging In..." : "Log In"}
                 </button>
               </div>
             </form>

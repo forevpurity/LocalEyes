@@ -1,4 +1,5 @@
 import { Link } from "react-router";
+import { CivicShield } from "@/components/civic-shield";
 
 export function Navbar() {
   return (
@@ -8,12 +9,7 @@ export function Navbar() {
           to="/"
           className="font-headline-md text-headline-md font-bold text-primary flex items-center gap-2"
         >
-          <span
-            className="material-symbols-outlined"
-            style={{ fontVariationSettings: "'FILL' 1" }}
-          >
-            location_on
-          </span>
+          <CivicShield className="w-8 h-8" />
           LocalEyes
         </Link>
 
