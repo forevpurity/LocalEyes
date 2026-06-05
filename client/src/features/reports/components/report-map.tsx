@@ -19,7 +19,7 @@ const ACTIVE_STATUSES = [
 
 const STATUS_COLORS: Record<string, string> = {
   submitted: "#3b82f6",
-  acknowledged: "#6366f1",
+  acknowledged: "#8b5cf6",
   in_progress: "#f59e0b",
   resolved: "#10b981",
   closed: "#6b7280",
@@ -59,8 +59,8 @@ const POPUP_STATUS_STYLES: Record<
   },
   resolved: { bg: "bg-green-50", text: "text-green-800", label: "Resolved" },
   acknowledged: {
-    bg: "bg-blue-50",
-    text: "text-blue-800",
+    bg: "bg-violet-50",
+    text: "text-violet-800",
     label: "Acknowledged",
   },
   closed: { bg: "bg-gray-100", text: "text-gray-600", label: "Closed" },
