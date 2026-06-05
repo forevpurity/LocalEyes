@@ -2,9 +2,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Link } from "react-router";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { api, ApiRequestError } from "@/lib/api";
 import type { User } from "@/types/api";
+import { useAuth } from "@/features/auth/auth-context";
 import { AuthHeader } from "./components/auth-header";
 
 const loginSchema = z.object({
@@ -15,7 +16,7 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>;
 
 export function LoginPage() {
-  const queryClient = useQueryClient();
+  const { setUser } = useAuth();
   const {
     register,
     handleSubmit,
@@ -31,8 +32,8 @@ export function LoginPage() {
         method: "POST",
         body: JSON.stringify(data),
       }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["me"] });
+    onSuccess: (data) => {
+      setUser(data);
     },
     onError: (err) => {
       if (err instanceof ApiRequestError) {

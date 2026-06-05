@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { api, ApiRequestError } from "@/lib/api";
 import type { User } from "@/types/api";
+import { useAuth } from "@/features/auth/auth-context";
 import { AuthHeader } from "./components/auth-header";
 
 // Separate base schema so we can reference .shape for backend error matching
@@ -28,6 +29,7 @@ const registerSchema = registerSchemaBase.refine(
 
 export function RegisterPage() {
   const navigate = useNavigate();
+  const { setUser } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const {
@@ -45,7 +47,8 @@ export function RegisterPage() {
         method: "POST",
         body: JSON.stringify(data),
       }),
-    onSuccess: () => {
+    onSuccess: (data) => {
+      setUser(data);
       navigate("/map");
     },
     onError: (err) => {

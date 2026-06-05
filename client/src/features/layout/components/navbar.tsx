@@ -1,7 +1,7 @@
 import { Link } from "react-router";
 import { Bell, LogOut } from "lucide-react";
 import { CivicShield } from "@/components/civic-shield";
-import { useAuth } from "@/features/auth/use-auth";
+import { useAuth } from "@/features/auth/auth-context";
 
 export function Navbar() {
   const { user, logout } = useAuth();

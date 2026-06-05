@@ -1,4 +1,4 @@
-import { useAuth } from "@/features/auth/use-auth";
+import { useAuth } from "@/features/auth/auth-context";
 import { CivicShield } from "@/components/civic-shield";
 import { PublicRoutes } from "./public-routes";
 import { CitizenRoutes } from "./citizen-routes";

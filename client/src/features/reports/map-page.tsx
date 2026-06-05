@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useAuth } from "@/features/auth/use-auth";
+import { useAuth } from "@/features/auth/auth-context";
 import { Navbar } from "@/features/layout/components/navbar";
 import { MapSidebar } from "@/features/reports/components/map-sidebar";
 import { ReportMap } from "@/features/reports/components/report-map";
