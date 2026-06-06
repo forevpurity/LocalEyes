@@ -19,6 +19,20 @@ export interface User {
   updatedAt: string;
 }
 
+export interface Category {
+  id: string;
+  name: string;
+}
+
+export interface Department {
+  id: string;
+  name: string;
+  polygon: { coordinates: [number, number][][] };
+  categories: Category[];
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Report {
   id: string;
   title: string;
