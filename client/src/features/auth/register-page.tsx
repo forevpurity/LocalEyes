@@ -8,6 +8,7 @@ import { api, ApiRequestError } from "@/lib/api";
 import type { User } from "@/types/api";
 import { useAuth } from "@/features/auth/auth-context";
 import { AuthHeader } from "./components/auth-header";
+import { toast } from "sonner";
 
 // Separate base schema so we can reference .shape for backend error matching
 const registerSchemaBase = z.object({
@@ -50,6 +51,7 @@ export function RegisterPage() {
     onSuccess: (data) => {
       setUser(data);
       navigate("/map");
+      toast.success("Account created!");
     },
     onError: (err) => {
       if (err instanceof ApiRequestError) {

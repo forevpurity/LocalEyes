@@ -1,5 +1,6 @@
 import { QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter } from "react-router";
+import { Toaster } from "sonner";
 import { queryClient } from "@/lib/query-client";
 import { AuthProvider } from "@/features/auth/auth-context";
 import type { ReactNode } from "react";
@@ -10,6 +11,7 @@ export function Providers({ children }: { children: ReactNode }) {
       <BrowserRouter>
         <AuthProvider>
           {children}
+          <Toaster position="top-right" richColors />
         </AuthProvider>
       </BrowserRouter>
     </QueryClientProvider>

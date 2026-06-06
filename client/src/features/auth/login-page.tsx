@@ -7,6 +7,7 @@ import { api, ApiRequestError } from "@/lib/api";
 import type { User } from "@/types/api";
 import { useAuth } from "@/features/auth/auth-context";
 import { AuthHeader } from "./components/auth-header";
+import { toast } from "sonner";
 
 const loginSchema = z.object({
   email: z.email("Please enter a valid email address"),
@@ -34,6 +35,7 @@ export function LoginPage() {
       }),
     onSuccess: (data) => {
       setUser(data);
+      toast.success("Welcome back!");
     },
     onError: (err) => {
       if (err instanceof ApiRequestError) {

@@ -4,7 +4,7 @@ import type { Department } from "@/types/api";
 
 export interface CreateDepartmentInput {
   name: string;
-  polygon: [number, number][];
+  polygon: { coordinates: [number, number][][] };
   categories: string[];
 }
 

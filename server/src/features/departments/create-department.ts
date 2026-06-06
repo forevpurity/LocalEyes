@@ -53,7 +53,8 @@ export const createDepartmentDoc = {
       },
     },
     422: {
-      description: "Polygon overlaps with existing department",
+      description:
+        "Polygon overlaps with existing department or is self-intersecting",
       content: {
         "application/json": { schema: errorResponseSchema },
       },
@@ -94,6 +95,19 @@ export function createDepartment(router: Router) {
 
     const wktRing = ring.map((c) => `${c[0]} ${c[1]}`).join(",");
     const wktPolygon = `SRID=4326;POLYGON((${wktRing}))`;
+
+    const validity = await db.execute<{ is_valid: boolean }>(sql`
+      SELECT ST_IsValid(${sql.raw(`'${wktPolygon}'::geometry`)}) AS is_valid
+    `);
+
+    if (!validity.rows[0]?.is_valid) {
+      throw new ValidationError("Polygon is self-intersecting", [
+        {
+          field: "polygon",
+          message: "Polygon boundary cannot cross itself",
+        },
+      ]);
+    }
 
     const overlapping = await db.execute<{
       id: string;
