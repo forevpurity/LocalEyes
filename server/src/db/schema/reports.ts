@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, timestamp, boolean } from "drizzle-orm/pg-core";
+import { pgTable, uuid, text, timestamp, boolean, index } from "drizzle-orm/pg-core";
 import { pointGeometry } from "../types.js";
 import { categories } from "./categories.js";
 import { departments } from "./departments.js";
@@ -21,4 +21,6 @@ export const reports = pgTable("reports", {
   isLocked: boolean("is_locked").notNull().default(false),
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow().notNull().$onUpdate(() => new Date()),
-});
+}, (t) => ({
+  locationIdx: index("idx_reports_location").using("gist", t.location),
+}));
