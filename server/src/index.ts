@@ -6,6 +6,8 @@ import swaggerUi from "swagger-ui-express";
 import { pool } from "./db/client.js";
 import { healthRouter } from "./features/health/index.js";
 import { authRouter } from "./features/auth/index.js";
+import { departmentsRouter } from "./features/departments/index.js";
+import { categoriesRouter } from "./features/categories/index.js";
 import { errorHandler, notFoundHandler } from "./common/middleware.js";
 
 const app = express();
@@ -18,6 +20,8 @@ app.use(cookieParser());
 const api = express.Router();
 api.use(healthRouter);
 api.use("/auth", authRouter);
+api.use("/departments", departmentsRouter);
+api.use("/categories", categoriesRouter);
 app.use("/api", api);
 
 if (process.env.NODE_ENV !== "production") {

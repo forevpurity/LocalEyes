@@ -3,7 +3,9 @@ import { hashSync } from "bcryptjs";
 import { eq } from "drizzle-orm";
 import { db } from "../client.js";
 import { users, type UserRole } from "../schema/users.js";
-import { users as seedData } from "./users.js";
+import { categories } from "../schema/categories.js";
+import { users as seedUsers } from "./users.js";
+import { categories as seedCategories } from "./categories.js";
 
 interface SeedUser {
   email: string;
@@ -15,7 +17,7 @@ interface SeedUser {
 let created = 0;
 let updated = 0;
 
-for (const record of seedData as SeedUser[]) {
+for (const record of seedUsers as SeedUser[]) {
   const passwordHash = hashSync(record.password, 12);
   const role = record.role ?? "citizen";
   const displayName = record.displayName ?? record.email;
@@ -40,5 +42,21 @@ for (const record of seedData as SeedUser[]) {
   }
 }
 
-console.log(`Seed complete: ${created} created, ${updated} updated`);
+console.log(`Users: ${created} created, ${updated} updated`);
+
+let catCreated = 0;
+for (const cat of seedCategories) {
+  const existing = await db
+    .select({ id: categories.id })
+    .from(categories)
+    .where(eq(categories.name, cat.name))
+    .limit(1);
+
+  if (existing.length === 0) {
+    await db.insert(categories).values(cat);
+    catCreated++;
+  }
+}
+console.log(`Categories: ${catCreated} created`);
+
 process.exit(0);

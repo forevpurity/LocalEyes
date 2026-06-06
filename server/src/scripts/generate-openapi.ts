@@ -2,6 +2,8 @@ import { createDocument } from "zod-openapi";
 import { writeFileSync } from "node:fs";
 import { authPaths } from "../features/auth/index.js";
 import { healthPaths } from "../features/health/index.js";
+import { categoriesPaths } from "../features/categories/index.js";
+import { departmentsPaths } from "../features/departments/index.js";
 
 const doc = createDocument({
   openapi: "3.1.0",
@@ -13,6 +15,8 @@ const doc = createDocument({
   paths: {
     ...healthPaths,
     ...authPaths,
+    ...categoriesPaths,
+    ...departmentsPaths,
   },
 });
 
