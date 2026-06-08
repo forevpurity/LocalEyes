@@ -128,8 +128,9 @@ export function updateDepartment(router: Router) {
         name: string;
       }>(sql`
         SELECT id, name FROM departments
-        WHERE id != ${id}
-        AND ST_Area(ST_Intersection(polygon, ${sql.raw(`'${wktPolygon}'::geometry`)})) > 0
+        WHERE id != ${sql.raw(`'${id}'`)}
+        AND ST_Intersects(polygon, ${sql.raw(`'${wktPolygon}'::geometry`)})
+        AND NOT ST_Touches(polygon, ${sql.raw(`'${wktPolygon}'::geometry`)})
       `);
 
       if (overlapping.rows.length > 0) {
@@ -148,7 +149,8 @@ export function updateDepartment(router: Router) {
         WHERE d1.id = ${id}
         AND d2.id != ${id}
         AND d2.is_active = true
-        AND ST_Area(ST_Intersection(d2.polygon, d1.polygon)) > 0
+        AND ST_Intersects(d2.polygon, d1.polygon)
+        AND NOT ST_Touches(d2.polygon, d1.polygon)
       `);
 
       if (overlapping.rows.length > 0) {

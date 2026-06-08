@@ -114,7 +114,8 @@ export function createDepartment(router: Router) {
       name: string;
     }>(sql`
       SELECT id, name FROM departments
-      WHERE ST_Area(ST_Intersection(polygon, ${sql.raw(`'${wktPolygon}'::geometry`)})) > 0
+      WHERE ST_Intersects(polygon, ${sql.raw(`'${wktPolygon}'::geometry`)})
+      AND NOT ST_Touches(polygon, ${sql.raw(`'${wktPolygon}'::geometry`)})
     `);
 
     if (overlapping.rows.length > 0) {
