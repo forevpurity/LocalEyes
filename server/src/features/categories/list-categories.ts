@@ -1,5 +1,6 @@
 import { Router } from "express";
 import type { ZodOpenApiOperationObject } from "zod-openapi";
+import { desc } from "drizzle-orm";
 import { db } from "../../db/client.js";
 import { categories } from "../../db/schema/categories.js";
 import { categoryResponse } from "./schemas.js";
@@ -22,7 +23,8 @@ export function listCategories(router: Router) {
   router.get("/", async (_req, res) => {
     const rows = await db
       .select({ id: categories.id, name: categories.name })
-      .from(categories);
+      .from(categories)
+      .orderBy(desc(categories.updatedAt));
 
     res.json(rows);
   });

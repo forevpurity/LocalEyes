@@ -28,7 +28,7 @@ _Avoid_: issue, ticket, problem (use "report" consistently)
 The lifecycle state of a Report. Transitions: `submitted → acknowledged → in_progress → resolved → closed`. A Report can also go from `submitted → rejected`. `closed` and `rejected` are terminal. Reports are never reopened — a recurring problem is a new Report.
 
 **Category**:
-A type of problem (e.g. pothole, graffiti, broken streetlight). Categories can be assigned to one or more Departments via a join table. When creating a Report, only Categories of the Department that covers the pinned location are shown. If the pin is outside all Department polygons (Unassigned), all Categories are shown. Admin has full CRUD over Categories. Removing a Category from a Department is forward-only — it does not affect existing Reports.
+A type of problem (e.g. pothole, graffiti, broken streetlight). Categories can be assigned to one or more Departments via a join table. When creating a Report, only Categories of the Department that covers the pinned location are shown. If the pin is outside all Department polygons (Unassigned), all Categories are shown. Admin has full CRUD over Categories. Removing a Category from a Department is forward-only — it does not affect existing Reports. A Category cannot be deleted while any Report or Department references it — Admin must reassign or remove those references first. The FK constraints on `reports.category_id` and `department_categories.category_id` enforce this at the DB level (`onDelete: "restrict"`); the app layer checks preemptively with a descriptive `DomainRuleError`.
 
 ### Departments
 

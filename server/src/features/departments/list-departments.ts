@@ -4,7 +4,7 @@ import { db } from "../../db/client.js";
 import { departments } from "../../db/schema/departments.js";
 import { departmentCategories } from "../../db/schema/department-categories.js";
 import { categories } from "../../db/schema/categories.js";
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { authenticate } from "../../common/auth.js";
 import { departmentResponse } from "./schemas.js";
 
@@ -33,7 +33,8 @@ export function listDepartments(router: Router) {
         createdAt: departments.createdAt,
         updatedAt: departments.updatedAt,
       })
-      .from(departments);
+      .from(departments)
+      .orderBy(desc(departments.updatedAt));
 
     const deptCategories = await db
       .select({
