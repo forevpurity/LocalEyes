@@ -28,15 +28,24 @@ _Avoid_: issue, ticket, problem (use "report" consistently)
 The lifecycle state of a Report. Transitions: `submitted → acknowledged → in_progress → resolved → closed`. A Report can also go from `submitted → rejected`. `closed` and `rejected` are terminal. Reports are never reopened — a recurring problem is a new Report.
 
 **Category**:
-A type of problem (e.g. pothole, graffiti, broken streetlight). Categories can be assigned to one or more Departments via a join table. When creating a Report, only Categories of the Department that covers the pinned location are shown. If the pin is outside all Department polygons (Unassigned), all Categories are shown. Admin has full CRUD over Categories.
+A type of problem (e.g. pothole, graffiti, broken streetlight). Categories can be assigned to one or more Departments via a join table. When creating a Report, only Categories of the Department that covers the pinned location are shown. If the pin is outside all Department polygons (Unassigned), all Categories are shown. Admin has full CRUD over Categories. Removing a Category from a Department is forward-only — it does not affect existing Reports.
 
 ### Departments
 
 **Department**:
-An organisational unit defined by a name, a geographic area (PostGIS polygon), and a set of Categories. Reports pinned inside a Department's polygon are auto-assigned to that Department. Staff belong to exactly one Department. Polygon boundaries must not overlap — Admin enforces this at creation time via a map drawing tool.
+An organisational unit defined by a name, a geographic area (PostGIS polygon), and a set of Categories. Reports pinned inside a Department's polygon are auto-assigned to that Department upon creation. Once assigned, a Report stays with that Department regardless of future polygon changes. Staff belong to exactly one Department. Polygon boundaries must not overlap — Admin enforces this at creation and update time via a map drawing tool. A Department can be deactivated by Admin but is never hard-deleted.
+
+**Forward-Only**:
+Changes to a Department are forward-only: they affect future auto-assignment and Category visibility, but never alter existing Reports or Staff assignments.
+
+**Deactivation**:
+Setting a Department to `isActive: false`. The Department and all its data remain in the system. Staff in a deactivated Department continue working on existing Reports, but no new Reports are auto-routed to it. Reactivation requires the polygon overlap check to pass. Departments are never hard-deleted.
+
+**Assignment**:
+Admin manually assigns an unassigned Report to a Department. The Report's Department is set regardless of geography — Admin override takes precedence. Once assigned, the Report stays with that Department permanently.
 
 **Unassigned Queue**:
-Reports pinned at a location that falls outside every Department's polygon. These have no Department assigned and are visible to Admin for manual routing.
+Reports pinned at a location that falls outside every Department's polygon, or Reports in a deactivated Department. These have no Department assigned and are visible to Admin for manual Assignment.
 
 ### Social
 

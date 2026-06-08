@@ -48,6 +48,7 @@ export const departmentResponse = z
     id: z.uuid(),
     name: z.string(),
     polygon: z.object({ coordinates: z.array(z.array(coordinatePair)) }),
+    isActive: z.boolean(),
     categories: z.array(departmentCategorySchema),
     createdAt: z.string(),
     updatedAt: z.string(),

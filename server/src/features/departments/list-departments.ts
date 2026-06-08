@@ -5,9 +5,8 @@ import { departments } from "../../db/schema/departments.js";
 import { departmentCategories } from "../../db/schema/department-categories.js";
 import { categories } from "../../db/schema/categories.js";
 import { eq } from "drizzle-orm";
-import { errorResponseSchema } from "../../common/errors.js";
 import { authenticate } from "../../common/auth.js";
-import { departmentCategorySchema, departmentResponse } from "./schemas.js";
+import { departmentResponse } from "./schemas.js";
 
 export const listDepartmentsDoc = {
   summary: "List all departments with polygons",
@@ -30,6 +29,7 @@ export function listDepartments(router: Router) {
         id: departments.id,
         name: departments.name,
         polygon: departments.polygon,
+        isActive: departments.isActive,
         createdAt: departments.createdAt,
         updatedAt: departments.updatedAt,
       })

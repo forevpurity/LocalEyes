@@ -28,6 +28,7 @@ export interface Department {
   id: string;
   name: string;
   polygon: { coordinates: [number, number][][] };
+  isActive: boolean;
   categories: Category[];
   createdAt: string;
   updatedAt: string;
