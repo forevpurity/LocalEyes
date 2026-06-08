@@ -56,12 +56,14 @@ function DrawingController({ isDrawing, onClick }: DrawingControllerProps) {
 
 interface PolygonDrawerProps {
   departments: Department[];
+  initialPolygon?: { coordinates: [number, number][][] };
   onComplete: (ring: [number, number][]) => void;
   onCancel: () => void;
 }
 
 export function PolygonDrawer({
   departments,
+  initialPolygon,
   onComplete,
   onCancel,
 }: PolygonDrawerProps) {
@@ -184,6 +186,22 @@ export function PolygonDrawer({
             </Polygon>
           );
         })}
+
+        {/* Initial polygon (editing mode) — shown when not drawing */}
+        {!isDrawing && initialPolygon && (
+          <Polygon
+            positions={initialPolygon.coordinates[0].map(
+              ([lng, lat]) => [lat, lng] as [number, number],
+            )}
+            pathOptions={{
+              fillColor: "#0c56d0",
+              color: "#0c56d0",
+              fillOpacity: 0.15,
+              weight: 2,
+              interactive: false,
+            }}
+          />
+        )}
 
         {/* Drawing polyline (dashed) */}
         {linePositions.length >= 2 && (

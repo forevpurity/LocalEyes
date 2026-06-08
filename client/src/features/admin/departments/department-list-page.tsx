@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import { Plus, Pencil, Trash2, Shield } from "lucide-react";
+import { Plus, Pencil, Shield } from "lucide-react";
 import { useState } from "react";
 import { useDepartments } from "@/features/admin/hooks/use-departments";
 import { DepartmentMap } from "./components/department-map";
@@ -49,6 +49,9 @@ export function DepartmentListPage() {
                     Categories
                   </th>
                   <th className="px-4 py-3 font-medium text-muted-foreground">
+                    Status
+                  </th>
+                  <th className="px-4 py-3 font-medium text-muted-foreground">
                     Created
                   </th>
                   <th className="px-4 py-3 font-medium text-muted-foreground">
@@ -60,7 +63,7 @@ export function DepartmentListPage() {
                 {isLoading && (
                   <tr>
                     <td
-                      colSpan={4}
+                      colSpan={5}
                       className="px-4 py-8 text-center text-muted-foreground"
                     >
                       Loading departments…
@@ -71,7 +74,7 @@ export function DepartmentListPage() {
                 {error && (
                   <tr>
                     <td
-                      colSpan={4}
+                      colSpan={5}
                       className="px-4 py-8 text-center text-sm text-destructive"
                     >
                       Failed to load departments.
@@ -88,7 +91,7 @@ export function DepartmentListPage() {
                 {!isLoading && !error && departments?.length === 0 && (
                   <tr>
                     <td
-                      colSpan={4}
+                      colSpan={5}
                       className="px-4 py-8 text-center text-muted-foreground"
                     >
                       <Shield className="mx-auto mb-2 h-8 w-8 opacity-40" />
@@ -134,26 +137,29 @@ export function DepartmentListPage() {
                         )}
                       </div>
                     </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
+                          dept.isActive
+                            ? "bg-emerald-100 text-emerald-700"
+                            : "bg-gray-100 text-gray-600"
+                        }`}
+                      >
+                        {dept.isActive ? "Active" : "Inactive"}
+                      </span>
+                    </td>
                     <td className="px-4 py-3 text-muted-foreground">
                       {formatDate(dept.createdAt)}
                     </td>
                     <td className="px-4 py-3">
-                      <div className="flex items-center gap-1">
-                        <button
-                          disabled
-                          className="rounded p-1 text-muted-foreground opacity-40 hover:bg-muted"
-                          title="Edit (coming soon)"
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </button>
-                        <button
-                          disabled
-                          className="rounded p-1 text-muted-foreground opacity-40 hover:bg-muted"
-                          title="Delete (coming soon)"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
+                      <Link
+                        to={`/departments/${dept.id}/edit`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="inline-flex items-center rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+                        title="Edit"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Link>
                     </td>
                   </tr>
                 ))}

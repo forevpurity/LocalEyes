@@ -4,6 +4,7 @@ import { AdminDashboard } from "@/features/admin/dashboard-page";
 import { AdminReportsPage } from "@/features/admin/reports-page";
 import { DepartmentListPage } from "@/features/admin/departments/department-list-page";
 import { DepartmentCreatePage } from "@/features/admin/departments/department-create-page";
+import { DepartmentEditPage } from "@/features/admin/departments/department-edit-page";
 import { AdminCategoriesPage } from "@/features/admin/categories-page";
 import { AdminStaffPage } from "@/features/admin/staff-page";
 import { AdminCitizensPage } from "@/features/admin/citizens-page";
@@ -17,6 +18,7 @@ export function AdminRoutes() {
         <Route path="reports" element={<AdminReportsPage />} />
         <Route path="departments" element={<DepartmentListPage />} />
         <Route path="departments/new" element={<DepartmentCreatePage />} />
+        <Route path="departments/:id/edit" element={<DepartmentEditPage />} />
         <Route path="categories" element={<AdminCategoriesPage />} />
         <Route path="staff" element={<AdminStaffPage />} />
         <Route path="citizens" element={<AdminCitizensPage />} />
