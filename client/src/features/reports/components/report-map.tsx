@@ -2,12 +2,23 @@ import { useEffect, useRef } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import { useNavigate } from "react-router";
 import L from "leaflet";
-import { Search, Plus, Minus, Crosshair, ArrowRight, ThumbsUp } from "lucide-react";
+import {
+  Search,
+  Plus,
+  Minus,
+  Crosshair,
+  ArrowRight,
+  ThumbsUp,
+} from "lucide-react";
 import { useState } from "react";
 import type { Report } from "@/types/api";
-import { MOCK_REPORTS, getRelativeTime } from "@/features/reports/data/mock-reports";
+import {
+  MOCK_REPORTS,
+  getRelativeTime,
+} from "@/features/reports/data/mock-reports";
 
 const HCM_CENTER: [number, number] = [10.7769, 106.7009];
+const HCM_BOUNDS = L.latLngBounds([10.2, 106.2], [11.1, 107.2]);
 const NOMINATIM = "https://nominatim.openstreetmap.org/search";
 
 const ACTIVE_STATUSES = [
@@ -81,7 +92,8 @@ function ReportMarker({
   const color = STATUS_COLORS[report.status] ?? "#6b7280";
   const icon = createMarkerIcon(color, isHighlighted);
   const position: [number, number] = [report.latitude, report.longitude];
-  const statusStyle = POPUP_STATUS_STYLES[report.status] ?? POPUP_STATUS_STYLES.submitted;
+  const statusStyle =
+    POPUP_STATUS_STYLES[report.status] ?? POPUP_STATUS_STYLES.submitted;
   const photo = report.photos?.[0];
 
   return (
@@ -99,7 +111,7 @@ function ReportMarker({
             <img
               src={photo}
               alt=""
-              className="mt-0.5 h-[60px] w-[72px] shrink-0 rounded-md border border-border object-cover"
+              className="mt-0.5 h-15 w-18 shrink-0 rounded-md border border-border object-cover"
             />
           )}
           <div className="min-w-0 flex-1">
@@ -111,7 +123,9 @@ function ReportMarker({
               </span>
               <div className="flex shrink-0 items-center gap-0.5 text-muted-foreground">
                 <ThumbsUp className="h-3 w-3" />
-                <span className="text-[11px] font-medium">{report.voteCount}</span>
+                <span className="text-[11px] font-medium">
+                  {report.voteCount}
+                </span>
               </div>
             </div>
             <div className="mb-0.5 flex items-center gap-1">
@@ -164,6 +178,15 @@ function FlyToController({ reportId }: { reportId: string | null }) {
 
 function SearchControl() {
   const map = useMap();
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    L.DomEvent.disableClickPropagation(el);
+    L.DomEvent.disableScrollPropagation(el);
+  }, []);
+
   const [query, setQuery] = useState("");
   const [searching, setSearching] = useState(false);
 
@@ -191,7 +214,10 @@ function SearchControl() {
   };
 
   return (
-    <div className="flex items-center gap-2 rounded-xl border border-border bg-background/90 p-2 shadow-lg backdrop-blur-md">
+    <div
+      ref={containerRef}
+      className="flex items-center gap-2 rounded-xl border border-border bg-background/90 p-2 shadow-lg backdrop-blur-md"
+    >
       <button
         onClick={handleSearch}
         disabled={searching}
@@ -201,7 +227,7 @@ function SearchControl() {
         <Search className="h-4 w-4 text-muted-foreground" />
       </button>
       <input
-        className="w-56 border-none bg-transparent text-sm outline-none placeholder:text-muted-foreground/60"
+        className="w-56 border-none bg-transparent text-base sm:text-sm outline-none placeholder:text-muted-foreground/60"
         placeholder="Search location..."
         value={query}
         onChange={(e) => setQuery(e.target.value)}
@@ -265,7 +291,7 @@ function LegendControl() {
     { label: "Resolved", color: STATUS_COLORS.resolved },
   ];
   return (
-    <div className="absolute bottom-4 left-4 z-[1000] rounded-xl border border-border bg-background/90 px-3 py-2 shadow-lg backdrop-blur-md">
+    <div className="absolute bottom-4 left-4 z-1000 rounded-xl border border-border bg-background/90 px-3 py-2 shadow-lg backdrop-blur-md">
       <div className="flex items-center gap-3 text-xs font-medium">
         {items.map((item) => (
           <div key={item.label} className="flex items-center gap-1">
@@ -324,6 +350,8 @@ export function ReportMap({
         zoom={13}
         className="z-0 h-full w-full"
         zoomControl={false}
+        maxBounds={HCM_BOUNDS}
+        maxBoundsViscosity={1.0}
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -333,10 +361,10 @@ export function ReportMap({
         <FlyToController reportId={selectedReportId} />
 
         {/* Overlays */}
-        <div className="absolute left-4 top-4 z-[1000]">
+        <div className="absolute left-4 top-4 z-1000">
           <SearchControl />
         </div>
-        <div className="absolute right-4 top-4 z-[1000]">
+        <div className="absolute right-4 top-4 z-1000">
           <MapControls />
         </div>
         <LegendControl />

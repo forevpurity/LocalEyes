@@ -36,7 +36,6 @@ export const MOCK_REPORTS: Report[] = [
     photos: ["https://placehold.co/600x400/6B7280/ffffff?text=Report+1"],
     voteCount: 12,
     createdAt: hoursAgo(2),
-    resolvedAt: null,
   },
   {
     id: "r2",
@@ -53,7 +52,6 @@ export const MOCK_REPORTS: Report[] = [
     photos: ["https://placehold.co/600x400/8B5CF6/ffffff?text=Report+2"],
     voteCount: 5,
     createdAt: hoursAgo(8),
-    resolvedAt: null,
   },
   {
     id: "r3",
@@ -70,7 +68,6 @@ export const MOCK_REPORTS: Report[] = [
     photos: ["https://placehold.co/600x400/F59E0B/ffffff?text=Report+3"],
     voteCount: 8,
     createdAt: daysAgo(1),
-    resolvedAt: null,
   },
   {
     id: "r4",
@@ -87,7 +84,6 @@ export const MOCK_REPORTS: Report[] = [
     photos: ["https://placehold.co/600x400/10B981/ffffff?text=Report+4"],
     voteCount: 3,
     createdAt: hoursAgo(4),
-    resolvedAt: null,
   },
   {
     id: "r5",
@@ -104,7 +100,6 @@ export const MOCK_REPORTS: Report[] = [
     photos: ["https://placehold.co/600x400/3B82F6/ffffff?text=Report+5"],
     voteCount: 24,
     createdAt: daysAgo(3),
-    resolvedAt: hoursAgo(6),
   },
   {
     id: "r6",
@@ -121,7 +116,6 @@ export const MOCK_REPORTS: Report[] = [
     photos: ["https://placehold.co/600x400/4B5563/ffffff?text=Report+6"],
     voteCount: 7,
     createdAt: hoursAgo(12),
-    resolvedAt: null,
   },
   {
     id: "r7",
@@ -137,7 +131,6 @@ export const MOCK_REPORTS: Report[] = [
     photos: ["https://placehold.co/600x400/7C3AED/ffffff?text=Report+7"],
     voteCount: 2,
     createdAt: daysAgo(2),
-    resolvedAt: null,
   },
   {
     id: "r8",
@@ -154,7 +147,6 @@ export const MOCK_REPORTS: Report[] = [
     photos: ["https://placehold.co/600x400/D97706/ffffff?text=Report+8"],
     voteCount: 15,
     createdAt: hoursAgo(1),
-    resolvedAt: null,
   },
   {
     id: "r9",
@@ -170,7 +162,6 @@ export const MOCK_REPORTS: Report[] = [
     photos: ["https://placehold.co/600x400/059669/ffffff?text=Report+9"],
     voteCount: 9,
     createdAt: daysAgo(1),
-    resolvedAt: null,
   },
   {
     id: "r10",
@@ -187,7 +178,6 @@ export const MOCK_REPORTS: Report[] = [
     photos: ["https://placehold.co/600x400/2563EB/ffffff?text=Report+10"],
     voteCount: 6,
     createdAt: hoursAgo(5),
-    resolvedAt: null,
   },
   {
     id: "r11",
@@ -203,7 +193,6 @@ export const MOCK_REPORTS: Report[] = [
     photos: ["https://placehold.co/600x400/374151/ffffff?text=Report+11"],
     voteCount: 18,
     createdAt: daysAgo(2),
-    resolvedAt: null,
   },
   {
     id: "r12",
@@ -219,7 +208,6 @@ export const MOCK_REPORTS: Report[] = [
     photos: ["https://placehold.co/600x400/B45309/ffffff?text=Report+12"],
     voteCount: 31,
     createdAt: daysAgo(4),
-    resolvedAt: hoursAgo(3),
   },
   {
     id: "r13",
@@ -236,7 +224,6 @@ export const MOCK_REPORTS: Report[] = [
     photos: ["https://placehold.co/600x400/6D28D9/ffffff?text=Report+13"],
     voteCount: 4,
     createdAt: hoursAgo(3),
-    resolvedAt: null,
   },
   {
     id: "r14",
@@ -253,7 +240,6 @@ export const MOCK_REPORTS: Report[] = [
     photos: ["https://placehold.co/600x400/1D4ED8/ffffff?text=Report+14"],
     voteCount: 11,
     createdAt: hoursAgo(10),
-    resolvedAt: null,
   },
   {
     id: "r15",
@@ -270,7 +256,6 @@ export const MOCK_REPORTS: Report[] = [
     photos: ["https://placehold.co/600x400/047857/ffffff?text=Report+15"],
     voteCount: 13,
     createdAt: daysAgo(5),
-    resolvedAt: daysAgo(1),
   },
   {
     id: "r16",
@@ -287,7 +272,6 @@ export const MOCK_REPORTS: Report[] = [
     photos: ["https://placehold.co/600x400/1F2937/ffffff?text=Report+16"],
     voteCount: 5,
     createdAt: hoursAgo(7),
-    resolvedAt: null,
   },
   {
     id: "r17",
@@ -303,7 +287,6 @@ export const MOCK_REPORTS: Report[] = [
     photos: ["https://placehold.co/600x400/5B21B6/ffffff?text=Report+17"],
     voteCount: 1,
     createdAt: daysAgo(6),
-    resolvedAt: null,
   },
   {
     id: "r18",
@@ -320,7 +303,6 @@ export const MOCK_REPORTS: Report[] = [
     photos: ["https://placehold.co/600x400/92400E/ffffff?text=Report+18"],
     voteCount: 6,
     createdAt: hoursAgo(9),
-    resolvedAt: null,
   },
   {
     id: "r19",
@@ -337,7 +319,6 @@ export const MOCK_REPORTS: Report[] = [
     photos: ["https://placehold.co/600x400/1E40AF/ffffff?text=Report+19"],
     voteCount: 22,
     createdAt: daysAgo(3),
-    resolvedAt: null,
   },
   {
     id: "r20",
@@ -353,7 +334,6 @@ export const MOCK_REPORTS: Report[] = [
     photos: ["https://placehold.co/600x400/065F46/ffffff?text=Report+20"],
     voteCount: 8,
     createdAt: hoursAgo(14),
-    resolvedAt: null,
   },
 ];
 
