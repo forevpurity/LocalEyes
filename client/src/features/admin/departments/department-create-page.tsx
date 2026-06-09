@@ -5,9 +5,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
-import { useDepartments } from "@/features/admin/hooks/use-departments";
-import { useCategories } from "@/features/admin/hooks/use-categories";
-import { useCreateDepartment } from "@/features/admin/hooks/use-create-department";
+import { useDepartments } from "./hooks/use-departments";
+import { useCategories } from "@/features/admin/categories/hooks/use-categories";
+import { useCreateDepartment } from "./hooks/use-create-department";
 import { PolygonDrawer } from "./components/polygon-drawer";
 import type { ApiRequestError } from "@/lib/api";
 

@@ -5,7 +5,7 @@ import { AdminReportsPage } from "@/features/admin/reports-page";
 import { DepartmentListPage } from "@/features/admin/departments/department-list-page";
 import { DepartmentCreatePage } from "@/features/admin/departments/department-create-page";
 import { DepartmentEditPage } from "@/features/admin/departments/department-edit-page";
-import { AdminCategoriesPage } from "@/features/admin/categories-page";
+import { AdminCategoriesPage } from "@/features/admin/categories/categories-page";
 import { AdminStaffPage } from "@/features/admin/staff-page";
 import { AdminCitizensPage } from "@/features/admin/citizens-page";
 import { AdminAnalyticsPage } from "@/features/admin/analytics-page";

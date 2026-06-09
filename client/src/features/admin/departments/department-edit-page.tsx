@@ -5,10 +5,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
-import { useDepartments } from "@/features/admin/hooks/use-departments";
-import { useCategories } from "@/features/admin/hooks/use-categories";
-import { useGetDepartment } from "@/features/admin/hooks/use-get-department";
-import { useUpdateDepartment } from "@/features/admin/hooks/use-update-department";
+import { useDepartments } from "./hooks/use-departments";
+import { useCategories } from "@/features/admin/categories/hooks/use-categories";
+import { useGetDepartment } from "./hooks/use-get-department";
+import { useUpdateDepartment } from "./hooks/use-update-department";
 import { PolygonDrawer } from "./components/polygon-drawer";
 import type { ApiRequestError } from "@/lib/api";
 

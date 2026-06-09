@@ -1,7 +1,7 @@
 import { Link } from "react-router";
 import { Plus, Pencil, Shield } from "lucide-react";
 import { useState } from "react";
-import { useDepartments } from "@/features/admin/hooks/use-departments";
+import { useDepartments } from "./hooks/use-departments";
 import { DepartmentMap } from "./components/department-map";
 
 function formatDate(iso: string): string {
