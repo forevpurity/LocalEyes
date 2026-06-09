@@ -48,7 +48,12 @@ export interface Report {
   photos: string[];
   voteCount: number;
   createdAt: string;
-  resolvedAt: string | null;
+  departmentId?: string | null;
+}
+
+export interface CoveringResponse {
+  department: { id: string; name: string } | null;
+  categories: Category[];
 }
 
 export interface ApiErrorResponse {

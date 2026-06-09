@@ -33,13 +33,21 @@ export class ApiRequestError extends Error {
   }
 }
 
-export async function api<T>(path: string, options?: RequestInit): Promise<T> {
-  const url = path.startsWith("http") ? path : `${BASE}${path}`;
-  const res = await fetch(url, {
-    ...options,
-    credentials: "include",
-    headers: { "Content-Type": "application/json", ...options?.headers },
-  });
+async function parseErrorResponse(res: Response) {
+  const err = await res.json().catch(() => ({}));
+  return new ApiRequestError(
+    res.status,
+    err.error?.code ?? "UNKNOWN",
+    err.error?.message ?? "Request failed",
+    err.error?.details,
+  );
+}
+
+async function fetchWithAuth(
+  url: string,
+  options: RequestInit = {},
+): Promise<Response> {
+  const res = await fetch(url, { ...options, credentials: "include" });
 
   if (res.status === 401) {
     const refreshed = await refreshTokens();
@@ -47,31 +55,44 @@ export async function api<T>(path: string, options?: RequestInit): Promise<T> {
       const retryRes = await fetch(url, {
         ...options,
         credentials: "include",
-        headers: { "Content-Type": "application/json", ...options?.headers },
       });
-      if (retryRes.ok) {
-        if (retryRes.status === 204) return undefined as T;
-        return retryRes.json();
+      if (!retryRes.ok) {
+        throw await parseErrorResponse(retryRes);
       }
-      const retryError = await retryRes.json().catch(() => ({}));
-      throw new ApiRequestError(
-        retryRes.status,
-        retryError.error?.code ?? "UNKNOWN",
-        retryError.error?.message ?? "Request failed",
-        retryError.error?.details,
-      );
+      return retryRes;
     }
   }
 
   if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new ApiRequestError(
-      res.status,
-      err.error?.code ?? "UNKNOWN",
-      err.error?.message ?? "Request failed",
-      err.error?.details,
-    );
+    throw await parseErrorResponse(res);
   }
+
+  return res;
+}
+
+export async function api<T>(path: string, options?: RequestInit): Promise<T> {
+  const url = path.startsWith("http") ? path : `${BASE}${path}`;
+  const res = await fetchWithAuth(url, {
+    ...options,
+    headers: { "Content-Type": "application/json", ...options?.headers },
+  });
+
+  if (res.status === 204) {
+    return undefined as T;
+  }
+
+  return res.json();
+}
+
+export async function apiUpload<T>(
+  path: string,
+  formData: FormData,
+): Promise<T> {
+  const url = path.startsWith("http") ? path : `${BASE}${path}`;
+  const res = await fetchWithAuth(url, {
+    method: "POST",
+    body: formData,
+  });
 
   if (res.status === 204) {
     return undefined as T;
