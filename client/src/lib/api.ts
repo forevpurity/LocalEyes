@@ -49,7 +49,10 @@ export async function api<T>(path: string, options?: RequestInit): Promise<T> {
         credentials: "include",
         headers: { "Content-Type": "application/json", ...options?.headers },
       });
-      if (retryRes.ok) return retryRes.json();
+      if (retryRes.ok) {
+        if (retryRes.status === 204) return undefined as T;
+        return retryRes.json();
+      }
       const retryError = await retryRes.json().catch(() => ({}));
       throw new ApiRequestError(
         retryRes.status,
@@ -68,6 +71,10 @@ export async function api<T>(path: string, options?: RequestInit): Promise<T> {
       err.error?.message ?? "Request failed",
       err.error?.details,
     );
+  }
+
+  if (res.status === 204) {
+    return undefined as T;
   }
 
   return res.json();
