@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { DatabaseError } from "pg";
+import { MulterError } from "multer";
 
 const appErrorCodes = [
   "VALIDATION_FAILED",
@@ -83,6 +84,19 @@ export const errorResponseSchema = z.object({
 }).meta({ id: "ErrorResponse" });
 
 export function toAppError(err: unknown): AppError | undefined {
+  if (err instanceof MulterError) {
+    if (err.code === "LIMIT_FILE_COUNT" || err.code === "LIMIT_UNEXPECTED_FILE") {
+      return new ValidationError("Too many files", [
+        { field: "photos", message: "A maximum of 5 photos are allowed" },
+      ]);
+    }
+    if (err.code === "LIMIT_FILE_SIZE") {
+      return new ValidationError("File too large", [
+        { field: "photos", message: "Each photo must be smaller than 5 MB" },
+      ]);
+    }
+    return new ValidationError(err.message);
+  }
   if (err instanceof DatabaseError) {
     if (err.code === "23505") {
       return new ConflictError(err.message ?? "Resource already exists");

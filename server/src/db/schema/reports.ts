@@ -16,7 +16,7 @@ export const reports = pgTable("reports", {
   status: text("status").$type<ReportStatus>().notNull().default("submitted"),
   categoryId: uuid("category_id").notNull().references(() => categories.id, { onDelete: "restrict" }),
   departmentId: uuid("department_id").references(() => departments.id, { onDelete: "set null" }),
-  citizenId: uuid("citizen_id").notNull().references(() => users.id, { onDelete: "set null" }),
+  citizenId: uuid("citizen_id").references(() => users.id, { onDelete: "set null" }),
   isHidden: boolean("is_hidden").notNull().default(false),
   isLocked: boolean("is_locked").notNull().default(false),
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
