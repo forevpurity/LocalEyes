@@ -13,6 +13,7 @@ export const comments = pgTable("comments", {
   type: text("type").$type<CommentType>().notNull().default("discussion"),
   newStatus: text("new_status").$type<ReportStatus>(),
   isHidden: boolean("is_hidden").notNull().default(false),
+  isEdited: boolean("is_edited").notNull().default(false),
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow().notNull().$onUpdate(() => new Date()),
 });

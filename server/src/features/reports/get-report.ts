@@ -24,6 +24,7 @@ const commentItemSchema = z.object({
   newStatus: z.string().nullable(),
   authorName: z.string().nullable(),
   isHidden: z.boolean(),
+  isEdited: z.boolean(),
   createdAt: z.string(),
 });
 
@@ -168,6 +169,7 @@ export function getReport(router: Router) {
           newStatus: comments.newStatus,
           authorName: users.displayName,
           isHidden: comments.isHidden,
+          isEdited: comments.isEdited,
           createdAt: comments.createdAt,
         })
         .from(comments)
@@ -183,6 +185,7 @@ export function getReport(router: Router) {
       newStatus: c.newStatus,
       authorName: c.authorName,
       isHidden: c.isHidden,
+      isEdited: c.isEdited,
       createdAt: c.createdAt.toISOString(),
     }));
 

@@ -13,6 +13,10 @@ import { withdrawReport, withdrawReportDoc } from "./withdraw-report.js";
 import { hideReport, hideReportDoc } from "./hide-report.js";
 import { lockReport, lockReportDoc } from "./lock-report.js";
 import { assignReport, assignReportDoc } from "./assign-report.js";
+import { toggleVote, toggleVoteDoc } from "./toggle-vote.js";
+import { toggleSubscribe, toggleSubscribeDoc } from "./toggle-subscribe.js";
+import { hideComment, hideCommentDoc } from "./hide-comment.js";
+import { editComment, editCommentDoc } from "./edit-comment.js";
 
 export const reportsRouter = Router();
 
@@ -26,6 +30,10 @@ withdrawReport(reportsRouter);
 hideReport(reportsRouter);
 lockReport(reportsRouter);
 assignReport(reportsRouter);
+toggleVote(reportsRouter);
+toggleSubscribe(reportsRouter);
+hideComment(reportsRouter);
+editComment(reportsRouter);
 
 export const reportsPaths = {
   "/reports": {
@@ -53,5 +61,17 @@ export const reportsPaths = {
   },
   "/reports/{id}/assign": {
     patch: assignReportDoc,
+  },
+  "/reports/{id}/vote": {
+    patch: toggleVoteDoc,
+  },
+  "/reports/{id}/subscribe": {
+    patch: toggleSubscribeDoc,
+  },
+  "/reports/{id}/comments/{commentId}/hide": {
+    patch: hideCommentDoc,
+  },
+  "/reports/{id}/comments/{commentId}": {
+    patch: editCommentDoc,
   },
 } satisfies ZodOpenApiPathsObject;

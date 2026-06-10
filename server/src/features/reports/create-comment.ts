@@ -14,6 +14,7 @@ import {
   errorResponseSchema,
 } from "../../common/errors.js";
 import { authenticate } from "../../common/auth.js";
+import { commentResponse } from "./schemas.js";
 
 const createCommentSchema = z
   .object({
@@ -23,18 +24,6 @@ const createCommentSchema = z
       .max(2000, "Comment must be at most 2000 characters"),
   })
   .meta({ id: "CreateCommentRequest" });
-
-const commentResponseSchema = z
-  .object({
-    id: z.uuid(),
-    type: z.enum(["discussion", "status_note"]),
-    body: z.string().nullable(),
-    newStatus: z.string().nullable(),
-    authorName: z.string().nullable(),
-    isHidden: z.boolean(),
-    createdAt: z.string(),
-  })
-  .meta({ id: "CommentResponse" });
 
 export const createCommentDoc = {
   summary: "Add a discussion comment to a report",
@@ -53,7 +42,7 @@ export const createCommentDoc = {
     201: {
       description: "Comment created",
       content: {
-        "application/json": { schema: commentResponseSchema },
+        "application/json": { schema: commentResponse },
       },
     },
     403: {
@@ -137,6 +126,7 @@ export function createComment(router: Router) {
           body: comments.body,
           newStatus: comments.newStatus,
           isHidden: comments.isHidden,
+          isEdited: comments.isEdited,
           createdAt: comments.createdAt,
         });
 
@@ -147,6 +137,7 @@ export function createComment(router: Router) {
         newStatus: comment.newStatus,
         authorName: actor.displayName,
         isHidden: comment.isHidden,
+        isEdited: comment.isEdited,
         createdAt: comment.createdAt.toISOString(),
       });
     },

@@ -9,6 +9,7 @@ import { departments } from "../../db/schema/departments.js";
 import { users } from "../../db/schema/users.js";
 import { reportPhotos } from "../../db/schema/report-photos.js";
 import { parseAndValidate } from "../../common/validate.js";
+import { queryBoolean } from "../../common/schemas.js";
 import {
   ValidationError,
   UnauthorizedError,
@@ -37,15 +38,9 @@ const listReportsQuerySchema = z.object({
   categoryId: z.uuid().optional(),
   q: z.string().optional(),
   status: z.enum(REPORT_STATUSES).optional(),
-  mine: z
-    .string()
-    .optional()
-    .transform((v) => v === "true"),
+  mine: queryBoolean.optional(),
   departmentId: z.uuid().optional(),
-  unassigned: z
-    .string()
-    .optional()
-    .transform((v) => v === "true"),
+  unassigned: queryBoolean.optional(),
   cursor: z.string().optional(),
   limit: z.coerce.number().int().min(1).max(100).default(20),
 });
@@ -152,9 +147,7 @@ export function listReports(router: Router) {
       conditions.push(eq(reports.isHidden, false));
 
       if (hasBbox && !query.status) {
-        conditions.push(
-          sql`${reports.status} NOT IN ('closed', 'rejected')`,
-        );
+        conditions.push(sql`${reports.status} NOT IN ('closed', 'rejected')`);
       }
     }
 

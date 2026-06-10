@@ -17,3 +17,16 @@ export const reportResponse = z
     createdAt: z.string(),
   })
   .meta({ id: "ReportResponse" });
+
+export const commentResponse = z
+  .object({
+    id: z.uuid(),
+    type: z.enum(["discussion", "status_note"]),
+    body: z.string().nullable(),
+    newStatus: z.string().nullable(),
+    authorName: z.string().nullable(),
+    isHidden: z.boolean(),
+    isEdited: z.boolean(),
+    createdAt: z.string(),
+  })
+  .meta({ id: "CommentResponse" });

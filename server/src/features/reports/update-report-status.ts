@@ -153,6 +153,7 @@ export function updateReportStatus(router: Router) {
             body: comments.body,
             newStatus: comments.newStatus,
             isHidden: comments.isHidden,
+            isEdited: comments.isEdited,
             createdAt: comments.createdAt,
           });
 
@@ -166,6 +167,7 @@ export function updateReportStatus(router: Router) {
         newStatus: comment.newStatus,
         authorName: actor.displayName,
         isHidden: comment.isHidden,
+        isEdited: comment.isEdited,
         createdAt: comment.createdAt.toISOString(),
       });
     },
