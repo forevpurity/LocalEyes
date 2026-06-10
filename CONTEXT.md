@@ -53,14 +53,17 @@ Reports pinned at a location that falls outside every Department's polygon, or R
 ### Social
 
 **Vote**:
-An upvote on a Report from a Citizen. One vote per Report per Citizen. Affects sort order only — not a workflow trigger.
+An upvote on a Report from a Citizen. One vote per Report per Citizen. A Citizen cannot vote on their own Report. Affects sort order only — not a workflow trigger.
 _Avoid_: like, star, upvote/downvote (upvote only)
 
 **Comment**:
 A message in a Report's unified timeline. Comments can be free-form discussion or a note tied to a status change (every status change requires a note).
 
+**Comment Edit**:
+The author of a discussion comment can edit its body within 15 minutes of creation (based on `createdAt`; no rolling reset). After 15 minutes the comment is part of the record. Status notes are never editable by anyone. Editing is blocked on locked Reports and hidden comments. Edits are tracked via an `isEdited` flag — no edit history is stored.
+
 **Subscription**:
-Controls notification delivery. Citizens are auto-subscribed to their own Reports. They can optionally subscribe to (watch) other Reports to receive updates.
+Controls notification delivery. Citizens are auto-subscribed to their own Reports — this subscription cannot be removed. They can optionally subscribe to (watch) other Reports to receive updates, and may unsubscribe at any time.
 
 **Notification**:
 In-app real-time push delivered via Socket.io. Appears as a bell icon indicator. No email for now.
@@ -71,7 +74,7 @@ In-app real-time push delivered via Socket.io. Appears as a bell icon indicator.
 Removes a Comment or Report from public view. The owner Citizen can still view and edit their own hidden Reports. Reversible. Performed by Staff (Department-scoped) and Admin (site-wide).
 
 **Lock**:
-Prevents new Comments or Votes on a Report, and blocks the owner Citizen from editing it. The Report remains visible. Performed by Staff and Admin.
+Prevents new Comments, Votes, and Subscriptions on a Report, and blocks the owner Citizen from editing it. The Report remains visible. Performed by Staff and Admin.
 
 **Delete**:
 Permanently removes content from the database. Admin only.
