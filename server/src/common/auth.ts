@@ -4,13 +4,18 @@ import { UnauthorizedError, ForbiddenError } from "./errors.js";
 import type { UserRole } from "../db/schema/users.js";
 
 export function authenticate(...roles: UserRole[]): RequestHandler {
-  return (req, res, next) => {
+  return (req, _res, next) => {
     const token = req.cookies?.access_token;
     if (!token) {
       throw new UnauthorizedError();
     }
 
-    const payload = verifyAccessToken(token);
+    let payload;
+    try {
+      payload = verifyAccessToken(token);
+    } catch {
+      throw new UnauthorizedError("Invalid or expired access token");
+    }
 
     req.actor = {
       id: payload.sub,
@@ -20,6 +25,28 @@ export function authenticate(...roles: UserRole[]): RequestHandler {
 
     if (roles.length > 0 && !roles.includes(payload.role)) {
       throw new ForbiddenError();
+    }
+
+    next();
+  };
+}
+
+export function optionalAuthenticate(): RequestHandler {
+  return (req, _res, next) => {
+    const token = req.cookies?.access_token;
+    if (!token) {
+      return next();
+    }
+
+    try {
+      const payload = verifyAccessToken(token);
+      req.actor = {
+        id: payload.sub,
+        role: payload.role,
+        displayName: payload.displayName,
+      };
+    } catch {
+      throw new UnauthorizedError("Invalid or expired access token");
     }
 
     next();
