@@ -4,7 +4,7 @@ import { categories } from "./categories.js";
 import { departments } from "./departments.js";
 import { users } from "./users.js";
 
-export const REPORT_STATUSES = ["submitted", "acknowledged", "in_progress", "resolved", "closed", "rejected"] as const;
+export const REPORT_STATUSES = ["submitted", "acknowledged", "in_progress", "resolved", "closed", "rejected", "withdrawn"] as const;
 export type ReportStatus = (typeof REPORT_STATUSES)[number];
 
 export const reports = pgTable("reports", {

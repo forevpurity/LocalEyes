@@ -22,6 +22,7 @@ const ALLOWED_TRANSITIONS: Record<string, ReadonlySet<string>> = {
   resolved: new Set(["closed"]),
   closed: new Set(),
   rejected: new Set(),
+  withdrawn: new Set(),
 };
 
 const updateStatusSchema = z

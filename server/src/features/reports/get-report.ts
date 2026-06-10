@@ -128,7 +128,9 @@ export function getReport(router: Router) {
     const report = row[0];
 
     if (report.isHidden) {
-      if (!actor || actor.role === "citizen") {
+      if (actor?.role === "citizen" && report.citizenId === actor.id) {
+        // owner bypasses hide
+      } else if (!actor || actor.role === "citizen") {
         throw new NotFoundError("Report not found");
       }
       if (actor.role === "staff") {

@@ -25,7 +25,10 @@ The core entity. A Citizen submits a Report about a problem at a pinned map loca
 _Avoid_: issue, ticket, problem (use "report" consistently)
 
 **Report Status**:
-The lifecycle state of a Report. Transitions: `submitted → acknowledged → in_progress → resolved → closed`. A Report can also go from `submitted → rejected`. `closed` and `rejected` are terminal. Reports are never reopened — a recurring problem is a new Report.
+The lifecycle state of a Report. Transitions: `submitted → acknowledged → in_progress → resolved → closed`. A Report can also go from `submitted → rejected` or `submitted → withdrawn`. `closed`, `rejected`, and `withdrawn` are terminal. Reports are never reopened — a recurring problem is a new Report.
+
+**Report Edit**:
+A Citizen can edit the title and description of their own Report only while it is in `submitted` status and the Report is not locked. Once acknowledged by Staff, the Report content is fixed — further updates go through Comments. Location, category, and address are never editable after submission; a misplaced Report should be withdrawn and resubmitted.
 
 **Category**:
 A type of problem (e.g. pothole, graffiti, broken streetlight). Categories can be assigned to one or more Departments via a join table. When creating a Report, only Categories of the Department that covers the pinned location are shown. If the pin is outside all Department polygons (Unassigned), all Categories are shown. Admin has full CRUD over Categories. Removing a Category from a Department is forward-only — it does not affect existing Reports. A Category cannot be deleted while any Report or Department references it — Admin must reassign or remove those references first. The FK constraints on `reports.category_id` and `department_categories.category_id` enforce this at the DB level (`onDelete: "restrict"`); the app layer checks preemptively with a descriptive `DomainRuleError`.
@@ -65,10 +68,10 @@ In-app real-time push delivered via Socket.io. Appears as a bell icon indicator.
 ### Moderation
 
 **Hide**:
-Removes a Comment or Report from public view. Reversible. Performed by Staff (Department-scoped) and Admin (site-wide).
+Removes a Comment or Report from public view. The owner Citizen can still view and edit their own hidden Reports. Reversible. Performed by Staff (Department-scoped) and Admin (site-wide).
 
 **Lock**:
-Prevents new Comments or Votes on a Report. The Report remains visible. Performed by Staff and Admin.
+Prevents new Comments or Votes on a Report, and blocks the owner Citizen from editing it. The Report remains visible. Performed by Staff and Admin.
 
 **Delete**:
 Permanently removes content from the database. Admin only.

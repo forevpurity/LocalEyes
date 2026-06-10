@@ -18,6 +18,7 @@ import {
 import { parseAndValidate } from "../../common/validate.js";
 import { authenticate } from "../../common/auth.js";
 import { getCoveringDepartment } from "../../common/geo.js";
+import { reportResponse } from "./schemas.js";
 
 const MIME_TO_EXT: Record<string, string> = {
   "image/jpeg": "jpg",
@@ -57,24 +58,6 @@ const createReportSchema = z
     categoryId: z.uuid("Invalid category ID"),
   })
   .meta({ id: "CreateReportRequest" });
-
-const reportResponse = z
-  .object({
-    id: z.uuid(),
-    title: z.string(),
-    description: z.string(),
-    categoryId: z.uuid(),
-    categoryName: z.string(),
-    status: z.string(),
-    address: z.string().nullable(),
-    latitude: z.number(),
-    longitude: z.number(),
-    departmentId: z.uuid().nullable(),
-    photos: z.array(z.object({ url: z.string(), order: z.number() })),
-    voteCount: z.number(),
-    createdAt: z.string(),
-  })
-  .meta({ id: "ReportResponse" });
 
 export const createReportDoc = {
   summary: "Create a new report",

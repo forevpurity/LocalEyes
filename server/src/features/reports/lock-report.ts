@@ -1,0 +1,144 @@
+import { Router } from "express";
+import type { ZodOpenApiOperationObject } from "zod-openapi";
+import { z } from "zod";
+import { eq, sql } from "drizzle-orm";
+import { db } from "../../db/client.js";
+import { reports } from "../../db/schema/reports.js";
+import { categories } from "../../db/schema/categories.js";
+import { reportPhotos } from "../../db/schema/report-photos.js";
+import { votes } from "../../db/schema/votes.js";
+import { users } from "../../db/schema/users.js";
+import {
+  NotFoundError,
+  ForbiddenError,
+  errorResponseSchema,
+} from "../../common/errors.js";
+import { authenticate } from "../../common/auth.js";
+import { reportResponse } from "./schemas.js";
+
+export const lockReportDoc = {
+  summary: "Toggle report lock",
+  tags: ["Reports"],
+  operationId: "lockReport",
+  requestParams: {
+    path: z.object({ id: z.uuid().meta({ description: "Report Id" }) }),
+  },
+  responses: {
+    200: {
+      description: "Report lock toggled",
+      content: {
+        "application/json": { schema: reportResponse },
+      },
+    },
+    403: {
+      description: "Staff accessing a report outside their department",
+      content: {
+        "application/json": { schema: errorResponseSchema },
+      },
+    },
+    404: {
+      description: "Report not found",
+      content: {
+        "application/json": { schema: errorResponseSchema },
+      },
+    },
+  },
+} satisfies ZodOpenApiOperationObject;
+
+export function lockReport(router: Router) {
+  router.patch(
+    "/:id/lock",
+    authenticate("staff", "admin"),
+    async (req, res) => {
+      const actor = req.actor!;
+      const { id } = req.params;
+
+      const row = await db
+        .select({
+          isHidden: reports.isHidden,
+          isLocked: reports.isLocked,
+          departmentId: reports.departmentId,
+          categoryId: reports.categoryId,
+          address: reports.address,
+          latitude: sql<number>`ST_Y(${reports.location})`,
+          longitude: sql<number>`ST_X(${reports.location})`,
+          createdAt: reports.createdAt,
+        })
+        .from(reports)
+        .where(eq(reports.id, id))
+        .limit(1);
+
+      if (row.length === 0) {
+        throw new NotFoundError("Report not found");
+      }
+
+      const report = row[0];
+
+      if (actor.role === "staff") {
+        const staffUser = await db.query.users.findFirst({
+          where: eq(users.id, actor.id),
+          columns: { departmentId: true },
+        });
+        if (staffUser?.departmentId !== report.departmentId) {
+          throw report.isHidden
+            ? new NotFoundError("Report not found")
+            : new ForbiddenError(
+                "Not allowed to act on reports outside your department",
+              );
+        }
+      }
+
+      await db
+        .update(reports)
+        .set({ isLocked: !report.isLocked })
+        .where(eq(reports.id, id));
+
+      const [updated] = await db
+        .select({
+          id: reports.id,
+          title: reports.title,
+          description: reports.description,
+          status: reports.status,
+          address: reports.address,
+          departmentId: reports.departmentId,
+          createdAt: reports.createdAt,
+        })
+        .from(reports)
+        .where(eq(reports.id, id))
+        .limit(1);
+
+      const [catRow, photoRows, voteRow] = await Promise.all([
+        db
+          .select({ name: categories.name })
+          .from(categories)
+          .where(eq(categories.id, report.categoryId))
+          .limit(1),
+        db
+          .select({ url: reportPhotos.url, order: reportPhotos.order })
+          .from(reportPhotos)
+          .where(eq(reportPhotos.reportId, id))
+          .orderBy(reportPhotos.order),
+        db
+          .select({ count: sql<number>`COUNT(*)::int` })
+          .from(votes)
+          .where(eq(votes.reportId, id)),
+      ]);
+
+      res.json({
+        id: updated.id,
+        title: updated.title,
+        description: updated.description,
+        categoryId: report.categoryId,
+        categoryName: catRow[0]?.name ?? "",
+        status: updated.status,
+        address: updated.address,
+        latitude: report.latitude,
+        longitude: report.longitude,
+        departmentId: updated.departmentId,
+        photos: photoRows,
+        voteCount: voteRow[0]?.count ?? 0,
+        createdAt: updated.createdAt.toISOString(),
+      });
+    },
+  );
+}
