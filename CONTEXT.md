@@ -77,10 +77,12 @@ Removes a Comment or Report from public view. The owner Citizen can still view a
 Prevents new Comments, Votes, and Subscriptions on a Report, and blocks the owner Citizen from editing it. The Report remains visible. Performed by Staff and Admin.
 
 **Delete**:
-Permanently removes content from the database. Admin only.
+Permanently removes a Category from the database. Admin only. A Category cannot be deleted while any Report or Department references it — Admin must reassign or remove those references first.
+
+Reports and Comments are never hard-deleted — Admin can Hide them to remove from public view; the data is retained for accountability. Votes may be removed (they are a sort signal, not content).
 
 **Ban**:
-Disables a Citizen's account. Their existing Reports remain (anonymised). Admin only.
+Disables a Citizen or Staff account. Admin only. Cannot ban yourself or another Admin. A banned Citizen's existing Reports remain (anonymised). A banned Staff member can no longer log in; their reports stay assigned to their Department.
 
 ### Geography
 

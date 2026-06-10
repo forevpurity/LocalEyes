@@ -5,6 +5,7 @@ import { createDepartment, createDepartmentDoc } from "./create-department.js";
 import { listDepartments, listDepartmentsDoc } from "./list-departments.js";
 import { getDepartment, getDepartmentDoc } from "./get-department.js";
 import { updateDepartment, updateDepartmentDoc } from "./update-department.js";
+import { listDepartmentStaff, listDepartmentStaffDoc } from "./list-department-staff.js";
 
 export const departmentsRouter = Router();
 
@@ -13,6 +14,7 @@ createDepartment(departmentsRouter);
 listDepartments(departmentsRouter);
 getDepartment(departmentsRouter);
 updateDepartment(departmentsRouter);
+listDepartmentStaff(departmentsRouter);
 
 export const departmentsPaths = {
   "/departments/covering": {
@@ -25,5 +27,8 @@ export const departmentsPaths = {
   "/departments/{id}": {
     get: getDepartmentDoc,
     patch: updateDepartmentDoc,
+  },
+  "/departments/{id}/staff": {
+    get: listDepartmentStaffDoc,
   },
 } satisfies ZodOpenApiPathsObject;

@@ -10,6 +10,8 @@ import { authRouter } from "./features/auth/index.js";
 import { departmentsRouter } from "./features/departments/index.js";
 import { categoriesRouter } from "./features/categories/index.js";
 import { reportsRouter } from "./features/reports/index.js";
+import { staffRouter } from "./features/staff/index.js";
+import { citizensRouter } from "./features/citizens/index.js";
 import { errorHandler, notFoundHandler } from "./common/middleware.js";
 
 const UPLOAD_DIR = process.env.UPLOAD_DIR ?? "uploads";
@@ -30,6 +32,8 @@ api.use("/auth", authRouter);
 api.use("/departments", departmentsRouter);
 api.use("/categories", categoriesRouter);
 api.use("/reports", reportsRouter);
+api.use("/admin/staff", staffRouter);
+api.use("/admin/citizens", citizensRouter);
 app.use("/api", api);
 
 if (process.env.NODE_ENV !== "production") {

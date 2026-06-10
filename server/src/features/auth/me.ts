@@ -14,6 +14,7 @@ const meResponse = z
     displayName: z.string(),
     role: z.enum(USER_ROLES),
     departmentId: z.uuid().nullable(),
+    mustChangePassword: z.boolean(),
   })
   .meta({ id: "MeResponse" });
 
@@ -49,6 +50,7 @@ export function me(router: Router) {
         displayName: true,
         role: true,
         departmentId: true,
+        mustChangePassword: true,
       },
     });
 

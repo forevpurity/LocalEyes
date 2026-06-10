@@ -23,6 +23,7 @@ export const registerResponse = z
     email: zEmail(),
     displayName: z.string(),
     role: z.enum(USER_ROLES),
+    mustChangePassword: z.boolean(),
   })
   .meta({ id: "RegisterResponse" });
 
@@ -99,6 +100,9 @@ export function register(router: Router) {
       maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE_MS ?? 7 * 24 * 60 * 60 * 1000),
     });
 
-    res.status(201).json(user);
+    res.status(201).json({
+      ...user,
+      mustChangePassword: false,
+    });
   });
 }

@@ -19,6 +19,7 @@ const refreshResponse = z
     email: zEmail(),
     displayName: z.string(),
     role: z.enum(USER_ROLES),
+    mustChangePassword: z.boolean(),
   })
   .meta({ id: "RefreshResponse" });
 
@@ -88,6 +89,7 @@ export function refresh(router: Router) {
       email: user.email,
       displayName: user.displayName,
       role: user.role,
+      mustChangePassword: user.mustChangePassword,
     });
   });
 }
