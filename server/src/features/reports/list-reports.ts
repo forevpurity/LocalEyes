@@ -9,6 +9,7 @@ import { departments } from "../../db/schema/departments.js";
 import { users } from "../../db/schema/users.js";
 import { reportPhotos } from "../../db/schema/report-photos.js";
 import { parseAndValidate } from "../../common/validate.js";
+import { encodeCursor, decodeCursor } from "../../common/pagination.js";
 import { queryBoolean } from "../../common/schemas.js";
 import {
   ValidationError,
@@ -18,17 +19,6 @@ import {
 import { optionalAuthenticate } from "../../common/auth.js";
 
 const MAP_LIMIT = 200;
-
-function encodeCursor(createdAt: Date, id: string): string {
-  return Buffer.from(
-    JSON.stringify({ c: createdAt.toISOString(), i: id }),
-  ).toString("base64url");
-}
-
-function decodeCursor(cursor: string): { c: Date; i: string } {
-  const raw = JSON.parse(Buffer.from(cursor, "base64url").toString("utf-8"));
-  return { c: new Date(raw.c), i: raw.i };
-}
 
 const listReportsQuerySchema = z.object({
   minLat: z.coerce.number().min(-90).max(90).optional(),

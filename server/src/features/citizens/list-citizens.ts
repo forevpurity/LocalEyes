@@ -7,18 +7,8 @@ import { users } from "../../db/schema/users.js";
 import { errorResponseSchema } from "../../common/errors.js";
 import { authenticate } from "../../common/auth.js";
 import { parseAndValidate } from "../../common/validate.js";
+import { encodeCursor, decodeCursor } from "../../common/pagination.js";
 import { citizenListItem } from "./schemas.js";
-
-function encodeCursor(createdAt: Date, id: string): string {
-  return Buffer.from(
-    JSON.stringify({ c: createdAt.toISOString(), i: id }),
-  ).toString("base64url");
-}
-
-function decodeCursor(cursor: string): { c: Date; i: string } {
-  const raw = JSON.parse(Buffer.from(cursor, "base64url").toString("utf-8"));
-  return { c: new Date(raw.c), i: raw.i };
-}
 
 const listCitizensQuerySchema = z.object({
   status: z.enum(["active", "banned"]).optional(),
