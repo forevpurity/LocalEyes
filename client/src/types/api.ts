@@ -34,21 +34,54 @@ export interface Department {
   updatedAt: string;
 }
 
+export interface ReportPhoto {
+  url: string;
+  order: number;
+}
+
 export interface Report {
   id: string;
   title: string;
   description: string;
   categoryId: string;
   categoryName: string;
-  categoryIcon?: string;
   status: ReportStatus;
   address: string | null;
   latitude: number;
   longitude: number;
-  photos: string[];
+  photos: ReportPhoto[];
   voteCount: number;
+  hasVoted: boolean;
+  isHidden: boolean;
+  isLocked: boolean;
   createdAt: string;
-  departmentId?: string | null;
+  departmentId: string | null;
+  departmentName: string | null;
+  citizenName: string | null;
+}
+
+export interface ReportDetail extends Report {
+  isSubscribed: boolean;
+  comments: Comment[];
+}
+
+export type CommentType = "discussion" | "status_note";
+
+export interface Comment {
+  id: string;
+  type: CommentType;
+  body: string | null;
+  newStatus: string | null;
+  authorName: string | null;
+  isHidden: boolean;
+  isEdited: boolean;
+  createdAt: string;
+}
+
+export interface ListReportsResponse {
+  items: Report[];
+  nextCursor?: string | null;
+  hasMore?: boolean;
 }
 
 export interface CoveringResponse {

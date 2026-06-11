@@ -1,7 +1,8 @@
 import { ThumbsUp, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router";
 import type { Report } from "@/types/api";
-import { getRelativeTime } from "@/features/reports/data/mock-reports";
+import { getRelativeTime } from "@/lib/utils";
+import { getCategoryIcon } from "@/features/reports/lib/category-icons";
 
 const STATUS_STYLES: Record<
   string,
@@ -21,6 +22,7 @@ const STATUS_STYLES: Record<
   },
   closed: { bg: "bg-gray-100", text: "text-gray-600", label: "Closed" },
   rejected: { bg: "bg-red-50", text: "text-red-800", label: "Rejected" },
+  withdrawn: { bg: "bg-red-50", text: "text-red-800", label: "Withdrawn" },
 };
 
 interface ReportCardProps {
@@ -32,7 +34,7 @@ interface ReportCardProps {
 export function ReportCard({ report, isSelected, onClick }: ReportCardProps) {
   const navigate = useNavigate();
   const style = STATUS_STYLES[report.status] ?? STATUS_STYLES.submitted;
-  const photo = report.photos?.[0];
+  const photo = report.photos?.[0]?.url;
 
   return (
     <div
@@ -48,7 +50,7 @@ export function ReportCard({ report, isSelected, onClick }: ReportCardProps) {
           <img
             src={photo}
             alt=""
-            className="h-[68px] w-[80px] rounded-lg border border-border object-cover"
+            className="h-17 w-20 rounded-lg border border-border object-cover"
           />
         </div>
       )}
@@ -68,7 +70,10 @@ export function ReportCard({ report, isSelected, onClick }: ReportCardProps) {
 
         <div className="mb-1 flex items-center gap-1.5">
           <span className="text-base" aria-hidden="true">
-            {report.categoryIcon}
+            {getCategoryIcon({
+              id: report.categoryId,
+              name: report.categoryName,
+            })}
           </span>
           <h3 className="truncate text-sm font-semibold text-primary">
             {report.title}

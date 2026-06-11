@@ -1,15 +1,16 @@
 import { Search, SlidersHorizontal, X } from "lucide-react";
-import type { Report } from "@/types/api";
+import type { Report, Category } from "@/types/api";
 import { ReportCard } from "./report-card";
 import { CategoryChips } from "./category-chips";
 
 interface MobileReportSheetProps {
   selectedReportId: string | null;
-  selectedCategories: string[];
+  selectedCategory: string | null;
   searchQuery: string;
   onSearchChange: (query: string) => void;
   filteredReports: Report[];
-  onToggleCategory: (id: string) => void;
+  categories?: Category[];
+  onSelectCategory: (categoryId: string | null) => void;
   onSelectReport: (report: Report) => void;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
@@ -17,18 +18,19 @@ interface MobileReportSheetProps {
 
 export function MobileReportSheet({
   selectedReportId,
-  selectedCategories,
+  selectedCategory,
   searchQuery,
   onSearchChange,
   filteredReports,
-  onToggleCategory,
+  categories,
+  onSelectCategory,
   onSelectReport,
   isOpen,
   onOpenChange,
 }: MobileReportSheetProps) {
   return (
     <div
-      className={`fixed bottom-0 left-0 right-0 z-[1000] rounded-t-2xl border-t border-border bg-surface shadow-[0_-4px_20px_rgba(0,0,0,0.1)] transition-transform duration-300 ease-out md:hidden ${
+      className={`fixed bottom-0 left-0 right-0 z-[1000] flex h-[85vh] flex-col rounded-t-2xl border-t border-border bg-surface shadow-[0_-4px_20px_rgba(0,0,0,0.1)] transition-transform duration-300 ease-out md:hidden ${
         isOpen ? "translate-y-0" : "translate-y-[calc(100%-80px)]"
       }`}
     >
@@ -47,19 +49,9 @@ export function MobileReportSheet({
           <div>
             <h2 className="text-base font-semibold text-primary">Reports</h2>
             <p className="text-xs text-muted-foreground">
-              {filteredReports.length} issue{filteredReports.length !== 1 ? "s" : ""} nearby
+              {filteredReports.length} issue
+              {filteredReports.length !== 1 ? "s" : ""} nearby
             </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => onOpenChange(false)}
-              className="rounded-lg border border-border p-2 transition-colors hover:bg-muted"
-            >
-              <X className="h-4 w-4 text-muted-foreground" />
-            </button>
-            <button className="rounded-lg border border-border p-2 transition-colors hover:bg-muted">
-              <SlidersHorizontal className="h-4 w-4 text-muted-foreground" />
-            </button>
           </div>
         </div>
 
@@ -77,13 +69,14 @@ export function MobileReportSheet({
 
         {/* Category chips */}
         <CategoryChips
-          selected={selectedCategories}
-          onToggle={onToggleCategory}
+          selected={selectedCategory}
+          onSelect={onSelectCategory}
+          categories={categories}
         />
       </div>
 
       {/* List */}
-      <div className="max-h-[60vh] space-y-3 overflow-y-auto px-4 pb-6 pt-2">
+      <div className="flex-1 space-y-3 overflow-y-auto px-4 pb-6 pt-2">
         {filteredReports.length === 0 ? (
           <div className="py-8 text-center text-sm text-muted-foreground">
             No reports match your filters.

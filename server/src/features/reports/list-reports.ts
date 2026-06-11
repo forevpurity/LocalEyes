@@ -137,7 +137,9 @@ export function listReports(router: Router) {
       conditions.push(eq(reports.isHidden, false));
 
       if (hasBbox && !query.status) {
-        conditions.push(sql`${reports.status} NOT IN ('closed', 'rejected')`);
+        conditions.push(
+          sql`${reports.status} NOT IN ('closed', 'rejected', 'withdrawn')`,
+        );
       }
     }
 

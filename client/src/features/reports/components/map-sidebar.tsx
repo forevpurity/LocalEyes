@@ -1,25 +1,27 @@
 import { Search, SlidersHorizontal } from "lucide-react";
-import type { Report } from "@/types/api";
+import type { Report, Category } from "@/types/api";
 import { ReportCard } from "./report-card";
 import { CategoryChips } from "./category-chips";
 
 interface MapSidebarProps {
   selectedReportId: string | null;
-  selectedCategories: string[];
+  selectedCategory: string | null;
   searchQuery: string;
   onSearchChange: (query: string) => void;
   filteredReports: Report[];
-  onToggleCategory: (id: string) => void;
+  categories?: Category[];
+  onSelectCategory: (categoryId: string | null) => void;
   onSelectReport: (report: Report) => void;
 }
 
 export function MapSidebar({
   selectedReportId,
-  selectedCategories,
+  selectedCategory,
   searchQuery,
   onSearchChange,
   filteredReports,
-  onToggleCategory,
+  categories,
+  onSelectCategory,
   onSelectReport,
 }: MapSidebarProps) {
   return (
@@ -30,12 +32,10 @@ export function MapSidebar({
           <div>
             <h2 className="text-lg font-semibold text-primary">Reports</h2>
             <p className="text-xs text-muted-foreground">
-              {filteredReports.length} issue{filteredReports.length !== 1 ? "s" : ""} nearby
+              {filteredReports.length} issue
+              {filteredReports.length !== 1 ? "s" : ""} nearby
             </p>
           </div>
-          <button className="rounded-lg border border-border p-2 transition-colors hover:bg-muted">
-            <SlidersHorizontal className="h-4 w-4 text-muted-foreground" />
-          </button>
         </div>
 
         {/* Search */}
@@ -51,7 +51,11 @@ export function MapSidebar({
         </div>
 
         {/* Category chips */}
-        <CategoryChips selected={selectedCategories} onToggle={onToggleCategory} />
+        <CategoryChips
+          selected={selectedCategory}
+          onSelect={onSelectCategory}
+          categories={categories}
+        />
       </div>
 
       {/* Report list */}

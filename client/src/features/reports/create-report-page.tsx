@@ -65,7 +65,7 @@ export function CreateReportPage() {
   };
 
   const handleSubmitSuccess = (reportId: string) => {
-    navigate(`/reports/${reportId}`);
+    navigate(`/reports/${reportId}`, { replace: true });
   };
 
   return (
@@ -131,7 +131,7 @@ export function CreateReportPage() {
             <ReportLocationStep
               initialPin={location}
               onNext={handleLocationNext}
-              onBack={() => navigate("/map")}
+              onBack={() => navigate(-1)}
             />
           )}
           {step === 2 && location && (

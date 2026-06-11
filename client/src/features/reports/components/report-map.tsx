@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import { useNavigate } from "react-router";
 import L from "leaflet";
@@ -12,19 +12,11 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import type { Report } from "@/types/api";
-import {
-  MOCK_REPORTS,
-  getRelativeTime,
-} from "@/features/reports/data/mock-reports";
-import { HCM_CENTER, HCM_BOUNDS } from "@/lib/map-constants";
+import { getRelativeTime } from "@/lib/utils";
+import { getCategoryIcon } from "@/features/reports/lib/category-icons";
+import { HCM_CENTER, HCM_BOUNDS, DEFAULT_ZOOM } from "@/lib/map-constants";
+import type { ViewportChange } from "@/features/reports/hooks/use-map-reports";
 const NOMINATIM = "https://nominatim.openstreetmap.org/search";
-
-const ACTIVE_STATUSES = [
-  "submitted",
-  "acknowledged",
-  "in_progress",
-  "resolved",
-];
 
 const STATUS_COLORS: Record<string, string> = {
   submitted: "#3b82f6",
@@ -92,7 +84,7 @@ function ReportMarker({
   const position: [number, number] = [report.latitude, report.longitude];
   const statusStyle =
     POPUP_STATUS_STYLES[report.status] ?? POPUP_STATUS_STYLES.submitted;
-  const photo = report.photos?.[0];
+  const photo = report.photos?.[0]?.url;
 
   return (
     <Marker
@@ -128,7 +120,10 @@ function ReportMarker({
             </div>
             <div className="mb-0.5 flex items-center gap-1">
               <span className="text-[13px]" aria-hidden="true">
-                {report.categoryIcon}
+                {getCategoryIcon({
+                  id: report.categoryId,
+                  name: report.categoryName,
+                })}
               </span>
               <h3 className="truncate text-xs font-semibold text-primary">
                 {report.title}
@@ -157,7 +152,13 @@ function ReportMarker({
   );
 }
 
-function FlyToController({ reportId }: { reportId: string | null }) {
+function FlyToController({
+  reportId,
+  reports,
+}: {
+  reportId: string | null;
+  reports: Report[];
+}) {
   const map = useMap();
   const prevId = useRef<string | null>(null);
 
@@ -165,11 +166,11 @@ function FlyToController({ reportId }: { reportId: string | null }) {
     if (!reportId || reportId === prevId.current) return;
     prevId.current = reportId;
 
-    const report = MOCK_REPORTS.find((r) => r.id === reportId);
+    const report = reports.find((r) => r.id === reportId);
     if (report) {
       map.flyTo([report.latitude, report.longitude], 16, { duration: 1 });
     }
-  }, [reportId, map]);
+  }, [reportId, reports, map]);
 
   return null;
 }
@@ -237,16 +238,20 @@ function SearchControl() {
 
 function MapControls() {
   const map = useMap();
+  const [locating, setLocating] = useState(false);
 
   const handleLocate = () => {
+    if (locating) return;
+    setLocating(true);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
+        setLocating(false);
         map.flyTo([pos.coords.latitude, pos.coords.longitude], 16, {
           duration: 1.5,
         });
       },
       () => {
-        /* denied or error — ignore */
+        setLocating(false);
       },
       { enableHighAccuracy: true, timeout: 10000 },
     );
@@ -271,11 +276,12 @@ function MapControls() {
       </button>
       <div className="mx-2 h-px bg-border" />
       <button
-        className="rounded-lg p-1.5 transition-colors hover:bg-muted"
+        className="rounded-lg p-1.5 transition-colors hover:bg-muted disabled:opacity-50"
         onClick={handleLocate}
+        disabled={locating}
         aria-label="My location"
       >
-        <Crosshair className="h-4 w-4" />
+        <Crosshair className={`h-4 w-4 ${locating ? "animate-spin" : ""}`} />
       </button>
     </div>
   );
@@ -332,20 +338,69 @@ function MapStyleInjector() {
   return null;
 }
 
+function BboxTracker({
+  onViewportChange,
+}: {
+  onViewportChange: (viewport: ViewportChange) => void;
+}) {
+  const map = useMap();
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const emit = useCallback(() => {
+    const bounds = map.getBounds();
+    const center = map.getCenter();
+    onViewportChange({
+      minLat: bounds.getSouth(),
+      maxLat: bounds.getNorth(),
+      minLng: bounds.getWest(),
+      maxLng: bounds.getEast(),
+      center: [center.lat, center.lng],
+      zoom: map.getZoom(),
+    });
+  }, [map, onViewportChange]);
+
+  useEffect(() => {
+    emit();
+
+    const onMoveEnd = () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      timeoutRef.current = setTimeout(emit, 300);
+    };
+
+    map.on("moveend", onMoveEnd);
+    return () => {
+      map.off("moveend", onMoveEnd);
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, [map, emit]);
+
+  return null;
+}
+
 interface ReportMapProps {
+  reports: Report[];
   selectedReportId: string | null;
+  hasMore?: boolean;
+  initialCenter?: [number, number];
+  initialZoom?: number;
   onSelectReport: (report: Report) => void;
+  onViewportChange: (viewport: ViewportChange) => void;
 }
 
 export function ReportMap({
+  reports,
   selectedReportId,
+  hasMore,
+  initialCenter,
+  initialZoom,
   onSelectReport,
+  onViewportChange,
 }: ReportMapProps) {
   return (
     <div className="relative h-full w-full">
       <MapContainer
-        center={HCM_CENTER}
-        zoom={13}
+        center={initialCenter ?? HCM_CENTER}
+        zoom={initialZoom ?? DEFAULT_ZOOM}
         className="z-0 h-full w-full"
         zoomControl={false}
         maxBounds={HCM_BOUNDS}
@@ -356,7 +411,8 @@ export function ReportMap({
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         <MapStyleInjector />
-        <FlyToController reportId={selectedReportId} />
+        <BboxTracker onViewportChange={onViewportChange} />
+        <FlyToController reportId={selectedReportId} reports={reports} />
 
         {/* Overlays */}
         <div className="absolute left-4 top-4 z-1000">
@@ -367,17 +423,21 @@ export function ReportMap({
         </div>
         <LegendControl />
 
-        {MOCK_REPORTS.filter((r) => ACTIVE_STATUSES.includes(r.status)).map(
-          (report) => (
-            <ReportMarker
-              key={report.id}
-              report={report}
-              isHighlighted={selectedReportId === report.id}
-              onClick={onSelectReport}
-            />
-          ),
-        )}
+        {reports.map((report) => (
+          <ReportMarker
+            key={report.id}
+            report={report}
+            isHighlighted={selectedReportId === report.id}
+            onClick={onSelectReport}
+          />
+        ))}
       </MapContainer>
+
+      {hasMore && (
+        <div className="absolute left-1/2 top-4 z-1000 -translate-x-1/2 rounded-full border border-border bg-background/90 px-4 py-1.5 text-xs font-medium text-muted-foreground shadow-lg backdrop-blur-md">
+          Zoom in for more results
+        </div>
+      )}
     </div>
   );
 }

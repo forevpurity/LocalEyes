@@ -66,7 +66,8 @@ The author of a discussion comment can edit its body within 15 minutes of creati
 Controls notification delivery. Citizens are auto-subscribed to their own Reports — this subscription cannot be removed. They can optionally subscribe to (watch) other Reports to receive updates, and may unsubscribe at any time.
 
 **Notification**:
-In-app real-time push delivered via Socket.io. Appears as a bell icon indicator. No email for now.
+In-app notification delivered to subscribed Citizens only. Persisted in the database (source of truth) and pushed in real-time via Socket.io as a best-effort overlay. Socket.io is not a reliability layer — offline Citizens fetch missed notifications on next page load. Notification types: `status_change`, `new_comment`, `report_locked`, `report_hidden`. Staff and Admin do not receive notifications — their workflow is queue-based. Appears as a bell icon indicator. No email for now.
+_Avoid_: alert, message (use "notification" consistently)
 
 ### Moderation
 
