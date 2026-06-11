@@ -4,14 +4,11 @@ import { eq } from "drizzle-orm";
 import type { ZodOpenApiOperationObject } from "zod-openapi";
 import { db } from "../../db/client.js";
 import { users, USER_ROLES } from "../../db/schema/users.js";
-import {
-  signAccessToken,
-  signRefreshToken,
-  verifyRefreshToken,
-} from "../../common/token-utils.js";
+import { verifyRefreshToken } from "../../common/token-utils.js";
 import { UnauthorizedError } from "../../common/errors.js";
 import { errorResponseSchema } from "../../common/errors.js";
 import { zEmail } from "../../common/schemas.js";
+import { setAuthCookies, clearAuthCookies } from "./auth-cookies.js";
 
 const refreshResponse = z
   .object({
@@ -60,29 +57,11 @@ export function refresh(router: Router) {
     }
 
     if (user.bannedAt) {
-      res.clearCookie("access_token", { path: "/" });
-      res.clearCookie("refresh_token", { path: "/api/auth" });
+      clearAuthCookies(res);
       throw new UnauthorizedError();
     }
 
-    const accessToken = signAccessToken(user);
-    const refreshToken = signRefreshToken(user);
-
-    res.cookie("access_token", accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      path: "/",
-      maxAge: Number(process.env.ACCESS_TOKEN_MAX_AGE_MS ?? 15 * 60 * 1000),
-    });
-
-    res.cookie("refresh_token", refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      path: "/api/auth",
-      maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE_MS ?? 7 * 24 * 60 * 60 * 1000),
-    });
+    setAuthCookies(res, user);
 
     res.status(200).json({
       id: user.id,

@@ -4,9 +4,6 @@ import { z } from "zod";
 import { eq, sql } from "drizzle-orm";
 import { db } from "../../db/client.js";
 import { reports } from "../../db/schema/reports.js";
-import { categories } from "../../db/schema/categories.js";
-import { reportPhotos } from "../../db/schema/report-photos.js";
-import { votes } from "../../db/schema/votes.js";
 import {
   NotFoundError,
   errorResponseSchema,
@@ -14,6 +11,7 @@ import {
 import { parseAndValidate } from "../../common/validate.js";
 import { authenticate } from "../../common/auth.js";
 import { requireCanEditReport } from "./report-rules.js";
+import { hydrateReport } from "./hydrate-report.js";
 import { reportResponse } from "./schemas.js";
 
 const updateReportSchema = z
@@ -123,52 +121,12 @@ export function updateReport(router: Router) {
       if (data.description !== undefined)
         updateValues.description = data.description;
 
-      const [updated] = await db
+      await db
         .update(reports)
         .set(updateValues)
-        .where(eq(reports.id, id))
-        .returning({
-          id: reports.id,
-          title: reports.title,
-          description: reports.description,
-          status: reports.status,
-          address: reports.address,
-          departmentId: reports.departmentId,
-          createdAt: reports.createdAt,
-        });
+        .where(eq(reports.id, id));
 
-      const [catRow, photoRows, voteRow] = await Promise.all([
-        db
-          .select({ name: categories.name })
-          .from(categories)
-          .where(eq(categories.id, report.categoryId))
-          .limit(1),
-        db
-          .select({ url: reportPhotos.url, order: reportPhotos.order })
-          .from(reportPhotos)
-          .where(eq(reportPhotos.reportId, id))
-          .orderBy(reportPhotos.order),
-        db
-          .select({ count: sql<number>`COUNT(*)::int` })
-          .from(votes)
-          .where(eq(votes.reportId, id)),
-      ]);
-
-      res.json({
-        id: updated.id,
-        title: updated.title,
-        description: updated.description,
-        categoryId: report.categoryId,
-        categoryName: catRow[0]?.name ?? "",
-        status: updated.status,
-        address: updated.address,
-        latitude: report.latitude,
-        longitude: report.longitude,
-        departmentId: updated.departmentId,
-        photos: photoRows,
-        voteCount: voteRow[0]?.count ?? 0,
-        createdAt: updated.createdAt.toISOString(),
-      });
+      res.json(await hydrateReport(id));
     },
   );
 }

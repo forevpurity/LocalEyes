@@ -1,5 +1,39 @@
 import type { Request, Response, NextFunction } from "express";
-import { AppError, NotFoundError, toAppError } from "./errors.js";
+import { DatabaseError } from "pg";
+import { MulterError } from "multer";
+import {
+  AppError,
+  NotFoundError,
+  ValidationError,
+  ConflictError,
+  DomainRuleError,
+} from "./errors.js";
+
+function toAppError(err: unknown): AppError | undefined {
+  if (err instanceof MulterError) {
+    if (err.code === "LIMIT_FILE_COUNT" || err.code === "LIMIT_UNEXPECTED_FILE") {
+      return new ValidationError("Too many files", [
+        { field: "photos", message: "A maximum of 5 photos are allowed" },
+      ]);
+    }
+    if (err.code === "LIMIT_FILE_SIZE") {
+      return new ValidationError("File too large", [
+        { field: "photos", message: "Each photo must be smaller than 5 MB" },
+      ]);
+    }
+    return new ValidationError(err.message);
+  }
+  if (err instanceof DatabaseError) {
+    if (err.code === "23505") {
+      return new ConflictError(err.message ?? "Resource already exists");
+    }
+    if (err.code === "23503") {
+      return new DomainRuleError(err.message ?? "Referenced resource does not exist");
+    }
+  }
+  if (err instanceof AppError) return err;
+  return undefined;
+}
 
 export function errorHandler(
   errRaw: unknown,
