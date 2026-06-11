@@ -8,10 +8,10 @@ import { comments } from "../../db/schema/comments.js";
 import { users } from "../../db/schema/users.js";
 import {
   NotFoundError,
-  ForbiddenError,
   errorResponseSchema,
 } from "../../common/errors.js";
 import { authenticate } from "../../common/auth.js";
+import { enforceStaffScope } from "./enforce-staff-scope.js";
 import { commentResponse } from "./schemas.js";
 
 export const hideCommentDoc = {
@@ -69,19 +69,7 @@ export function hideComment(router: Router) {
 
       const report = reportRow[0];
 
-      if (actor.role === "staff") {
-        const staffUser = await db.query.users.findFirst({
-          where: eq(users.id, actor.id),
-          columns: { departmentId: true },
-        });
-        if (staffUser?.departmentId !== report.departmentId) {
-          throw report.isHidden
-            ? new NotFoundError("Report not found")
-            : new ForbiddenError(
-                "Not allowed to act on reports outside your department",
-              );
-        }
-      }
+      await enforceStaffScope(actor, report);
 
       const commentRow = await db
         .select({
