@@ -5,15 +5,14 @@ import { eq } from "drizzle-orm";
 import { db } from "../../db/client.js";
 import { reports } from "../../db/schema/reports.js";
 import { comments } from "../../db/schema/comments.js";
-import { users } from "../../db/schema/users.js";
 import { parseAndValidate } from "../../common/validate.js";
 import {
   NotFoundError,
-  DomainRuleError,
-  ForbiddenError,
   errorResponseSchema,
 } from "../../common/errors.js";
 import { authenticate } from "../../common/auth.js";
+import { requireCanCommentOnReport, requireReportVisibleToCitizen } from "./report-rules.js";
+import { enforceStaffScope } from "./enforce-staff-scope.js";
 import { commentResponse } from "./schemas.js";
 
 const createCommentSchema = z
@@ -82,6 +81,7 @@ export function createComment(router: Router) {
           id: true,
           isLocked: true,
           isHidden: true,
+          citizenId: true,
           departmentId: true,
         },
       });
@@ -90,27 +90,13 @@ export function createComment(router: Router) {
         throw new NotFoundError("Report not found");
       }
 
-      if (report.isHidden && (actor.role === "citizen" || !actor.role)) {
-        throw new NotFoundError("Report not found");
+      if (actor.role === "citizen") {
+        requireReportVisibleToCitizen(report, actor);
       }
 
-      if (actor.role === "staff") {
-        const staffUser = await db.query.users.findFirst({
-          where: eq(users.id, actor.id),
-          columns: { departmentId: true },
-        });
-        if (staffUser?.departmentId !== report.departmentId) {
-          throw report.isHidden
-            ? new NotFoundError("Report not found")
-            : new ForbiddenError(
-                "Not allowed to act on reports outside your department",
-              );
-        }
-      }
+      await enforceStaffScope(actor, report);
 
-      if (report.isLocked) {
-        throw new DomainRuleError("Cannot comment on a locked report");
-      }
+      requireCanCommentOnReport(report);
 
       const [comment] = await db
         .insert(comments)

@@ -9,14 +9,11 @@ import { users } from "../../db/schema/users.js";
 import { parseAndValidate } from "../../common/validate.js";
 import {
   NotFoundError,
-  ForbiddenError,
-  DomainRuleError,
   errorResponseSchema,
 } from "../../common/errors.js";
 import { authenticate } from "../../common/auth.js";
+import { requireCanEditComment } from "./report-rules.js";
 import { commentResponse } from "./schemas.js";
-
-const EDIT_WINDOW_MS = 15 * 60 * 1000;
 
 const editCommentSchema = z
   .object({
@@ -84,6 +81,8 @@ export function editComment(router: Router) {
       const reportRow = await db
         .select({
           isLocked: reports.isLocked,
+          isHidden: reports.isHidden,
+          citizenId: reports.citizenId,
         })
         .from(reports)
         .where(eq(reports.id, id))
@@ -112,27 +111,7 @@ export function editComment(router: Router) {
 
       const comment = commentRow[0];
 
-      if (comment.authorId !== actor.id) {
-        throw new ForbiddenError("Not allowed to edit comments you do not own");
-      }
-
-      if (comment.type === "status_note") {
-        throw new DomainRuleError("Cannot edit status notes");
-      }
-
-      if (comment.isHidden) {
-        throw new DomainRuleError("Cannot edit a hidden comment");
-      }
-
-      if (report.isLocked) {
-        throw new DomainRuleError(
-          "Cannot edit comments on a locked report",
-        );
-      }
-
-      if (Date.now() - comment.createdAt.getTime() > EDIT_WINDOW_MS) {
-        throw new DomainRuleError("Edit window has expired");
-      }
+      requireCanEditComment(report, comment, actor);
 
       const [updated] = await db
         .update(comments)

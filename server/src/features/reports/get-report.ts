@@ -12,10 +12,11 @@ import { comments } from "../../db/schema/comments.js";
 import { subscriptions } from "../../db/schema/subscriptions.js";
 import {
   NotFoundError,
-  ForbiddenError,
   errorResponseSchema,
 } from "../../common/errors.js";
 import { optionalAuthenticate } from "../../common/auth.js";
+import { requireReportVisibleToCitizen } from "./report-rules.js";
+import { enforceStaffScope } from "./enforce-staff-scope.js";
 
 const commentItemSchema = z.object({
   id: z.uuid(),
@@ -128,31 +129,10 @@ export function getReport(router: Router) {
 
     const report = row[0];
 
-    if (report.isHidden) {
-      if (actor?.role === "citizen" && report.citizenId === actor.id) {
-        // owner bypasses hide
-      } else if (!actor || actor.role === "citizen") {
-        throw new NotFoundError("Report not found");
-      }
-      if (actor.role === "staff") {
-        const staffUser = await db.query.users.findFirst({
-          where: eq(users.id, actor.id),
-          columns: { departmentId: true },
-        });
-        if (staffUser?.departmentId !== report.departmentId) {
-          throw new NotFoundError("Report not found");
-        }
-      }
-    } else if (actor?.role === "staff") {
-      const staffUser = await db.query.users.findFirst({
-        where: eq(users.id, actor.id),
-        columns: { departmentId: true },
-      });
-      if (staffUser?.departmentId !== report.departmentId) {
-        throw new ForbiddenError(
-          "Not allowed to view reports outside your department",
-        );
-      }
+    requireReportVisibleToCitizen(report, actor);
+
+    if (actor?.role === "staff") {
+      await enforceStaffScope(actor!, report);
     }
 
     const [photoRows, commentRows] = await Promise.all([

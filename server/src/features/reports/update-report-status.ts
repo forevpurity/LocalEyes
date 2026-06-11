@@ -5,25 +5,14 @@ import { eq } from "drizzle-orm";
 import { db } from "../../db/client.js";
 import { reports, REPORT_STATUSES } from "../../db/schema/reports.js";
 import { comments } from "../../db/schema/comments.js";
-import { users } from "../../db/schema/users.js";
 import { parseAndValidate } from "../../common/validate.js";
 import {
   NotFoundError,
-  DomainRuleError,
-  ForbiddenError,
   errorResponseSchema,
 } from "../../common/errors.js";
 import { authenticate } from "../../common/auth.js";
-
-const ALLOWED_TRANSITIONS: Record<string, ReadonlySet<string>> = {
-  submitted: new Set(["acknowledged", "rejected"]),
-  acknowledged: new Set(["in_progress"]),
-  in_progress: new Set(["resolved"]),
-  resolved: new Set(["closed"]),
-  closed: new Set(),
-  rejected: new Set(),
-  withdrawn: new Set(),
-};
+import { requireCanTransition } from "./report-rules.js";
+import { enforceStaffScope } from "./enforce-staff-scope.js";
 
 const updateStatusSchema = z
   .object({
@@ -111,26 +100,9 @@ export function updateReportStatus(router: Router) {
         throw new NotFoundError("Report not found");
       }
 
-      if (actor.role === "staff") {
-        const staffUser = await db.query.users.findFirst({
-          where: eq(users.id, actor.id),
-          columns: { departmentId: true },
-        });
-        if (staffUser?.departmentId !== report.departmentId) {
-          throw report.isHidden
-            ? new NotFoundError("Report not found")
-            : new ForbiddenError(
-                "Not allowed to act on reports outside your department",
-              );
-        }
-      }
+      await enforceStaffScope(actor, report);
 
-      const allowed = ALLOWED_TRANSITIONS[report.status];
-      if (!allowed || !allowed.has(data.newStatus)) {
-        throw new DomainRuleError(
-          `Cannot transition from "${report.status}" to "${data.newStatus}"`,
-        );
-      }
+      requireCanTransition(report, data.newStatus);
 
       const [comment] = await db.transaction(async (tx) => {
         await tx

@@ -9,12 +9,11 @@ import { reportPhotos } from "../../db/schema/report-photos.js";
 import { votes } from "../../db/schema/votes.js";
 import {
   NotFoundError,
-  ForbiddenError,
-  DomainRuleError,
   errorResponseSchema,
 } from "../../common/errors.js";
 import { parseAndValidate } from "../../common/validate.js";
 import { authenticate } from "../../common/auth.js";
+import { requireCanEditReport } from "./report-rules.js";
 import { reportResponse } from "./schemas.js";
 
 const updateReportSchema = z
@@ -117,21 +116,7 @@ export function updateReport(router: Router) {
 
       const report = row[0];
 
-      if (report.citizenId !== actor.id) {
-        throw report.isHidden
-          ? new NotFoundError("Report not found")
-          : new ForbiddenError("Not allowed to edit reports you do not own");
-      }
-
-      if (report.status !== "submitted") {
-        throw new DomainRuleError(
-          "Report can only be edited while in submitted status",
-        );
-      }
-
-      if (report.isLocked) {
-        throw new DomainRuleError("Report is locked and cannot be edited");
-      }
+      requireCanEditReport(report, actor);
 
       const updateValues: Record<string, unknown> = {};
       if (data.title !== undefined) updateValues.title = data.title;

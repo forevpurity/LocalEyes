@@ -11,6 +11,7 @@ import {
   errorResponseSchema,
 } from "../../common/errors.js";
 import { authenticate } from "../../common/auth.js";
+import { requireCanSubscribeToReport } from "./report-rules.js";
 
 const toggleSubscribeResponse = z
   .object({
@@ -69,13 +70,7 @@ export function toggleSubscribe(router: Router) {
 
     const report = row[0];
 
-    if (report.isHidden && report.citizenId !== actor.id) {
-      throw new NotFoundError("Report not found");
-    }
-
-    if (report.isLocked) {
-      throw new DomainRuleError("Cannot subscribe to a locked report");
-    }
+    requireCanSubscribeToReport(report, actor);
 
     const existing = await db
       .select({ reportId: subscriptions.reportId })

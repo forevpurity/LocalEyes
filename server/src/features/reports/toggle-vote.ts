@@ -7,10 +7,10 @@ import { reports } from "../../db/schema/reports.js";
 import { votes } from "../../db/schema/votes.js";
 import {
   NotFoundError,
-  DomainRuleError,
   errorResponseSchema,
 } from "../../common/errors.js";
 import { authenticate } from "../../common/auth.js";
+import { requireCanVoteOnReport } from "./report-rules.js";
 
 const toggleVoteResponse = z
   .object({
@@ -73,17 +73,7 @@ export function toggleVote(router: Router) {
 
       const report = row[0];
 
-      if (report.citizenId === actor.id) {
-        throw new DomainRuleError("Cannot vote on your own report");
-      }
-
-      if (report.isHidden) {
-        throw new DomainRuleError("Cannot vote on a hidden report");
-      }
-
-      if (report.isLocked) {
-        throw new DomainRuleError("Cannot vote on a locked report");
-      }
+      requireCanVoteOnReport(report, actor);
 
       const existing = await db
         .select({ reportId: votes.reportId })

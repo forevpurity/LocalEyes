@@ -10,11 +10,10 @@ import { reportPhotos } from "../../db/schema/report-photos.js";
 import { votes } from "../../db/schema/votes.js";
 import {
   NotFoundError,
-  ForbiddenError,
-  DomainRuleError,
   errorResponseSchema,
 } from "../../common/errors.js";
 import { authenticate } from "../../common/auth.js";
+import { requireCanWithdrawReport } from "./report-rules.js";
 import { reportResponse } from "./schemas.js";
 
 export const withdrawReportDoc = {
@@ -85,21 +84,7 @@ export function withdrawReport(router: Router) {
 
       const report = row[0];
 
-      if (report.citizenId !== actor.id) {
-        throw report.isHidden
-          ? new NotFoundError("Report not found")
-          : new ForbiddenError("Not allowed to withdraw reports you do not own");
-      }
-
-      if (report.status !== "submitted") {
-        throw new DomainRuleError(
-          "Report can only be withdrawn while in submitted status",
-        );
-      }
-
-      if (report.isLocked) {
-        throw new DomainRuleError("Report is locked and cannot be withdrawn");
-      }
+      requireCanWithdrawReport(report, actor);
 
       const [updated] = await db.transaction(async (tx) => {
         await tx
