@@ -3,9 +3,7 @@ import { MapContainer, TileLayer, Marker, useMap } from "react-leaflet";
 import L from "leaflet";
 import { Search, Plus, Minus, Crosshair, Loader2, MapPin } from "lucide-react";
 import { createPinIcon } from "@/features/reports/lib/leaflet-icons";
-
-const HCM_CENTER: [number, number] = [10.7769, 106.7009];
-const HCM_BOUNDS = L.latLngBounds([10.2, 106.2], [11.1, 107.2]);
+import { HCM_CENTER, HCM_BOUNDS } from "@/lib/map-constants";
 const NOMINATIM_SEARCH = "https://nominatim.openstreetmap.org/search";
 const NOMINATIM_REVERSE = "https://nominatim.openstreetmap.org/reverse";
 

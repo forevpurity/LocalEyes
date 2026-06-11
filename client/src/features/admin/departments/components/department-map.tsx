@@ -8,12 +8,7 @@ import {
 } from "react-leaflet";
 import L from "leaflet";
 import type { Department } from "@/types/api";
-
-const HCM_CENTER: [number, number] = [10.7769, 106.7009];
-const HCM_BOUNDS = L.latLngBounds(
-  L.latLng(10.3, 106.3),
-  L.latLng(11.1, 107.05),
-);
+import { HCM_CENTER, HCM_BOUNDS } from "@/lib/map-constants";
 
 function FlyToDepartment({ department }: { department: Department | null }) {
   const map = useMap();

@@ -16,9 +16,7 @@ import {
   MOCK_REPORTS,
   getRelativeTime,
 } from "@/features/reports/data/mock-reports";
-
-const HCM_CENTER: [number, number] = [10.7769, 106.7009];
-const HCM_BOUNDS = L.latLngBounds([10.2, 106.2], [11.1, 107.2]);
+import { HCM_CENTER, HCM_BOUNDS } from "@/lib/map-constants";
 const NOMINATIM = "https://nominatim.openstreetmap.org/search";
 
 const ACTIVE_STATUSES = [
