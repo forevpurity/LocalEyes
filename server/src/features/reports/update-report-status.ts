@@ -1,10 +1,12 @@
 import { Router } from "express";
 import type { ZodOpenApiOperationObject } from "zod-openapi";
 import { z } from "zod";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "../../db/client.js";
 import { reports, REPORT_STATUSES } from "../../db/schema/reports.js";
 import { comments } from "../../db/schema/comments.js";
+import { subscriptions } from "../../db/schema/subscriptions.js";
+import { users } from "../../db/schema/users.js";
 import { parseAndValidate } from "../../common/validate.js";
 import {
   NotFoundError,
@@ -13,6 +15,10 @@ import {
 import { authenticate } from "../../common/auth.js";
 import { requireCanTransition } from "./report-rules.js";
 import { enforceStaffScope } from "./enforce-staff-scope.js";
+import {
+  createNotificationRows,
+  emitNotifications,
+} from "../notifications/notify.js";
 
 const updateStatusSchema = z
   .object({
@@ -90,6 +96,7 @@ export function updateReportStatus(router: Router) {
         where: eq(reports.id, id),
         columns: {
           id: true,
+          title: true,
           status: true,
           isHidden: true,
           departmentId: true,
@@ -104,7 +111,7 @@ export function updateReportStatus(router: Router) {
 
       requireCanTransition(report, data.newStatus);
 
-      const [comment] = await db.transaction(async (tx) => {
+      const [comment, notificationRows] = await db.transaction(async (tx) => {
         await tx
           .update(reports)
           .set({ status: data.newStatus })
@@ -129,8 +136,29 @@ export function updateReportStatus(router: Router) {
             createdAt: comments.createdAt,
           });
 
-        return [inserted] as const;
+        const recipients = await tx
+          .select({ id: subscriptions.citizenId })
+          .from(subscriptions)
+          .innerJoin(users, eq(subscriptions.citizenId, users.id))
+          .where(
+            and(eq(subscriptions.reportId, id), eq(users.role, "citizen")),
+          );
+
+        const notificationRows = await createNotificationRows(tx, {
+          recipientIds: recipients.map((recipient) => recipient.id),
+          actorId: actor.id,
+          reportId: id,
+          template: {
+            type: "status_change",
+            reportTitle: report.title,
+            newStatus: data.newStatus,
+          },
+        });
+
+        return [inserted, notificationRows] as const;
       });
+
+      emitNotifications(notificationRows);
 
       res.status(201).json({
         id: comment.id,

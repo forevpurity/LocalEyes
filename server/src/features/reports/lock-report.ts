@@ -1,9 +1,11 @@
 import { Router } from "express";
 import type { ZodOpenApiOperationObject } from "zod-openapi";
 import { z } from "zod";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { db } from "../../db/client.js";
 import { reports } from "../../db/schema/reports.js";
+import { subscriptions } from "../../db/schema/subscriptions.js";
+import { users } from "../../db/schema/users.js";
 import {
   NotFoundError,
   errorResponseSchema,
@@ -12,6 +14,10 @@ import { authenticate } from "../../common/auth.js";
 import { enforceStaffScope } from "./enforce-staff-scope.js";
 import { hydrateReport } from "./hydrate-report.js";
 import { reportResponse } from "./schemas.js";
+import {
+  createNotificationRows,
+  emitNotifications,
+} from "../notifications/notify.js";
 
 export const lockReportDoc = {
   summary: "Toggle report lock",
@@ -52,6 +58,7 @@ export function lockReport(router: Router) {
 
       const row = await db
         .select({
+          title: reports.title,
           isHidden: reports.isHidden,
           isLocked: reports.isLocked,
           departmentId: reports.departmentId,
@@ -73,10 +80,33 @@ export function lockReport(router: Router) {
 
       await enforceStaffScope(actor, report);
 
-      await db
-        .update(reports)
-        .set({ isLocked: !report.isLocked })
-        .where(eq(reports.id, id));
+      const notificationRows = await db.transaction(async (tx) => {
+        await tx
+          .update(reports)
+          .set({ isLocked: !report.isLocked })
+          .where(eq(reports.id, id));
+
+        if (report.isLocked) return [];
+
+        const recipients = await tx
+          .select({ id: subscriptions.citizenId })
+          .from(subscriptions)
+          .innerJoin(users, eq(subscriptions.citizenId, users.id))
+          .where(
+            and(eq(subscriptions.reportId, id), eq(users.role, "citizen")),
+          );
+
+        return createNotificationRows(tx, {
+          recipientIds: recipients.map((recipient) => recipient.id),
+          reportId: id,
+          template: {
+            type: "report_locked",
+            reportTitle: report.title,
+          },
+        });
+      });
+
+      emitNotifications(notificationRows);
 
       res.json(await hydrateReport(id));
     },

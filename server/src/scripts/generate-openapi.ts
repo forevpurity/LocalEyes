@@ -7,6 +7,7 @@ import { departmentsPaths } from "../features/departments/index.js";
 import { reportsPaths } from "../features/reports/index.js";
 import { staffPaths } from "../features/staff/index.js";
 import { citizensPaths } from "../features/citizens/index.js";
+import { notificationsPaths } from "../features/notifications/index.js";
 
 const doc = createDocument({
   openapi: "3.1.0",
@@ -23,6 +24,7 @@ const doc = createDocument({
     ...reportsPaths,
     ...staffPaths,
     ...citizensPaths,
+    ...notificationsPaths,
   },
 });
 

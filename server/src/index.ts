@@ -1,5 +1,6 @@
 ﻿import "dotenv/config";
 import { mkdirSync } from "fs";
+import { createServer } from "node:http";
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
@@ -12,7 +13,9 @@ import { categoriesRouter } from "./features/categories/index.js";
 import { reportsRouter } from "./features/reports/index.js";
 import { staffRouter } from "./features/staff/index.js";
 import { citizensRouter } from "./features/citizens/index.js";
+import { notificationsRouter } from "./features/notifications/index.js";
 import { errorHandler, notFoundHandler } from "./common/middleware.js";
+import { initSocket } from "./common/socket.js";
 
 const UPLOAD_DIR = process.env.UPLOAD_DIR ?? "uploads";
 
@@ -34,6 +37,7 @@ api.use("/categories", categoriesRouter);
 api.use("/reports", reportsRouter);
 api.use("/admin/staff", staffRouter);
 api.use("/admin/citizens", citizensRouter);
+api.use("/notifications", notificationsRouter);
 app.use("/api", api);
 
 if (process.env.NODE_ENV !== "production") {
@@ -48,6 +52,9 @@ pool.query("SELECT 1")
   .then(() => console.log("✓ Database connected"))
   .catch((err: Error) => console.warn("✗ Database connection failed:", err.message));
 
-app.listen(PORT, () => {
+const server = createServer(app);
+initSocket(server);
+
+server.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });

@@ -12,6 +12,10 @@ import { authenticate } from "../../common/auth.js";
 import { enforceStaffScope } from "./enforce-staff-scope.js";
 import { hydrateReport } from "./hydrate-report.js";
 import { reportResponse } from "./schemas.js";
+import {
+  createNotificationRows,
+  emitNotifications,
+} from "../notifications/notify.js";
 
 export const hideReportDoc = {
   summary: "Toggle report visibility",
@@ -52,7 +56,9 @@ export function hideReport(router: Router) {
 
       const row = await db
         .select({
+          title: reports.title,
           isHidden: reports.isHidden,
+          citizenId: reports.citizenId,
           departmentId: reports.departmentId,
           categoryId: reports.categoryId,
           address: reports.address,
@@ -72,10 +78,25 @@ export function hideReport(router: Router) {
 
       await enforceStaffScope(actor, report);
 
-      await db
-        .update(reports)
-        .set({ isHidden: !report.isHidden })
-        .where(eq(reports.id, id));
+      const notificationRows = await db.transaction(async (tx) => {
+        await tx
+          .update(reports)
+          .set({ isHidden: !report.isHidden })
+          .where(eq(reports.id, id));
+
+        if (report.isHidden || !report.citizenId) return [];
+
+        return createNotificationRows(tx, {
+          recipientIds: [report.citizenId],
+          reportId: id,
+          template: {
+            type: "report_hidden",
+            reportTitle: report.title,
+          },
+        });
+      });
+
+      emitNotifications(notificationRows);
 
       res.json(await hydrateReport(id));
     },
