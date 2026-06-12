@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router";
 import {
   ArrowLeft,
@@ -5,13 +6,16 @@ import {
   Building2,
   CalendarClock,
   MapPin,
+  Pencil,
   ThumbsUp,
   UserRound,
+  XCircle,
 } from "lucide-react";
 import { Navbar } from "@/features/layout/components/navbar";
 import { useReport } from "@/features/reports/hooks/use-report";
 import { useToggleVote } from "@/features/reports/hooks/use-toggle-vote";
 import { useToggleSubscribe } from "@/features/reports/hooks/use-toggle-subscribe";
+import { useWithdrawReport } from "@/features/reports/hooks/use-withdraw-report";
 import { useAuth } from "@/features/auth/auth-context";
 import { getCategoryIcon } from "@/features/reports/lib/category-icons";
 import { getStatusStyle } from "@/features/reports/lib/status-styles";
@@ -20,6 +24,7 @@ import { ReportTimeline } from "@/features/reports/components/detail/report-time
 import { ReportLocationCard } from "@/features/reports/components/detail/report-location-card";
 import { ReportDiscussion } from "@/features/reports/components/detail/report-discussion";
 import { ReportPhotoGallery } from "@/features/reports/components/detail/report-photo-gallery";
+import { ReportEditForm } from "@/features/reports/components/detail/report-edit-form";
 
 function MetaItem({
   icon: Icon,
@@ -43,6 +48,8 @@ export function ReportDetailPage() {
   const { user } = useAuth();
   const toggleVote = useToggleVote(id ?? "");
   const toggleSubscribe = useToggleSubscribe(id ?? "");
+  const withdrawReport = useWithdrawReport(id ?? "");
+  const [isEditing, setIsEditing] = useState(false);
 
   if (isLoading) {
     return (
@@ -73,6 +80,14 @@ export function ReportDetailPage() {
   const status = getStatusStyle(report.status);
   const isCitizen = user?.role === "citizen";
   const canVote = isCitizen && !report.isOwner;
+  const canManage =
+    report.isOwner && report.status === "submitted" && !report.isLocked;
+
+  const handleWithdraw = () => {
+    if (withdrawReport.isPending) return;
+    if (!window.confirm("Withdraw this report? This cannot be undone.")) return;
+    withdrawReport.mutate();
+  };
 
   return (
     <>
@@ -184,22 +199,49 @@ export function ReportDetailPage() {
                         : "Subscribe to updates"}
                     </button>
                   )}
+
+                  {canManage && !isEditing && (
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setIsEditing(true)}
+                        className="inline-flex h-10 items-center gap-2 rounded-lg border border-border bg-card px-3 text-sm font-semibold text-foreground transition-colors hover:border-primary/50 hover:text-primary"
+                      >
+                        <Pencil className="h-4 w-4" />
+                        Edit
+                      </button>
+                      <button
+                        onClick={handleWithdraw}
+                        disabled={withdrawReport.isPending}
+                        className="inline-flex h-10 items-center gap-2 rounded-lg px-3 text-sm font-semibold text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        <XCircle className="h-4 w-4" />
+                        {withdrawReport.isPending ? "Withdrawing…" : "Withdraw"}
+                      </button>
+                    </div>
+                  )}
                 </div>
               </section>
 
-              <section className="rounded-lg border border-border bg-card p-5 shadow-sm md:p-6">
-                <div className="flex items-center justify-between gap-3">
-                  <h2 className="text-base font-semibold text-card-foreground">
-                    Report Description
-                  </h2>
-                  <span className="text-xs text-muted-foreground">
-                    {report.description.length} characters
-                  </span>
-                </div>
-                <p className="mt-3 whitespace-pre-line text-sm leading-6 text-on-surface-variant">
-                  {report.description}
-                </p>
-              </section>
+              {isEditing ? (
+                <ReportEditForm
+                  report={report}
+                  onDone={() => setIsEditing(false)}
+                />
+              ) : (
+                <section className="rounded-lg border border-border bg-card p-5 shadow-sm md:p-6">
+                  <div className="flex items-center justify-between gap-3">
+                    <h2 className="text-base font-semibold text-card-foreground">
+                      Report Description
+                    </h2>
+                    <span className="text-xs text-muted-foreground">
+                      {report.description.length} characters
+                    </span>
+                  </div>
+                  <p className="mt-3 whitespace-pre-line text-sm leading-6 text-on-surface-variant">
+                    {report.description}
+                  </p>
+                </section>
+              )}
 
               <ReportDiscussion report={report} />
             </div>

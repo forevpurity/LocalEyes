@@ -20,6 +20,11 @@ export function getRelativeTime(isoDate: string): string {
   return "just now";
 }
 
+/** True if `isoDate` is less than `ms` milliseconds in the past. */
+export function isWithinPast(isoDate: string, ms: number): boolean {
+  return new Date().getTime() - new Date(isoDate).getTime() < ms;
+}
+
 export function formatDateTime(isoDate: string): string {
   return new Date(isoDate).toLocaleString(undefined, {
     month: "short",

@@ -75,6 +75,7 @@ export interface Comment {
   body: string | null;
   newStatus: string | null;
   authorName: string | null;
+  isMine: boolean;
   isHidden: boolean;
   isEdited: boolean;
   createdAt: string;

@@ -122,6 +122,7 @@ export function createComment(router: Router) {
         body: comment.body,
         newStatus: comment.newStatus,
         authorName: actor.displayName,
+        isMine: true,
         isHidden: comment.isHidden,
         isEdited: comment.isEdited,
         createdAt: comment.createdAt.toISOString(),

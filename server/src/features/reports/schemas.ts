@@ -25,6 +25,7 @@ export const commentResponse = z
     body: z.string().nullable(),
     newStatus: z.string().nullable(),
     authorName: z.string().nullable(),
+    isMine: z.boolean(),
     isHidden: z.boolean(),
     isEdited: z.boolean(),
     createdAt: z.string(),

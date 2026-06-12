@@ -3382,6 +3382,9 @@
                     }
                   ]
                 },
+                "isMine": {
+                  "type": "boolean"
+                },
                 "isHidden": {
                   "type": "boolean"
                 },
@@ -3398,6 +3401,7 @@
                 "body",
                 "newStatus",
                 "authorName",
+                "isMine",
                 "isHidden",
                 "isEdited",
                 "createdAt"
@@ -3476,6 +3480,9 @@
               }
             ]
           },
+          "isMine": {
+            "type": "boolean"
+          },
           "isHidden": {
             "type": "boolean"
           },
@@ -3492,6 +3499,7 @@
           "body",
           "newStatus",
           "authorName",
+          "isMine",
           "isHidden",
           "isEdited",
           "createdAt"

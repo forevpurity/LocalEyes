@@ -141,6 +141,7 @@ export function editComment(router: Router) {
         body: updated.body,
         newStatus: updated.newStatus,
         authorName: authorRow?.displayName ?? null,
+        isMine: true,
         isHidden: updated.isHidden,
         isEdited: updated.isEdited,
         createdAt: updated.createdAt.toISOString(),
