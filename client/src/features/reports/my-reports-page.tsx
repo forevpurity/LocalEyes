@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { FileText, Plus, Search } from "lucide-react";
 import { Navbar } from "@/features/layout/components/navbar";
 import { useCategories } from "@/features/admin/categories/hooks/use-categories";
 import { ReportCard } from "@/features/reports/components/report-card";
 import { useMyReports } from "@/features/reports/hooks/use-my-reports";
+import type { ReportsScope } from "@/features/reports/hooks/use-my-reports";
 import { getStatusStyle } from "@/features/reports/lib/status-styles";
 import { cn } from "@/lib/utils";
 import type { ReportStatus } from "@/types/api";
@@ -22,6 +23,8 @@ const STATUS_ORDER: ReportStatus[] = [
 type Filter = "all" | ReportStatus;
 
 export function MyReportsPage() {
+  const navigate = useNavigate();
+  const [scope, setScope] = useState<ReportsScope>("mine");
   const [filter, setFilter] = useState<Filter>("all");
   const [categoryId, setCategoryId] = useState("all");
   const [search, setSearch] = useState("");
@@ -38,13 +41,11 @@ export function MyReportsPage() {
     hasNextPage,
     isFetchingNextPage,
     fetchNextPage,
-  } = useMyReports(
-    {
-      status: activeStatus,
-      q: debouncedSearch || undefined,
-      categoryId: activeCategoryId,
-    },
-  );
+  } = useMyReports(scope, {
+    status: activeStatus,
+    q: debouncedSearch || undefined,
+    categoryId: activeCategoryId,
+  });
   const reports = data?.items ?? [];
 
   return (
@@ -55,10 +56,12 @@ export function MyReportsPage() {
           <div className="mb-5 flex items-center justify-between gap-3">
             <div>
               <h1 className="text-2xl font-bold text-card-foreground md:text-headline-lg">
-                My Reports
+                {scope === "mine" ? "My Reports" : "Following"}
               </h1>
               <p className="mt-1 text-sm text-muted-foreground">
-                Reports you've submitted to your local authorities.
+                {scope === "mine"
+                  ? "Reports you've submitted to your local authorities."
+                  : "Reports you're following for updates."}
               </p>
             </div>
             <Link
@@ -68,6 +71,19 @@ export function MyReportsPage() {
               <Plus className="h-4 w-4" />
               New report
             </Link>
+          </div>
+
+          <div className="mb-4 inline-flex rounded-lg border border-border bg-card p-1">
+            <ScopeTab
+              label="Mine"
+              active={scope === "mine"}
+              onClick={() => setScope("mine")}
+            />
+            <ScopeTab
+              label="Following"
+              active={scope === "subscribed"}
+              onClick={() => setScope("subscribed")}
+            />
           </div>
 
           <div className="mb-3 flex flex-col gap-2 sm:flex-row">
@@ -125,15 +141,31 @@ export function MyReportsPage() {
           ) : reports.length === 0 && !hasActiveFilters ? (
             <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed border-border bg-card py-16 text-center">
               <FileText className="h-8 w-8 text-muted-foreground" aria-hidden="true" />
-              <p className="text-sm text-muted-foreground">
-                You haven't filed any reports yet.
-              </p>
-              <Link
-                to="/reports/new"
-                className="text-sm font-medium text-primary hover:underline"
-              >
-                Report an issue
-              </Link>
+              {scope === "mine" ? (
+                <>
+                  <p className="text-sm text-muted-foreground">
+                    You haven't filed any reports yet.
+                  </p>
+                  <Link
+                    to="/reports/new"
+                    className="text-sm font-medium text-primary hover:underline"
+                  >
+                    Report an issue
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <p className="text-sm text-muted-foreground">
+                    You're not following any reports yet.
+                  </p>
+                  <Link
+                    to="/map"
+                    className="text-sm font-medium text-primary hover:underline"
+                  >
+                    Explore the map
+                  </Link>
+                </>
+              )}
             </div>
           ) : reports.length === 0 ? (
             <p className="py-16 text-center text-sm text-muted-foreground">
@@ -143,7 +175,11 @@ export function MyReportsPage() {
             <>
               <div className="space-y-3">
                 {reports.map((report) => (
-                  <ReportCard key={report.id} report={report} />
+                  <ReportCard
+                    key={report.id}
+                    report={report}
+                    onClick={(r) => navigate(`/reports/${r.id}`)}
+                  />
                 ))}
               </div>
               {hasNextPage && (
@@ -163,6 +199,31 @@ export function MyReportsPage() {
         </div>
       </main>
     </>
+  );
+}
+
+function ScopeTab({
+  label,
+  active,
+  onClick,
+}: {
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      aria-pressed={active}
+      className={cn(
+        "rounded-md px-4 py-1.5 text-sm font-semibold transition-colors",
+        active
+          ? "bg-primary text-primary-foreground shadow-sm"
+          : "text-muted-foreground hover:text-foreground",
+      )}
+    >
+      {label}
+    </button>
   );
 }
 

@@ -4,6 +4,8 @@ import type { ListReportsResponse, ReportStatus } from "@/types/api";
 
 const PAGE_SIZE = 20;
 
+export type ReportsScope = "mine" | "subscribed";
+
 interface MyReportsFilters {
   status?: ReportStatus;
   q?: string;
@@ -11,15 +13,19 @@ interface MyReportsFilters {
 }
 
 /**
- * Fetches the citizen's owned reports one cursor page at a time. Filters are
- * sent to the API so the page never needs to drain the full report history.
+ * Fetches a citizen's reports one cursor page at a time, scoped to either the
+ * reports they own (`mine`) or the reports they follow (`subscribed`). Filters
+ * are sent to the API so the page never needs to drain the full report history.
  */
-export function useMyReports(filters: MyReportsFilters = {}) {
+export function useMyReports(
+  scope: ReportsScope = "mine",
+  filters: MyReportsFilters = {},
+) {
   const query = useInfiniteQuery({
-    queryKey: ["reports", "mine", filters],
+    queryKey: ["reports", scope, filters],
     queryFn: ({ pageParam }) => {
       const params = new URLSearchParams({
-        mine: "true",
+        [scope]: "true",
         limit: PAGE_SIZE.toString(),
       });
       if (filters.status) params.set("status", filters.status);
