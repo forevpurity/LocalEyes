@@ -1,6 +1,11 @@
 import { useState } from "react";
-import type { FormEvent } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useUpdateReport } from "@/features/reports/hooks/use-update-report";
+import {
+  reportContentSchema,
+  type ReportContent,
+} from "@/features/reports/lib/report-schema";
 import { ApiRequestError } from "@/lib/api";
 import type { ReportDetail } from "@/types/api";
 
@@ -12,40 +17,37 @@ export function ReportEditForm({
   onDone: () => void;
 }) {
   const updateReport = useUpdateReport(report.id);
-  const [title, setTitle] = useState(report.title);
-  const [description, setDescription] = useState(report.description);
   const [error, setError] = useState<string | null>(null);
 
-  const trimmedTitle = title.trim();
-  const trimmedDescription = description.trim();
-  const canSave =
-    !!trimmedTitle &&
-    !!trimmedDescription &&
-    !updateReport.isPending &&
-    (trimmedTitle !== report.title ||
-      trimmedDescription !== report.description);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isValid, isDirty },
+  } = useForm<ReportContent>({
+    resolver: zodResolver(reportContentSchema),
+    mode: "onChange",
+    defaultValues: {
+      title: report.title,
+      description: report.description,
+    },
+  });
 
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    if (!canSave) return;
+  const onSubmit = (values: ReportContent) => {
     setError(null);
-    updateReport.mutate(
-      { title: trimmedTitle, description: trimmedDescription },
-      {
-        onSuccess: onDone,
-        onError: (err) =>
-          setError(
-            err instanceof ApiRequestError
-              ? err.message
-              : "Failed to update report.",
-          ),
-      },
-    );
+    updateReport.mutate(values, {
+      onSuccess: onDone,
+      onError: (err) =>
+        setError(
+          err instanceof ApiRequestError
+            ? err.message
+            : "Failed to update report.",
+        ),
+    });
   };
 
   return (
     <form
-      onSubmit={handleSubmit}
+      onSubmit={handleSubmit(onSubmit)}
       className="rounded-lg border border-border bg-card p-5 shadow-sm md:p-6"
     >
       <h2 className="text-base font-semibold text-card-foreground">
@@ -55,23 +57,27 @@ export function ReportEditForm({
       <label className="mt-4 block text-sm font-medium text-card-foreground">
         Title
         <input
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          maxLength={200}
+          {...register("title")}
           className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
         />
       </label>
+      {errors.title && (
+        <p className="mt-1 text-xs text-destructive">{errors.title.message}</p>
+      )}
 
       <label className="mt-4 block text-sm font-medium text-card-foreground">
         Description
         <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          maxLength={2000}
+          {...register("description")}
           rows={5}
           className="mt-1 w-full resize-none rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
         />
       </label>
+      {errors.description && (
+        <p className="mt-1 text-xs text-destructive">
+          {errors.description.message}
+        </p>
+      )}
 
       {error && <p className="mt-2 text-xs text-destructive">{error}</p>}
 
@@ -86,7 +92,7 @@ export function ReportEditForm({
         </button>
         <button
           type="submit"
-          disabled={!canSave}
+          disabled={!isValid || !isDirty || updateReport.isPending}
           className="h-9 rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
         >
           {updateReport.isPending ? "Saving…" : "Save changes"}

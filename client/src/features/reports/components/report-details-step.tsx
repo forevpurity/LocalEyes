@@ -11,17 +11,11 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { reportContentSchema } from "@/features/reports/lib/report-schema";
 import type { CoveringResponse } from "@/types/api";
 
 const schema = z.object({
-  title: z
-    .string()
-    .min(5, "Title must be at least 5 characters")
-    .max(120, "Title must be at most 120 characters"),
-  description: z
-    .string()
-    .min(20, "Description must be at least 20 characters")
-    .max(2000, "Description must be at most 2000 characters"),
+  ...reportContentSchema.shape,
   categoryId: z.string().min(1, "Please select a category"),
   photos: z
     .array(z.instanceof(File))
