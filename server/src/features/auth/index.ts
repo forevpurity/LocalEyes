@@ -4,7 +4,8 @@ import { register, registerDoc } from "./register.js";
 import { login, loginDoc } from "./login.js";
 import { refresh, refreshDoc } from "./refresh.js";
 import { logout, logoutDoc } from "./logout.js";
-import { me, meDoc, updateMeDoc } from "./me.js";
+import { getMe, getMeDoc } from "./get-me.js";
+import { updateMe, updateMeDoc } from "./update-me.js";
 import { changePassword, changePasswordDoc } from "./change-password.js";
 
 export const authRouter = Router();
@@ -13,7 +14,8 @@ register(authRouter);
 login(authRouter);
 refresh(authRouter);
 logout(authRouter);
-me(authRouter);
+getMe(authRouter);
+updateMe(authRouter);
 changePassword(authRouter);
 
 export const authPaths = {
@@ -21,6 +23,6 @@ export const authPaths = {
   "/auth/login": { post: loginDoc },
   "/auth/refresh": { post: refreshDoc },
   "/auth/logout": { post: logoutDoc },
-  "/auth/me": { get: meDoc, patch: updateMeDoc },
+  "/auth/me": { get: getMeDoc, patch: updateMeDoc },
   "/auth/password": { patch: changePasswordDoc },
 } satisfies ZodOpenApiPathsObject;
