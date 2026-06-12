@@ -101,7 +101,7 @@ export function MapPage() {
           />
 
           {/* FAB */}
-          {isAuthenticated && <CreateReportFab />}
+          {isAuthenticated && <CreateReportFab hideOnMobile={mobileSheetOpen} />}
         </div>
 
         {/* Mobile sheet */}
