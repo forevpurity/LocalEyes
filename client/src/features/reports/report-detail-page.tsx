@@ -149,6 +149,7 @@ export function ReportDetailPage() {
                 </div>
 
                 <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">
+                  <div className="flex flex-wrap items-center gap-3">
                   <button
                     onClick={() => toggleVote.mutate()}
                     disabled={!canVote || toggleVote.isPending}
@@ -199,6 +200,7 @@ export function ReportDetailPage() {
                         : "Subscribe to updates"}
                     </button>
                   )}
+                  </div>
 
                   {canManage && !isEditing && (
                     <div className="flex items-center gap-2">

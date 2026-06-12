@@ -1,7 +1,12 @@
-import { Link } from "react-router";
+import { Link, NavLink } from "react-router";
 import { Bell, LogOut } from "lucide-react";
 import { CivicShield } from "@/components/civic-shield";
 import { useAuth } from "@/features/auth/auth-context";
+
+const navLinkClass = ({ isActive }: { isActive: boolean }) =>
+  isActive
+    ? "font-label-md text-label-md text-primary border-b-2 border-primary pb-1 hover:text-primary transition-colors duration-200"
+    : "font-label-md text-label-md text-on-surface-variant font-medium hover:text-primary transition-colors duration-200";
 
 export function Navbar() {
   const { user, logout } = useAuth();
@@ -27,18 +32,12 @@ export function Navbar() {
         <nav className="hidden md:flex gap-6 items-center">
           {isAuthenticated ? (
             <>
-              <Link
-                to="/map"
-                className="font-label-md text-label-md text-primary border-b-2 border-primary pb-1 hover:text-primary transition-colors duration-200"
-              >
+              <NavLink to="/map" className={navLinkClass}>
                 Map
-              </Link>
-              <Link
-                to="/reports"
-                className="font-label-md text-label-md text-on-surface-variant font-medium hover:text-primary transition-colors duration-200"
-              >
+              </NavLink>
+              <NavLink to="/reports" className={navLinkClass}>
                 Reports
-              </Link>
+              </NavLink>
             </>
           ) : (
             <>
@@ -48,12 +47,9 @@ export function Navbar() {
               >
                 How it Works
               </a>
-              <Link
-                to="/map"
-                className="font-label-md text-label-md text-primary border-b-2 border-primary pb-1 hover:text-primary transition-colors duration-200"
-              >
+              <NavLink to="/map" className={navLinkClass}>
                 Explore Map
-              </Link>
+              </NavLink>
             </>
           )}
         </nav>

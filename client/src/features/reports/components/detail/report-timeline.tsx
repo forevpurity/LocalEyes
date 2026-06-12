@@ -1,6 +1,9 @@
 import type { ReportDetail } from "@/types/api";
 import { formatDateTime } from "@/lib/utils";
-import { getStatusColor, getStatusStyle } from "@/features/reports/lib/status-styles";
+import {
+  getStatusColor,
+  getStatusStyle,
+} from "@/features/reports/lib/status-styles";
 
 interface TimelineEvent {
   status: string;
@@ -31,8 +34,7 @@ function buildEvents(report: ReportDetail): TimelineEvent[] {
 
   // Newest first, with the original submission anchoring the bottom.
   return [...statusNotes, submitted].sort(
-    (a, b) =>
-      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   );
 }
 
@@ -55,10 +57,13 @@ export function ReportTimeline({ report }: { report: ReportDetail }) {
           const color = getStatusColor(event.status);
           const isLast = i === events.length - 1;
           return (
-            <li key={`${event.status}-${event.createdAt}`} className="relative flex gap-3">
+            <li
+              key={`${event.status}-${event.createdAt}`}
+              className="relative flex gap-3"
+            >
               {!isLast && (
                 <span
-                  className="absolute left-[11px] top-6 h-[calc(100%+0.25rem)] w-px bg-border"
+                  className="absolute left-2.75 top-6 h-[calc(100%+0.25rem)] w-px bg-border"
                   aria-hidden="true"
                 />
               )}
