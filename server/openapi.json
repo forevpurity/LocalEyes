@@ -3320,6 +3320,9 @@
           "hasVoted": {
             "type": "boolean"
           },
+          "isOwner": {
+            "type": "boolean"
+          },
           "isHidden": {
             "type": "boolean"
           },
@@ -3419,6 +3422,7 @@
           "photos",
           "voteCount",
           "hasVoted",
+          "isOwner",
           "isHidden",
           "isLocked",
           "isSubscribed",

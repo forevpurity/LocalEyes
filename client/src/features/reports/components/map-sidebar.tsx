@@ -1,4 +1,4 @@
-import { Search, SlidersHorizontal } from "lucide-react";
+import { Search } from "lucide-react";
 import type { Report, Category } from "@/types/api";
 import { ReportCard } from "./report-card";
 import { CategoryChips } from "./category-chips";

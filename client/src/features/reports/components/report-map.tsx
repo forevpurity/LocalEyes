@@ -14,18 +14,13 @@ import { useState } from "react";
 import type { Report } from "@/types/api";
 import { getRelativeTime } from "@/lib/utils";
 import { getCategoryIcon } from "@/features/reports/lib/category-icons";
+import {
+  STATUS_COLORS,
+  getStatusStyle,
+} from "@/features/reports/lib/status-styles";
 import { HCM_CENTER, HCM_BOUNDS, DEFAULT_ZOOM } from "@/lib/map-constants";
 import type { ViewportChange } from "@/features/reports/hooks/use-map-reports";
 const NOMINATIM = "https://nominatim.openstreetmap.org/search";
-
-const STATUS_COLORS: Record<string, string> = {
-  submitted: "#3b82f6",
-  acknowledged: "#8b5cf6",
-  in_progress: "#f59e0b",
-  resolved: "#10b981",
-  closed: "#6b7280",
-  rejected: "#ef4444",
-};
 
 function createMarkerIcon(color: string, highlighted = false): L.DivIcon {
   const size = highlighted ? 36 : 28;
@@ -48,26 +43,6 @@ function createMarkerIcon(color: string, highlighted = false): L.DivIcon {
   });
 }
 
-const POPUP_STATUS_STYLES: Record<
-  string,
-  { bg: string; text: string; label: string }
-> = {
-  submitted: { bg: "bg-primary/10", text: "text-primary", label: "Submitted" },
-  in_progress: {
-    bg: "bg-amber-50",
-    text: "text-amber-800",
-    label: "In Progress",
-  },
-  resolved: { bg: "bg-green-50", text: "text-green-800", label: "Resolved" },
-  acknowledged: {
-    bg: "bg-violet-50",
-    text: "text-violet-800",
-    label: "Acknowledged",
-  },
-  closed: { bg: "bg-gray-100", text: "text-gray-600", label: "Closed" },
-  rejected: { bg: "bg-red-50", text: "text-red-800", label: "Rejected" },
-};
-
 function ReportMarker({
   report,
   isHighlighted,
@@ -82,8 +57,7 @@ function ReportMarker({
   const color = STATUS_COLORS[report.status] ?? "#6b7280";
   const icon = createMarkerIcon(color, isHighlighted);
   const position: [number, number] = [report.latitude, report.longitude];
-  const statusStyle =
-    POPUP_STATUS_STYLES[report.status] ?? POPUP_STATUS_STYLES.submitted;
+  const statusStyle = getStatusStyle(report.status);
   const photo = report.photos?.[0]?.url;
 
   return (

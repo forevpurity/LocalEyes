@@ -1,29 +1,8 @@
-import { ThumbsUp, ArrowRight } from "lucide-react";
+import { ThumbsUp, ImageIcon } from "lucide-react";
 import { useNavigate } from "react-router";
 import type { Report } from "@/types/api";
 import { getRelativeTime } from "@/lib/utils";
-import { getCategoryIcon } from "@/features/reports/lib/category-icons";
-
-const STATUS_STYLES: Record<
-  string,
-  { bg: string; text: string; label: string }
-> = {
-  submitted: { bg: "bg-primary/10", text: "text-primary", label: "Submitted" },
-  in_progress: {
-    bg: "bg-amber-50",
-    text: "text-amber-800",
-    label: "In Progress",
-  },
-  resolved: { bg: "bg-green-50", text: "text-green-800", label: "Resolved" },
-  acknowledged: {
-    bg: "bg-violet-50",
-    text: "text-violet-800",
-    label: "Acknowledged",
-  },
-  closed: { bg: "bg-gray-100", text: "text-gray-600", label: "Closed" },
-  rejected: { bg: "bg-red-50", text: "text-red-800", label: "Rejected" },
-  withdrawn: { bg: "bg-red-50", text: "text-red-800", label: "Withdrawn" },
-};
+import { getStatusStyle } from "@/features/reports/lib/status-styles";
 
 interface ReportCardProps {
   report: Report;
@@ -33,70 +12,68 @@ interface ReportCardProps {
 
 export function ReportCard({ report, isSelected, onClick }: ReportCardProps) {
   const navigate = useNavigate();
-  const style = STATUS_STYLES[report.status] ?? STATUS_STYLES.submitted;
+  const style = getStatusStyle(report.status);
   const photo = report.photos?.[0]?.url;
 
   return (
     <div
-      className={`flex gap-3 cursor-pointer rounded-xl border p-3 transition-all hover:shadow-md ${
+      className={`flex cursor-pointer gap-3 rounded-xl border p-3 transition-all hover:shadow-md ${
         isSelected
-          ? "border-primary shadow-md ring-1 ring-primary"
-          : "border-border bg-card"
+          ? "border-primary bg-card shadow-md ring-1 ring-primary"
+          : "border-border bg-card hover:border-primary/40"
       }`}
       onClick={() => onClick?.(report)}
     >
-      {photo && (
-        <div className="shrink-0">
+      <div className="w-20 shrink-0 self-stretch">
+        {photo ? (
           <img
             src={photo}
             alt=""
-            className="h-17 w-20 rounded-lg border border-border object-cover"
+            className="h-full w-full rounded-lg border border-border object-cover"
           />
-        </div>
-      )}
+        ) : (
+          <div className="flex h-full w-full items-center justify-center rounded-lg border border-border bg-muted text-muted-foreground">
+            <ImageIcon className="h-6 w-6" aria-hidden="true" />
+          </div>
+        )}
+      </div>
 
-      <div className="min-w-0 flex-1">
-        <div className="mb-2 flex items-start justify-between gap-2">
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
+        <div className="flex items-start justify-between gap-2">
+          <span className="truncate text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+            {report.categoryName}
+          </span>
           <span
-            className={`shrink-0 rounded px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide ${style.bg} ${style.text}`}
+            className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-medium ${style.bg} ${style.text}`}
           >
+            <span className="h-1.5 w-1.5 rounded-full bg-current" />
             {style.label}
           </span>
-          <div className="flex shrink-0 items-center gap-1 text-muted-foreground">
-            <ThumbsUp className="h-3.5 w-3.5" />
-            <span className="text-xs font-medium">{report.voteCount}</span>
-          </div>
         </div>
 
-        <div className="mb-1 flex items-center gap-1.5">
-          <span className="text-base" aria-hidden="true">
-            {getCategoryIcon({
-              id: report.categoryId,
-              name: report.categoryName,
-            })}
-          </span>
-          <h3 className="truncate text-sm font-semibold text-primary">
-            {report.title}
-          </h3>
-        </div>
+        <h3 className="truncate text-sm font-semibold text-card-foreground">
+          {report.title}
+        </h3>
 
-        {report.address && (
-          <p className="mb-2 truncate text-xs text-muted-foreground">
-            📍 {report.address}
-          </p>
-        )}
+        <p className="truncate text-xs text-muted-foreground">
+          {getRelativeTime(report.createdAt)}
+          {report.address && ` · ${report.address}`}
+        </p>
 
-        <div className="flex items-center justify-between text-xs text-muted-foreground/70">
-          <span>{getRelativeTime(report.createdAt)}</span>
+        <div className="flex items-center justify-between text-xs">
           <button
             onClick={(e) => {
               e.stopPropagation();
               navigate(`/reports/${report.id}`);
             }}
-            className="flex items-center gap-0.5 font-medium text-primary hover:underline"
+            className="font-medium text-primary hover:underline"
           >
-            View details <ArrowRight className="h-3 w-3" />
+            View Details
           </button>
+          <div className="flex shrink-0 items-center gap-1 text-muted-foreground">
+            <ThumbsUp className="h-3.5 w-3.5" />
+            <span className="font-medium">{report.voteCount}</span>
+          </div>
         </div>
       </div>
     </div>

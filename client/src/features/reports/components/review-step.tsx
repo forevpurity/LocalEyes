@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
 import { MapContainer, TileLayer, Marker } from "react-leaflet";
-import L from "leaflet";
 import { createPinIcon } from "@/features/reports/lib/leaflet-icons";
 import {
   ArrowLeft,

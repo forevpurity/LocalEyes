@@ -19,3 +19,12 @@ export function getRelativeTime(isoDate: string): string {
   if (diffMin > 0) return `${diffMin}m ago`;
   return "just now";
 }
+
+export function formatDateTime(isoDate: string): string {
+  return new Date(isoDate).toLocaleString(undefined, {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}

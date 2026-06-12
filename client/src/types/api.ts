@@ -6,7 +6,8 @@ export type ReportStatus =
   | "in_progress"
   | "resolved"
   | "closed"
-  | "rejected";
+  | "rejected"
+  | "withdrawn";
 
 export interface User {
   id: string;
@@ -61,6 +62,7 @@ export interface Report {
 }
 
 export interface ReportDetail extends Report {
+  isOwner: boolean;
   isSubscribed: boolean;
   comments: Comment[];
 }

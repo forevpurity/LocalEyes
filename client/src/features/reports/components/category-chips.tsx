@@ -20,10 +20,10 @@ export function CategoryChips({
           <button
             key={cat.id}
             onClick={() => onSelect(isActive ? null : cat.id)}
-            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+            className={`inline-flex items-center gap-1.5 rounded-full border-2 px-3 py-1.5 text-xs font-medium transition-colors ${
               isActive
-                ? "bg-primary text-primary-foreground shadow-sm"
-                : "bg-muted text-muted-foreground hover:bg-muted/80 border border-border"
+                ? "border-primary bg-primary/10 font-semibold text-primary shadow-sm"
+                : "border-border bg-muted text-muted-foreground hover:bg-muted/80"
             }`}
           >
             <span aria-hidden="true">{getCategoryIcon(cat)}</span>
