@@ -33,6 +33,7 @@ export function useToggleVote(id: string) {
       queryClient.setQueryData<ReportDetail>(key, (old) =>
         old ? { ...old, hasVoted: data.voted, voteCount: data.voteCount } : old,
       );
+      queryClient.invalidateQueries({ queryKey: ["reports"] });
     },
   });
 }

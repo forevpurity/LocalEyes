@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, NavLink } from "react-router";
-import { Bell, LogOut, Menu, User, X } from "lucide-react";
+import { LogOut, Menu, User, X } from "lucide-react";
 import { CivicShield } from "@/components/civic-shield";
 import { useAuth } from "@/features/auth/auth-context";
+import { NotificationBell } from "@/features/notifications/notification-bell";
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   isActive
@@ -80,14 +81,7 @@ export function Navbar() {
         <div className="flex items-center gap-3">
           {isAuthenticated ? (
             <>
-              <button
-                className="relative rounded-lg p-2 text-on-surface-variant hover:text-primary transition-colors"
-                aria-label="Notifications"
-              >
-                <Bell className="h-5 w-5" />
-                {/* Notification dot placeholder */}
-                <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-red-500" />
-              </button>
+              <NotificationBell />
               <div className="hidden h-6 w-px bg-border md:block" />
               <div className="relative hidden md:block" ref={userMenuRef}>
                 <button

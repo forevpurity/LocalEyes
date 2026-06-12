@@ -92,6 +92,36 @@ export interface CoveringResponse {
   categories: Category[];
 }
 
+export type NotificationType =
+  | "status_change"
+  | "new_comment"
+  | "report_locked"
+  | "report_hidden";
+
+export interface Notification {
+  id: string;
+  recipientId: string;
+  reportId: string;
+  type: NotificationType;
+  title: string;
+  body: string | null;
+  readAt: string | null;
+  createdAt: string;
+}
+
+export interface ListNotificationsResponse {
+  items: Notification[];
+  nextCursor: string | null;
+}
+
+export interface UnreadCountResponse {
+  count: number;
+}
+
+export interface MarkAllReadResponse {
+  count: number;
+}
+
 export interface ApiErrorResponse {
   error: {
     code: string;
