@@ -24,6 +24,10 @@ _Avoid_: superuser, manager
 The core entity. A Citizen submits a Report about a problem at a pinned map location with at least one photo, a text address (reverse-geocoded from the pin, nullable if geocoding fails), one Category, a title, and a description.
 _Avoid_: issue, ticket, problem (use "report" consistently)
 
+**Owned Reports**:
+The set of Reports submitted by a Citizen. This is the Citizen-facing personal list of their own Reports.
+_Avoid_: my reports, personal archive
+
 **Report Status**:
 The lifecycle state of a Report. Transitions: `submitted → acknowledged → in_progress → resolved → closed`. A Report can also go from `submitted → rejected` or `submitted → withdrawn`. `closed`, `rejected`, and `withdrawn` are terminal. Reports are never reopened — a recurring problem is a new Report.
 
