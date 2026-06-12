@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link, NavLink } from "react-router";
-import { Bell, LogOut, Menu, X } from "lucide-react";
+import { Bell, LogOut, Menu, User, X } from "lucide-react";
 import { CivicShield } from "@/components/civic-shield";
 import { useAuth } from "@/features/auth/auth-context";
 
@@ -19,6 +19,19 @@ export function Navbar() {
   const isAuthenticated = !!user;
   const isAdmin = user?.role === "admin";
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!userMenuOpen) return;
+    function handleOutsideClick(e: MouseEvent) {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setUserMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, [userMenuOpen]);
 
   // Admin has a completely different layout; don't render this navbar for them
   if (isAdmin) return null;
@@ -76,17 +89,40 @@ export function Navbar() {
                 <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-red-500" />
               </button>
               <div className="hidden h-6 w-px bg-border md:block" />
-              <div className="hidden items-center gap-2 md:flex">
-                <span className="text-sm text-on-surface-variant">
-                  {user.displayName}
-                </span>
+              <div className="relative hidden md:block" ref={userMenuRef}>
                 <button
-                  onClick={() => logout()}
-                  className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-destructive transition-colors"
-                  title="Logout"
+                  onClick={() => setUserMenuOpen((o) => !o)}
+                  className="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-muted transition-colors"
+                  aria-haspopup="true"
+                  aria-expanded={userMenuOpen}
                 >
-                  <LogOut className="h-4 w-4" />
+                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-on-primary text-label-sm font-label-sm select-none">
+                    {user.displayName.charAt(0).toUpperCase()}
+                  </span>
+                  <span className="text-sm text-on-surface-variant max-w-[120px] truncate">
+                    {user.displayName}
+                  </span>
                 </button>
+                {userMenuOpen && (
+                  <div className="absolute right-0 mt-1 w-44 rounded-lg border border-outline-variant bg-surface-container-lowest shadow-md py-1 z-50">
+                    <Link
+                      to="/profile"
+                      onClick={() => setUserMenuOpen(false)}
+                      className="flex items-center gap-2 px-3 py-2 text-sm text-on-surface hover:bg-muted transition-colors"
+                    >
+                      <User className="h-4 w-4 text-on-surface-variant" />
+                      Profile
+                    </Link>
+                    <div className="my-1 h-px bg-outline-variant" />
+                    <button
+                      onClick={() => { setUserMenuOpen(false); logout(); }}
+                      className="flex w-full items-center gap-2 px-3 py-2 text-sm text-on-surface hover:bg-muted hover:text-destructive transition-colors"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      Logout
+                    </button>
+                  </div>
+                )}
               </div>
             </>
           ) : (
@@ -136,6 +172,13 @@ export function Navbar() {
                 onClick={closeMobile}
               >
                 Reports
+              </NavLink>
+              <NavLink
+                to="/profile"
+                className={mobileLinkClass}
+                onClick={closeMobile}
+              >
+                Profile
               </NavLink>
               <div className="my-1 h-px bg-outline-variant" />
               <div className="flex items-center justify-between px-3 py-2">
