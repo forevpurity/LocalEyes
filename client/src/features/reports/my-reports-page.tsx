@@ -1,7 +1,8 @@
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { FileText, Plus, Search } from "lucide-react";
 import { Navbar } from "@/features/layout/components/navbar";
+import { useCategories } from "@/features/admin/categories/hooks/use-categories";
 import { ReportCard } from "@/features/reports/components/report-card";
 import { useMyReports } from "@/features/reports/hooks/use-my-reports";
 import { getStatusStyle } from "@/features/reports/lib/status-styles";
@@ -18,64 +19,33 @@ const STATUS_ORDER: ReportStatus[] = [
   "withdrawn",
 ];
 
-const OPEN_STATUSES: ReportStatus[] = [
-  "submitted",
-  "acknowledged",
-  "in_progress",
-];
-
 type Filter = "all" | ReportStatus;
-type Sort = "newest" | "oldest" | "votes";
-
-const SORT_LABELS: Record<Sort, string> = {
-  newest: "Newest first",
-  oldest: "Oldest first",
-  votes: "Most upvoted",
-};
 
 export function MyReportsPage() {
-  const { data, isLoading, error } = useMyReports();
-  const reports = data?.items ?? [];
   const [filter, setFilter] = useState<Filter>("all");
+  const [categoryId, setCategoryId] = useState("all");
   const [search, setSearch] = useState("");
-  const [sort, setSort] = useState<Sort>("newest");
-
-  const counts = useMemo(() => {
-    const byStatus = {} as Record<ReportStatus, number>;
-    for (const report of reports) {
-      byStatus[report.status] = (byStatus[report.status] ?? 0) + 1;
-    }
-    return byStatus;
-  }, [reports]);
-
-  const openCount = OPEN_STATUSES.reduce(
-    (sum, status) => sum + (counts[status] ?? 0),
-    0,
+  const { data: categories } = useCategories();
+  const debouncedSearch = useDebouncedValue(search.trim(), 300);
+  const activeStatus = filter === "all" ? undefined : filter;
+  const activeCategoryId = categoryId === "all" ? undefined : categoryId;
+  const hasActiveFilters =
+    filter !== "all" || activeCategoryId !== undefined || debouncedSearch.length > 0;
+  const {
+    data,
+    isLoading,
+    error,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  } = useMyReports(
+    {
+      status: activeStatus,
+      q: debouncedSearch || undefined,
+      categoryId: activeCategoryId,
+    },
   );
-  const resolvedCount = counts.resolved ?? 0;
-
-  const visibleReports = useMemo(() => {
-    const query = search.trim().toLowerCase();
-    const result = reports.filter((report) => {
-      if (filter !== "all" && report.status !== filter) return false;
-      if (!query) return true;
-      return (
-        report.title.toLowerCase().includes(query) ||
-        (report.address?.toLowerCase().includes(query) ?? false) ||
-        report.categoryName.toLowerCase().includes(query)
-      );
-    });
-
-    return result.sort((a, b) => {
-      if (sort === "votes") return b.voteCount - a.voteCount;
-      const delta =
-        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-      return sort === "oldest" ? delta : -delta;
-    });
-  }, [reports, filter, search, sort]);
-
-  // Only show chips for statuses the citizen actually has reports in.
-  const presentStatuses = STATUS_ORDER.filter((status) => counts[status]);
+  const reports = data?.items ?? [];
 
   return (
     <>
@@ -100,62 +70,51 @@ export function MyReportsPage() {
             </Link>
           </div>
 
-          {!isLoading && !error && reports.length > 0 && (
-            <>
-              <div className="mb-4 grid grid-cols-3 gap-3">
-                <StatCard label="Total" value={reports.length} />
-                <StatCard label="Open" value={openCount} />
-                <StatCard label="Resolved" value={resolvedCount} />
-              </div>
+          <div className="mb-3 flex flex-col gap-2 sm:flex-row">
+            <div className="relative flex-1">
+              <Search
+                className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+                aria-hidden="true"
+              />
+              <input
+                type="search"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search by title"
+                aria-label="Search your owned reports by title"
+                className="h-10 w-full rounded-lg border border-border bg-background pl-9 pr-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20"
+              />
+            </div>
+            <select
+              value={categoryId}
+              onChange={(e) => setCategoryId(e.target.value)}
+              aria-label="Filter your owned reports by category"
+              className="h-10 shrink-0 appearance-none rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary/20 sm:w-52"
+            >
+              <option value="all">All categories</option>
+              {(categories ?? []).map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
-              <div className="mb-3 flex flex-col gap-2 sm:flex-row">
-                <div className="relative flex-1">
-                  <Search
-                    className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-                    aria-hidden="true"
-                  />
-                  <input
-                    type="search"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    placeholder="Search by title, location, or category"
-                    aria-label="Search your reports"
-                    className="h-10 w-full rounded-lg border border-border bg-background pl-9 pr-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20"
-                  />
-                </div>
-                <select
-                  value={sort}
-                  onChange={(e) => setSort(e.target.value as Sort)}
-                  aria-label="Sort reports"
-                  className="h-10 shrink-0 appearance-none rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary/20"
-                >
-                  {(Object.keys(SORT_LABELS) as Sort[]).map((value) => (
-                    <option key={value} value={value}>
-                      {SORT_LABELS[value]}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="mb-4 flex flex-wrap gap-2">
-                <FilterChip
-                  label="All"
-                  count={reports.length}
-                  active={filter === "all"}
-                  onClick={() => setFilter("all")}
-                />
-                {presentStatuses.map((status) => (
-                  <FilterChip
-                    key={status}
-                    label={getStatusStyle(status).label}
-                    count={counts[status]}
-                    active={filter === status}
-                    onClick={() => setFilter(status)}
-                  />
-                ))}
-              </div>
-            </>
-          )}
+          <div className="mb-4 flex flex-wrap gap-2">
+            <FilterChip
+              label="All"
+              active={filter === "all"}
+              onClick={() => setFilter("all")}
+            />
+            {STATUS_ORDER.map((status) => (
+              <FilterChip
+                key={status}
+                label={getStatusStyle(status).label}
+                active={filter === status}
+                onClick={() => setFilter(status)}
+              />
+            ))}
+          </div>
 
           {isLoading ? (
             <p className="py-16 text-center text-muted-foreground">Loading...</p>
@@ -163,7 +122,7 @@ export function MyReportsPage() {
             <p className="py-16 text-center text-muted-foreground">
               Failed to load your reports.
             </p>
-          ) : reports.length === 0 ? (
+          ) : reports.length === 0 && !hasActiveFilters ? (
             <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed border-border bg-card py-16 text-center">
               <FileText className="h-8 w-8 text-muted-foreground" aria-hidden="true" />
               <p className="text-sm text-muted-foreground">
@@ -176,16 +135,30 @@ export function MyReportsPage() {
                 Report an issue
               </Link>
             </div>
-          ) : visibleReports.length === 0 ? (
+          ) : reports.length === 0 ? (
             <p className="py-16 text-center text-sm text-muted-foreground">
               No reports match your search and filters.
             </p>
           ) : (
-            <div className="space-y-3">
-              {visibleReports.map((report) => (
-                <ReportCard key={report.id} report={report} />
-              ))}
-            </div>
+            <>
+              <div className="space-y-3">
+                {reports.map((report) => (
+                  <ReportCard key={report.id} report={report} />
+                ))}
+              </div>
+              {hasNextPage && (
+                <div className="mt-5 flex justify-center">
+                  <button
+                    type="button"
+                    onClick={() => fetchNextPage()}
+                    disabled={isFetchingNextPage}
+                    className="inline-flex h-10 items-center rounded-lg border border-border bg-card px-4 text-sm font-semibold text-card-foreground transition-colors hover:border-primary/40 hover:text-primary disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {isFetchingNextPage ? "Loading..." : "Load more"}
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </main>
@@ -193,23 +166,12 @@ export function MyReportsPage() {
   );
 }
 
-function StatCard({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="rounded-lg border border-border bg-card px-4 py-3">
-      <p className="text-2xl font-bold text-card-foreground">{value}</p>
-      <p className="text-xs font-medium text-muted-foreground">{label}</p>
-    </div>
-  );
-}
-
 function FilterChip({
   label,
-  count,
   active,
   onClick,
 }: {
   label: string;
-  count: number;
   active: boolean;
   onClick: () => void;
 }) {
@@ -224,14 +186,17 @@ function FilterChip({
       )}
     >
       {label}
-      <span
-        className={cn(
-          "text-xs",
-          active ? "text-primary-foreground/80" : "text-muted-foreground",
-        )}
-      >
-        {count}
-      </span>
     </button>
   );
+}
+
+function useDebouncedValue<T>(value: T, delayMs: number) {
+  const [debounced, setDebounced] = useState(value);
+
+  useEffect(() => {
+    const timeout = window.setTimeout(() => setDebounced(value), delayMs);
+    return () => window.clearTimeout(timeout);
+  }, [value, delayMs]);
+
+  return debounced;
 }

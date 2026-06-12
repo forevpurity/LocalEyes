@@ -1,44 +1,42 @@
-import { useEffect } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
-import type { ListReportsResponse } from "@/types/api";
+import type { ListReportsResponse, ReportStatus } from "@/types/api";
 
-const PAGE_SIZE = 100;
+const PAGE_SIZE = 20;
+
+interface MyReportsFilters {
+  status?: ReportStatus;
+  q?: string;
+  categoryId?: string;
+}
 
 /**
- * Fetches the citizen's own reports across every page. The list page runs
- * search/sort/stats entirely client-side, so it needs the full set rather than
- * a single page. We auto-advance through the cursor until the API stops
- * returning a `nextCursor`. A single citizen's report count is small, so this
- * is a handful of requests at most.
+ * Fetches the citizen's owned reports one cursor page at a time. Filters are
+ * sent to the API so the page never needs to drain the full report history.
  */
-export function useMyReports() {
+export function useMyReports(filters: MyReportsFilters = {}) {
   const query = useInfiniteQuery({
-    queryKey: ["reports", "mine"],
-    queryFn: ({ pageParam }) =>
-      api<ListReportsResponse>(
-        `/reports?mine=true&limit=${PAGE_SIZE}` +
-          (pageParam ? `&cursor=${encodeURIComponent(pageParam)}` : ""),
-      ),
+    queryKey: ["reports", "mine", filters],
+    queryFn: ({ pageParam }) => {
+      const params = new URLSearchParams({
+        mine: "true",
+        limit: PAGE_SIZE.toString(),
+      });
+      if (filters.status) params.set("status", filters.status);
+      if (filters.q) params.set("q", filters.q);
+      if (filters.categoryId) params.set("categoryId", filters.categoryId);
+      if (pageParam) params.set("cursor", pageParam);
+
+      return api<ListReportsResponse>(`/reports?${params}`);
+    },
     initialPageParam: "",
     getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
   });
-
-  const { hasNextPage, isFetchingNextPage, fetchNextPage } = query;
-
-  useEffect(() => {
-    if (hasNextPage && !isFetchingNextPage) {
-      fetchNextPage();
-    }
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   return {
     ...query,
     data: query.data
       ? { items: query.data.pages.flatMap((page) => page.items) }
       : undefined,
-    // Stay "loading" until every page has drained, so the UI never renders a
-    // partial set that would skew search results and stat counts.
-    isLoading: query.isLoading || hasNextPage,
   };
 }
