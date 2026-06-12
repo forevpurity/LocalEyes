@@ -215,6 +215,54 @@
             }
           }
         }
+      },
+      "patch": {
+        "summary": "Update current authenticated user",
+        "tags": [
+          "Auth"
+        ],
+        "operationId": "updateMe",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated current user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/auth/password": {
@@ -1018,6 +1066,13 @@
           },
           {
             "in": "query",
+            "name": "subscribed",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
             "name": "departmentId",
             "schema": {
               "type": "string",
@@ -1073,6 +1128,16 @@
           },
           "401": {
             "description": "Authentication required (for mine=true or expired token)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden (subscribed=true is only available to Citizens)",
             "content": {
               "application/json": {
                 "schema": {
@@ -2232,6 +2297,19 @@
         "required": [
           "email",
           "password"
+        ]
+      },
+      "UpdateMeRequest": {
+        "type": "object",
+        "properties": {
+          "displayName": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 50
+          }
+        },
+        "required": [
+          "displayName"
         ]
       },
       "ChangePasswordRequest": {

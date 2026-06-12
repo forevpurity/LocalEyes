@@ -8,10 +8,12 @@ import { categories } from "../../db/schema/categories.js";
 import { departments } from "../../db/schema/departments.js";
 import { users } from "../../db/schema/users.js";
 import { reportPhotos } from "../../db/schema/report-photos.js";
+import { subscriptions } from "../../db/schema/subscriptions.js";
 import { parseAndValidate } from "../../common/validate.js";
 import { encodeCursor, decodeCursor } from "../../common/pagination.js";
 import { queryBoolean } from "../../common/schemas.js";
 import {
+  ForbiddenError,
   ValidationError,
   UnauthorizedError,
   errorResponseSchema,
@@ -29,6 +31,7 @@ const listReportsQuerySchema = z.object({
   q: z.string().optional(),
   status: z.enum(REPORT_STATUSES).optional(),
   mine: queryBoolean.optional(),
+  subscribed: queryBoolean.optional(),
   departmentId: z.uuid().optional(),
   unassigned: queryBoolean.optional(),
   cursor: z.string().optional(),
@@ -92,6 +95,12 @@ export const listReportsDoc = {
         "application/json": { schema: errorResponseSchema },
       },
     },
+    403: {
+      description: "Forbidden (subscribed=true is only available to Citizens)",
+      content: {
+        "application/json": { schema: errorResponseSchema },
+      },
+    },
   },
 } satisfies ZodOpenApiOperationObject;
 
@@ -113,13 +122,25 @@ export function listReports(router: Router) {
       throw new UnauthorizedError("Authentication required for mine=true");
     }
 
-    if (isGuestOrCitizen && !hasBbox && !query.mine) {
-      throw new ValidationError("Must supply bounding box or mine=true", [
-        {
-          field: "bbox",
-          message: "Supply minLat, maxLat, minLng, maxLng or set mine=true",
-        },
-      ]);
+    if (query.subscribed && !actor) {
+      throw new UnauthorizedError("Authentication required for subscribed=true");
+    }
+
+    if (query.subscribed && actor?.role !== "citizen") {
+      throw new ForbiddenError("subscribed=true is only available to Citizens");
+    }
+
+    if (isGuestOrCitizen && !hasBbox && !query.mine && !query.subscribed) {
+      throw new ValidationError(
+        "Must supply bounding box, mine=true, or subscribed=true",
+        [
+          {
+            field: "bbox",
+            message:
+              "Supply minLat, maxLat, minLng, maxLng or set mine=true or subscribed=true",
+          },
+        ],
+      );
     }
 
     let staffDepartmentId: string | null = null;
@@ -134,7 +155,13 @@ export function listReports(router: Router) {
     const conditions = [];
 
     if (!query.mine && isGuestOrCitizen) {
-      conditions.push(eq(reports.isHidden, false));
+      if (query.subscribed && actor?.role === "citizen") {
+        conditions.push(
+          sql`(${reports.isHidden} = false OR ${reports.citizenId} = ${actor.id})`,
+        );
+      } else {
+        conditions.push(eq(reports.isHidden, false));
+      }
 
       if (hasBbox && !query.status) {
         conditions.push(
@@ -164,6 +191,12 @@ export function listReports(router: Router) {
 
     if (query.mine && actor?.role === "citizen") {
       conditions.push(eq(reports.citizenId, actor.id));
+    }
+
+    if (query.subscribed && actor?.role === "citizen") {
+      conditions.push(
+        sql`EXISTS(SELECT 1 FROM ${subscriptions} WHERE ${subscriptions.reportId} = ${reports.id} AND ${subscriptions.citizenId} = ${actor.id})`,
+      );
     }
 
     if (isStaff && staffDepartmentId) {
