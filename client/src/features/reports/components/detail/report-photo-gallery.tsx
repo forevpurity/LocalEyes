@@ -45,7 +45,7 @@ export function ReportPhotoGallery({ photos }: { photos: ReportPhoto[] }) {
               type="button"
               onClick={() => setActiveIndex(i)}
               className={cn(
-                "h-16 w-16 overflow-hidden rounded-md bg-muted ring-offset-2 ring-offset-card transition-all",
+                "h-14 w-14 overflow-hidden rounded-md bg-muted ring-offset-2 ring-offset-card transition-all sm:h-16 sm:w-16",
                 i === active
                   ? "ring-2 ring-primary"
                   : "opacity-70 hover:opacity-100",

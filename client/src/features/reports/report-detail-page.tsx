@@ -11,6 +11,7 @@ import {
   UserRound,
   XCircle,
 } from "lucide-react";
+import { toast } from "sonner";
 import { Navbar } from "@/features/layout/components/navbar";
 import { useReport } from "@/features/reports/hooks/use-report";
 import { useToggleVote } from "@/features/reports/hooks/use-toggle-vote";
@@ -34,9 +35,12 @@ function MetaItem({
   value: string;
 }) {
   return (
-    <span className="inline-flex min-w-0 items-center gap-1.5 text-sm text-on-surface-variant">
-      <Icon className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-      <span className="truncate">{value}</span>
+    <span className="flex min-w-0 max-w-full items-start gap-1.5 text-sm text-on-surface-variant sm:items-center">
+      <Icon
+        className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground sm:mt-0"
+        aria-hidden="true"
+      />
+      <span className="wrap-break-word sm:truncate">{value}</span>
     </span>
   );
 }
@@ -86,7 +90,11 @@ export function ReportDetailPage() {
   const handleWithdraw = () => {
     if (withdrawReport.isPending) return;
     if (!window.confirm("Withdraw this report? This cannot be undone.")) return;
-    withdrawReport.mutate();
+    withdrawReport.mutate(undefined, {
+      onSuccess: () => toast.success("Report withdrawn."),
+      onError: () =>
+        toast.error("Couldn't withdraw the report. Please try again."),
+    });
   };
 
   return (
@@ -129,7 +137,7 @@ export function ReportDetailPage() {
                   <ReportPhotoGallery photos={report.photos} />
                 </div>
 
-                <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border pt-4">
+                <div className="mt-4 flex flex-col gap-2 border-t border-border pt-4 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-4 sm:gap-y-2">
                   <MetaItem
                     icon={MapPin}
                     value={report.address ?? "Pinned location"}
@@ -148,65 +156,81 @@ export function ReportDetailPage() {
                   />
                 </div>
 
-                <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">
-                  <div className="flex flex-wrap items-center gap-3">
-                  <button
-                    onClick={() => toggleVote.mutate()}
-                    disabled={!canVote || toggleVote.isPending}
-                    className={cn(
-                      "inline-flex h-10 items-center gap-2 rounded-lg border px-4 text-sm font-semibold transition-colors disabled:cursor-not-allowed",
-                      report.hasVoted
-                        ? "border-primary bg-primary text-primary-foreground shadow-sm"
-                        : "border-border bg-card text-foreground hover:border-primary/50 hover:text-primary",
-                      !canVote && "opacity-70",
-                    )}
-                    title={
-                      report.isOwner
-                        ? "You can't vote on your own report"
-                        : isCitizen
-                          ? undefined
-                          : "Sign in as a citizen to upvote"
-                    }
-                  >
-                    <ThumbsUp className="h-4 w-4" />
-                    {report.voteCount}{" "}
-                    {report.voteCount === 1 ? "Upvote" : "Upvotes"}
-                  </button>
-
-                  {isCitizen && (
+                <div className="mt-4 flex flex-col gap-3 border-t border-border pt-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
                     <button
-                      onClick={() => toggleSubscribe.mutate()}
-                      disabled={report.isOwner || toggleSubscribe.isPending}
+                      onClick={() =>
+                        toggleVote.mutate(undefined, {
+                          onError: () =>
+                            toast.error("Couldn't register your vote."),
+                        })
+                      }
+                      disabled={!canVote || toggleVote.isPending}
                       className={cn(
-                        "inline-flex h-10 items-center gap-2 rounded-lg px-3 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50",
-                        report.isSubscribed
-                          ? "bg-primary/10 text-primary"
-                          : "text-muted-foreground hover:bg-muted hover:text-primary",
+                        "inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg border px-4 text-sm font-semibold transition-colors disabled:cursor-not-allowed sm:w-auto sm:justify-start",
+                        report.hasVoted
+                          ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                          : "border-border bg-card text-foreground hover:border-primary/50 hover:text-primary",
+                        !canVote && "opacity-70",
                       )}
                       title={
                         report.isOwner
-                          ? "You automatically receive updates on your own report"
-                          : undefined
+                          ? "You can't vote on your own report"
+                          : isCitizen
+                            ? undefined
+                            : "Sign in as a citizen to upvote"
                       }
                     >
-                      <Bell
-                        className={cn(
-                          "h-4 w-4",
-                          report.isSubscribed && "fill-current",
-                        )}
-                      />
-                      {report.isSubscribed
-                        ? "Subscribed to updates"
-                        : "Subscribe to updates"}
+                      <ThumbsUp className="h-4 w-4" />
+                      {report.voteCount}{" "}
+                      {report.voteCount === 1 ? "Upvote" : "Upvotes"}
                     </button>
-                  )}
+
+                    {isCitizen && (
+                      <button
+                        onClick={() =>
+                          toggleSubscribe.mutate(undefined, {
+                            onSuccess: (data) =>
+                              toast.success(
+                                data.subscribed
+                                  ? "Subscribed to updates."
+                                  : "Unsubscribed from updates.",
+                              ),
+                            onError: () =>
+                              toast.error("Couldn't update your subscription."),
+                          })
+                        }
+                        disabled={report.isOwner || toggleSubscribe.isPending}
+                        className={cn(
+                          "inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg px-3 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:justify-start",
+                          report.isSubscribed
+                            ? "bg-primary/10 text-primary"
+                            : "text-muted-foreground hover:bg-muted hover:text-primary",
+                        )}
+                        title={
+                          report.isOwner
+                            ? "You automatically receive updates on your own report"
+                            : undefined
+                        }
+                      >
+                        <Bell
+                          className={cn(
+                            "h-4 w-4",
+                            report.isSubscribed && "fill-current",
+                          )}
+                        />
+                        {report.isSubscribed
+                          ? "Subscribed to updates"
+                          : "Subscribe to updates"}
+                      </button>
+                    )}
                   </div>
 
                   {canManage && !isEditing && (
-                    <div className="flex items-center gap-2">
+                    <div className="flex w-full gap-2 sm:w-auto sm:items-center">
                       <button
                         onClick={() => setIsEditing(true)}
-                        className="inline-flex h-10 items-center gap-2 rounded-lg border border-border bg-card px-3 text-sm font-semibold text-foreground transition-colors hover:border-primary/50 hover:text-primary"
+                        className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-lg border border-border bg-card px-3 text-sm font-semibold text-foreground transition-colors hover:border-primary/50 hover:text-primary sm:flex-none sm:justify-start"
                       >
                         <Pencil className="h-4 w-4" />
                         Edit
@@ -214,7 +238,7 @@ export function ReportDetailPage() {
                       <button
                         onClick={handleWithdraw}
                         disabled={withdrawReport.isPending}
-                        className="inline-flex h-10 items-center gap-2 rounded-lg px-3 text-sm font-semibold text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:cursor-not-allowed disabled:opacity-50"
+                        className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-lg px-3 text-sm font-semibold text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none sm:justify-start"
                       >
                         <XCircle className="h-4 w-4" />
                         {withdrawReport.isPending ? "Withdrawing…" : "Withdraw"}

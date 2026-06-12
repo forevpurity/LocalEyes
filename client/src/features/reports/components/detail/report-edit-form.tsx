@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
 import { useUpdateReport } from "@/features/reports/hooks/use-update-report";
 import {
   reportContentSchema,
@@ -35,7 +36,10 @@ export function ReportEditForm({
   const onSubmit = (values: ReportContent) => {
     setError(null);
     updateReport.mutate(values, {
-      onSuccess: onDone,
+      onSuccess: () => {
+        toast.success("Report updated.");
+        onDone();
+      },
       onError: (err) =>
         setError(
           err instanceof ApiRequestError
@@ -81,19 +85,19 @@ export function ReportEditForm({
 
       {error && <p className="mt-2 text-xs text-destructive">{error}</p>}
 
-      <div className="mt-4 flex justify-end gap-2">
+      <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-end">
         <button
           type="button"
           onClick={onDone}
           disabled={updateReport.isPending}
-          className="h-9 rounded-lg px-4 text-sm font-semibold text-muted-foreground transition-colors hover:bg-muted disabled:opacity-50"
+          className="h-9 w-full rounded-lg px-4 text-sm font-semibold text-muted-foreground transition-colors hover:bg-muted disabled:opacity-50 sm:w-auto"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={!isValid || !isDirty || updateReport.isPending}
-          className="h-9 rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
+          className="h-9 w-full rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50 sm:w-auto"
         >
           {updateReport.isPending ? "Saving…" : "Save changes"}
         </button>

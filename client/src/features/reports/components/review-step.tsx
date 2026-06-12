@@ -9,11 +9,12 @@ import {
   Loader2,
   AlertCircle,
 } from "lucide-react";
+import { toast } from "sonner";
 import { useCreateReport } from "@/features/reports/hooks/use-create-report";
 import { useCategories } from "@/features/admin/categories/hooks/use-categories";
 import { Button } from "@/components/ui/button";
 import type { CoveringResponse } from "@/types/api";
-import type { ApiRequestError } from "@/lib/api";
+import { ApiRequestError } from "@/lib/api";
 
 interface ReviewStepProps {
   location: { lat: number; lng: number; address: string | null };
@@ -49,13 +50,18 @@ export function ReviewStep({
 
   const [photoPreviews, setPhotoPreviews] = useState<string[]>([]);
 
+  // Object URLs are an external resource: create them on mount and revoke on
+  // unmount. Deriving them via useMemo breaks under StrictMode, which runs the
+  // cleanup once before the final commit and would leave us rendering already
+  // revoked URLs.
   useEffect(() => {
     const urls = details.photos.map((f) => URL.createObjectURL(f));
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- syncing external object-URL lifecycle, not derived state
     setPhotoPreviews(urls);
     return () => {
       urls.forEach((url) => URL.revokeObjectURL(url));
     };
-  }, []);
+  }, [details.photos]);
 
   const handleSubmit = () => {
     createReport.mutate(
@@ -72,6 +78,12 @@ export function ReviewStep({
         onSuccess: (report) => {
           onSuccess(report.id);
         },
+        onError: (err) =>
+          toast.error(
+            err instanceof ApiRequestError
+              ? err.message
+              : "Failed to submit report. Please try again.",
+          ),
       },
     );
   };

@@ -183,11 +183,11 @@ export function ReportDiscussion({ report }: { report: ReportDetail }) {
             className="w-full resize-none rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
           />
           {error && <p className="mt-1 text-xs text-destructive">{error}</p>}
-          <div className="mt-2 flex justify-end">
+          <div className="mt-2 flex sm:justify-end">
             <button
               type="submit"
               disabled={!body.trim() || createComment.isPending}
-              className="h-9 rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
+              className="h-9 w-full rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50 sm:w-auto"
             >
               {createComment.isPending ? "Posting…" : "Post Comment"}
             </button>
