@@ -3624,6 +3624,12 @@
           "isSubscribed": {
             "type": "boolean"
           },
+          "allowedTransitions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
           "createdAt": {
             "type": "string"
           },
@@ -3722,6 +3728,7 @@
           "isHidden",
           "isLocked",
           "isSubscribed",
+          "allowedTransitions",
           "createdAt",
           "comments"
         ],

@@ -15,7 +15,7 @@ import {
   errorResponseSchema,
 } from "../../common/errors.js";
 import { optionalAuthenticate } from "../../common/auth.js";
-import { requireReportVisibleToCitizen } from "./report-rules.js";
+import { requireReportVisibleToCitizen, getAllowedTransitions } from "./report-rules.js";
 import { enforceStaffScope } from "./enforce-staff-scope.js";
 
 const commentItemSchema = z.object({
@@ -51,6 +51,7 @@ const reportDetailSchema = z
     isHidden: z.boolean(),
     isLocked: z.boolean(),
     isSubscribed: z.boolean(),
+    allowedTransitions: z.array(z.string()),
     createdAt: z.string(),
     comments: z.array(commentItemSchema),
   })
@@ -193,6 +194,10 @@ export function getReport(router: Router) {
       isHidden: report.isHidden,
       isLocked: report.isLocked,
       isSubscribed: report.isSubscribed,
+      allowedTransitions:
+        actor?.role === "staff" || actor?.role === "admin"
+          ? getAllowedTransitions(report.status, actor.role)
+          : [],
       createdAt: report.createdAt.toISOString(),
       comments: visibleComments,
     });

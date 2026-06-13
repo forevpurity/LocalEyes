@@ -1,0 +1,146 @@
+import { useState } from "react";
+import { Link } from "react-router";
+import {
+  Building2,
+  Eye,
+  EyeOff,
+  Lock,
+  LockOpen,
+  EyeClosed,
+} from "lucide-react";
+import { toast } from "sonner";
+import { cn, getRelativeTime } from "@/lib/utils";
+import { getStatusStyle } from "@/features/reports/lib/status-styles";
+import type { Report } from "@/types/api";
+import { useToggleReportHide } from "../hooks/use-toggle-report-hide";
+import { useToggleReportLock } from "../hooks/use-toggle-report-lock";
+import { AssignModal } from "./assign-modal";
+
+interface ReportRowProps {
+  report: Report;
+}
+
+export function ReportRow({ report }: ReportRowProps) {
+  const status = getStatusStyle(report.status);
+  const toggleHide = useToggleReportHide(report.id);
+  const toggleLock = useToggleReportLock(report.id);
+  const [assigning, setAssigning] = useState(false);
+
+  const handleHide = () => {
+    toggleHide.mutate(undefined, {
+      onSuccess: () =>
+        toast.success(report.isHidden ? "Report unhidden" : "Report hidden"),
+      onError: () => toast.error("Couldn't change visibility."),
+    });
+  };
+
+  const handleLock = () => {
+    toggleLock.mutate(undefined, {
+      onSuccess: () =>
+        toast.success(report.isLocked ? "Report unlocked" : "Report locked"),
+      onError: () => toast.error("Couldn't change lock state."),
+    });
+  };
+
+  return (
+    <tr className="border-b border-border transition-colors last:border-none hover:bg-muted/50">
+      {/* Report */}
+      <td className="px-4 py-3">
+        <div className="flex items-center gap-2">
+          <Link
+            to={`/reports/${report.id}`}
+            className="font-medium text-foreground hover:text-primary hover:underline"
+          >
+            {report.title}
+          </Link>
+          {report.isHidden && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-semibold uppercase text-muted-foreground">
+              <EyeClosed className="h-3 w-3" /> Hidden
+            </span>
+          )}
+          {report.isLocked && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-semibold uppercase text-muted-foreground">
+              <Lock className="h-3 w-3" /> Locked
+            </span>
+          )}
+        </div>
+        <span className="text-xs text-muted-foreground">
+          {report.categoryName}
+        </span>
+      </td>
+
+      {/* Status */}
+      <td className="px-4 py-3">
+        <span
+          className={cn(
+            "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase",
+            status.bg,
+            status.text,
+          )}
+        >
+          <span className="h-1.5 w-1.5 rounded-full bg-current" />
+          {status.label}
+        </span>
+      </td>
+
+      {/* Department */}
+      <td className="px-4 py-3 text-sm text-foreground">
+        {report.departmentName ?? (
+          <span className="text-muted-foreground">Unassigned</span>
+        )}
+      </td>
+
+      {/* Citizen */}
+      <td className="px-4 py-3 text-sm text-muted-foreground">
+        {report.citizenName ?? "Anonymous"}
+      </td>
+
+      {/* Created */}
+      <td className="px-4 py-3 text-sm text-muted-foreground">
+        {getRelativeTime(report.createdAt)}
+      </td>
+
+      {/* Actions */}
+      <td className="px-4 py-3">
+        <div className="flex items-center gap-1">
+          {!report.departmentId && (
+            <button
+              onClick={() => setAssigning(true)}
+              className="rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              title="Assign to department"
+            >
+              <Building2 className="h-4 w-4" />
+            </button>
+          )}
+          <button
+            onClick={handleHide}
+            disabled={toggleHide.isPending}
+            className="rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-50"
+            title={report.isHidden ? "Unhide report" : "Hide report"}
+          >
+            {report.isHidden ? (
+              <EyeOff className="h-4 w-4" />
+            ) : (
+              <Eye className="h-4 w-4" />
+            )}
+          </button>
+          <button
+            onClick={handleLock}
+            disabled={toggleLock.isPending}
+            className="rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-50"
+            title={report.isLocked ? "Unlock report" : "Lock report"}
+          >
+            {report.isLocked ? (
+              <LockOpen className="h-4 w-4" />
+            ) : (
+              <Lock className="h-4 w-4" />
+            )}
+          </button>
+        </div>
+        {assigning && (
+          <AssignModal report={report} onClose={() => setAssigning(false)} />
+        )}
+      </td>
+    </tr>
+  );
+}

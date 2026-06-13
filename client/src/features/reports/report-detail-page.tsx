@@ -10,6 +10,7 @@ import {
   ThumbsUp,
   UserRound,
   XCircle,
+  SlidersHorizontal,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Navbar } from "@/features/layout/components/navbar";
@@ -26,6 +27,8 @@ import { ReportLocationCard } from "@/features/reports/components/detail/report-
 import { ReportDiscussion } from "@/features/reports/components/detail/report-discussion";
 import { ReportPhotoGallery } from "@/features/reports/components/detail/report-photo-gallery";
 import { ReportEditForm } from "@/features/reports/components/detail/report-edit-form";
+import { StatusChangeModal } from "@/features/reports/components/detail/status-change-modal";
+import { canModerate } from "@/features/reports/lib/permissions";
 
 function MetaItem({
   icon: Icon,
@@ -54,6 +57,7 @@ export function ReportDetailPage() {
   const toggleSubscribe = useToggleSubscribe(id ?? "");
   const withdrawReport = useWithdrawReport(id ?? "");
   const [isEditing, setIsEditing] = useState(false);
+  const [changingStatus, setChangingStatus] = useState(false);
 
   if (isLoading) {
     return (
@@ -86,6 +90,7 @@ export function ReportDetailPage() {
   const canVote = isCitizen && !report.isOwner;
   const canManage =
     report.isOwner && report.status === "submitted" && !report.isLocked;
+  const canMod = canModerate(report, user);
 
   const handleWithdraw = () => {
     if (withdrawReport.isPending) return;
@@ -245,6 +250,18 @@ export function ReportDetailPage() {
                       </button>
                     </div>
                   )}
+
+                  {canMod && report.allowedTransitions.length > 0 && (
+                    <div className="flex w-full gap-2 sm:w-auto sm:items-center">
+                      <button
+                        onClick={() => setChangingStatus(true)}
+                        className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-border bg-card px-3 text-sm font-semibold text-foreground transition-colors hover:border-primary/50 hover:text-primary sm:w-auto sm:justify-start"
+                      >
+                        <SlidersHorizontal className="h-4 w-4" />
+                        Change status
+                      </button>
+                    </div>
+                  )}
                 </div>
               </section>
 
@@ -279,6 +296,13 @@ export function ReportDetailPage() {
           </div>
         </div>
       </main>
+
+      {changingStatus && (
+        <StatusChangeModal
+          report={report}
+          onClose={() => setChangingStatus(false)}
+        />
+      )}
     </>
   );
 }

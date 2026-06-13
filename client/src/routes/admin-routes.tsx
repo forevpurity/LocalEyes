@@ -9,10 +9,12 @@ import { AdminCategoriesPage } from "@/features/admin/categories/categories-page
 import { AdminStaffPage } from "@/features/admin/staff-page";
 import { AdminCitizensPage } from "@/features/admin/citizens-page";
 import { AdminAnalyticsPage } from "@/features/admin/analytics-page";
+import { ReportDetailPage } from "@/features/reports/report-detail-page";
 
 export function AdminRoutes() {
   return (
     <Routes>
+      <Route path="reports/:id" element={<ReportDetailPage />} />
       <Route element={<AdminLayout />}>
         <Route path="dashboard" element={<AdminDashboard />} />
         <Route path="reports" element={<AdminReportsPage />} />

@@ -1,9 +1,13 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
+import { toast } from "sonner";
+import { Eye, EyeOff } from "lucide-react";
 import { useAuth } from "@/features/auth/auth-context";
 import { useCreateComment } from "@/features/reports/hooks/use-create-comment";
 import { useEditComment } from "@/features/reports/hooks/use-edit-comment";
-import { getRelativeTime, isWithinPast } from "@/lib/utils";
+import { useToggleCommentHide } from "@/features/reports/hooks/use-toggle-comment-hide";
+import { canModerate } from "@/features/reports/lib/permissions";
+import { getRelativeTime, isWithinPast, cn } from "@/lib/utils";
 import { ApiRequestError } from "@/lib/api";
 import type { Comment, ReportDetail } from "@/types/api";
 
@@ -21,20 +25,32 @@ function initials(name: string | null): string {
 function CommentRow({
   reportId,
   comment,
+  canModerate: canMod,
 }: {
   reportId: string;
   comment: Comment;
+  canModerate: boolean;
 }) {
   const editComment = useEditComment(reportId, comment.id);
+  const toggleHide = useToggleCommentHide(reportId);
   const [isEditing, setIsEditing] = useState(false);
   const [draft, setDraft] = useState(comment.body ?? "");
   const [error, setError] = useState<string | null>(null);
+  const [revealed, setRevealed] = useState(false);
 
   const canEdit =
     comment.isMine &&
     !comment.isHidden &&
     comment.type === "discussion" &&
     isWithinPast(comment.createdAt, EDIT_WINDOW_MS);
+
+  const handleToggleHide = () => {
+    toggleHide.mutate(comment.id, {
+      onSuccess: () =>
+        toast.success(comment.isHidden ? "Comment unhidden" : "Comment hidden"),
+      onError: () => toast.error("Couldn't change comment visibility."),
+    });
+  };
 
   const handleSave = (e: FormEvent) => {
     e.preventDefault();
@@ -58,15 +74,59 @@ function CommentRow({
     setIsEditing(true);
   };
 
+  // Collapsed placeholder for hidden comments (moderators only)
+  if (comment.isHidden && canMod && !revealed) {
+    return (
+      <li className="flex items-center gap-3">
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground">
+          <EyeOff className="h-3.5 w-3.5" />
+        </span>
+        <div className="flex flex-1 items-center gap-3 rounded-lg border border-dashed border-border bg-muted/40 px-3 py-2">
+          <span className="min-w-0 flex-1 truncate text-sm text-muted-foreground">
+            Hidden comment by{" "}
+            <span className="font-medium text-foreground">
+              {comment.authorName ?? "Anonymous"}
+            </span>
+            {" · "}
+            {getRelativeTime(comment.createdAt)}
+          </span>
+          <button
+            onClick={() => setRevealed(true)}
+            className="shrink-0 text-[11px] font-medium text-muted-foreground transition-colors hover:text-foreground"
+          >
+            Reveal
+          </button>
+          <button
+            onClick={handleToggleHide}
+            disabled={toggleHide.isPending}
+            className="shrink-0 text-[11px] font-medium text-muted-foreground transition-colors hover:text-primary disabled:opacity-50"
+          >
+            Unhide
+          </button>
+        </div>
+      </li>
+    );
+  }
+
   return (
     <li className="flex gap-3">
       <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-surface-container-low text-xs font-semibold text-muted-foreground">
         {initials(comment.authorName)}
       </span>
-      <div className="min-w-0 flex-1 rounded-lg bg-surface-container-low px-3 py-2">
+      <div
+        className={cn(
+          "min-w-0 flex-1 rounded-lg bg-surface-container-low px-3 py-2",
+          comment.isHidden && "border-l-2 border-amber-400",
+        )}
+      >
         <div className="flex items-baseline justify-between gap-2">
-          <span className="truncate text-sm font-semibold text-card-foreground">
+          <span className="flex items-center gap-1.5 truncate text-sm font-semibold text-card-foreground">
             {comment.authorName ?? "Anonymous"}
+            {comment.isHidden && (
+              <span className="rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                Hidden
+              </span>
+            )}
           </span>
           <span className="shrink-0 text-[11px] text-muted-foreground">
             {comment.isEdited && "edited · "}
@@ -107,14 +167,39 @@ function CommentRow({
             <p className="mt-0.5 text-sm leading-5 text-on-surface-variant">
               {comment.body}
             </p>
-            {canEdit && (
-              <button
-                onClick={startEditing}
-                className="mt-1 text-[11px] font-medium text-muted-foreground hover:text-primary"
-              >
-                Edit
-              </button>
-            )}
+            <div className="mt-1 flex items-center gap-3">
+              {canEdit && (
+                <button
+                  onClick={startEditing}
+                  className="text-[11px] font-medium text-muted-foreground hover:text-primary"
+                >
+                  Edit
+                </button>
+              )}
+              {canMod && comment.isHidden && (
+                <button
+                  onClick={() => setRevealed(false)}
+                  className="text-[11px] font-medium text-muted-foreground hover:text-foreground"
+                >
+                  Collapse
+                </button>
+              )}
+              {canMod && (
+                <button
+                  onClick={handleToggleHide}
+                  disabled={toggleHide.isPending}
+                  title={comment.isHidden ? "Unhide comment" : "Hide comment"}
+                  className="inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground transition-colors hover:text-destructive disabled:opacity-50"
+                >
+                  {comment.isHidden ? (
+                    <Eye className="h-3 w-3" />
+                  ) : (
+                    <EyeOff className="h-3 w-3" />
+                  )}
+                  {comment.isHidden ? "Unhide" : "Hide"}
+                </button>
+              )}
+            </div>
           </>
         )}
       </div>
@@ -128,8 +213,9 @@ export function ReportDiscussion({ report }: { report: ReportDetail }) {
   const [body, setBody] = useState("");
   const [error, setError] = useState<string | null>(null);
 
+  const canMod = canModerate(report, user);
   const discussion = report.comments.filter(
-    (c) => c.type === "discussion" && !c.isHidden,
+    (c) => c.type === "discussion" && (canMod || !c.isHidden),
   );
 
   const handleSubmit = (e: FormEvent) => {
@@ -163,7 +249,12 @@ export function ReportDiscussion({ report }: { report: ReportDetail }) {
       {discussion.length > 0 ? (
         <ul className="space-y-3">
           {discussion.map((c) => (
-            <CommentRow key={c.id} reportId={report.id} comment={c} />
+            <CommentRow
+              key={c.id}
+              reportId={report.id}
+              comment={c}
+              canModerate={canMod}
+            />
           ))}
         </ul>
       ) : (

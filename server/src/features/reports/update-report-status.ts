@@ -109,7 +109,7 @@ export function updateReportStatus(router: Router) {
 
       await enforceStaffScope(actor, report);
 
-      requireCanTransition(report, data.newStatus);
+      requireCanTransition(report, data.newStatus, actor.role);
 
       const [comment, notificationRows] = await db.transaction(async (tx) => {
         await tx

@@ -64,6 +64,7 @@ export interface Report {
 export interface ReportDetail extends Report {
   isOwner: boolean;
   isSubscribed: boolean;
+  allowedTransitions: ReportStatus[];
   comments: Comment[];
 }
 

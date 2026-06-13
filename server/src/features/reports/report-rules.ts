@@ -7,7 +7,7 @@ import type { UserRole } from "../../db/schema/users.js";
 
 type Actor = { id: string; role: UserRole; displayName: string };
 
-const ALLOWED_TRANSITIONS: Record<string, ReadonlySet<string>> = {
+const STAFF_TRANSITIONS: Record<string, ReadonlySet<string>> = {
   submitted: new Set(["acknowledged", "rejected"]),
   acknowledged: new Set(["in_progress"]),
   in_progress: new Set(["resolved"]),
@@ -16,6 +16,23 @@ const ALLOWED_TRANSITIONS: Record<string, ReadonlySet<string>> = {
   rejected: new Set(),
   withdrawn: new Set(),
 };
+
+// Admins can additionally reopen terminal states to correct mistakes
+const ADMIN_TRANSITIONS: Record<string, ReadonlySet<string>> = {
+  ...Object.fromEntries(
+    Object.entries(STAFF_TRANSITIONS).map(([k, v]) => [k, v]),
+  ),
+  closed: new Set(["acknowledged"]),
+  rejected: new Set(["submitted"]),
+};
+
+export function getAllowedTransitions(
+  status: string,
+  role: UserRole,
+): string[] {
+  const map = role === "admin" ? ADMIN_TRANSITIONS : STAFF_TRANSITIONS;
+  return Array.from(map[status] ?? []);
+}
 
 function isOwner(report: { citizenId: string | null }, actor: Actor): boolean {
   return report.citizenId === actor.id;
@@ -30,8 +47,10 @@ function throwVisibilityMask(report: { isHidden: boolean }): never {
 export function requireCanTransition(
   report: { status: string },
   newStatus: string,
+  role: UserRole = "staff",
 ): void {
-  const allowed = ALLOWED_TRANSITIONS[report.status];
+  const map = role === "admin" ? ADMIN_TRANSITIONS : STAFF_TRANSITIONS;
+  const allowed = map[report.status];
   if (!allowed || !allowed.has(newStatus)) {
     throw new DomainRuleError(
       `Cannot transition from "${report.status}" to "${newStatus}"`,
