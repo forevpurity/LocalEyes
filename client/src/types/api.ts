@@ -123,6 +123,38 @@ export interface MarkAllReadResponse {
   count: number;
 }
 
+export interface StaffListItem {
+  id: string;
+  email: string;
+  displayName: string;
+  departmentId: string | null;
+  departmentName: string | null;
+  bannedAt: string | null;
+  createdAt: string;
+}
+
+export interface CitizenListItem {
+  id: string;
+  email: string;
+  displayName: string;
+  bannedAt: string | null;
+  createdAt: string;
+}
+
+export interface ListStaffResponse {
+  items: StaffListItem[];
+  nextCursor: string | null;
+}
+
+export interface ListCitizensResponse {
+  items: CitizenListItem[];
+  nextCursor: string | null;
+}
+
+export interface ToggleBanResponse {
+  banned: boolean;
+}
+
 export interface ApiErrorResponse {
   error: {
     code: string;
