@@ -79,6 +79,7 @@ Key conventions:
 - `routes/` — role-gated routing: `public-routes`, `citizen-routes`, `staff-routes`, `admin-routes`.
 - `features/<name>/` — colocated hooks/components (auth, reports, notifications, admin, layout, profile).
 - `types/api.ts` — shared API response types.
+- For client-side user feedback conventions (toast vs inline/banner error, and avoiding duplicate error surfacing), follow `docs/adr/0004-frontend-architecture.md`.
 
 ### Real-time notifications (end-to-end)
 

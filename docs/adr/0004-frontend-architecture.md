@@ -59,6 +59,23 @@ retries the original request, redirects to `/login` if refresh fails.
 Every feature's hook calls through this single tunnel — no raw `fetch`
 anywhere else.
 
+## User feedback conventions
+
+User-facing errors should have one primary surface per failure.
+
+- Form or modal submissions use inline or banner errors near the control
+  that needs attention. Do not also show an error toast for the same
+  failure.
+- Field-level validation and business-rule conflicts should be attached
+  inline when the UI has a natural local error surface.
+- Quick actions without a durable local surface (for example hide, lock,
+  subscribe, vote) should use toasts for failure and success feedback.
+- If an operation already has inline validation/conflict handling, any
+  unexpected fallback failure (network, 5xx, unknown response) must still
+  surface visibly, usually as a toast.
+- Avoid duplicate reporting of the same error across inline UI and toast at
+  the same time.
+
 ## Considered Options
 
 - **Kubb codegen (ADR 3):** originally planned but rejected for v1 to reduce
