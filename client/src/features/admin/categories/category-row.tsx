@@ -53,7 +53,9 @@ export function CategoryRow({ category }: CategoryRowProps) {
           const apiErr = err as ApiRequestError;
           if (apiErr.status === 409) {
             setEditError(apiErr.message);
+            return;
           }
+          toast.error(apiErr.message || "Couldn't update category.");
         },
       },
     );
@@ -73,7 +75,9 @@ export function CategoryRow({ category }: CategoryRowProps) {
         if (apiErr.status === 422) {
           setDeleteError(apiErr.message);
           setMode("delete-error");
+          return;
         }
+        toast.error(apiErr.message || "Couldn't delete category.");
       },
     });
   };

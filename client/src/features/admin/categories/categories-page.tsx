@@ -32,7 +32,9 @@ export function AdminCategoriesPage() {
           const apiErr = err as ApiRequestError;
           if (apiErr.status === 409) {
             setNewNameError(apiErr.message);
+            return;
           }
+          toast.error(apiErr.message || "Couldn't create category.");
         },
       },
     );

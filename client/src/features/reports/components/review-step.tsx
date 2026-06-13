@@ -9,7 +9,6 @@ import {
   Loader2,
   AlertCircle,
 } from "lucide-react";
-import { toast } from "sonner";
 import { useCreateReport } from "@/features/reports/hooks/use-create-report";
 import { useCategories } from "@/features/admin/categories/hooks/use-categories";
 import { Button } from "@/components/ui/button";
@@ -78,12 +77,6 @@ export function ReviewStep({
         onSuccess: (report) => {
           onSuccess(report.id);
         },
-        onError: (err) =>
-          toast.error(
-            err instanceof ApiRequestError
-              ? err.message
-              : "Failed to submit report. Please try again.",
-          ),
       },
     );
   };
