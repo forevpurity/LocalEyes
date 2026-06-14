@@ -7,6 +7,7 @@ import { useCreateComment } from "@/features/reports/hooks/use-create-comment";
 import { useEditComment } from "@/features/reports/hooks/use-edit-comment";
 import { useToggleCommentHide } from "@/features/reports/hooks/use-toggle-comment-hide";
 import { canModerate } from "@/features/reports/lib/permissions";
+import { getRoleBadge } from "@/features/reports/lib/role-styles";
 import { getRelativeTime, isWithinPast, cn } from "@/lib/utils";
 import { ApiRequestError } from "@/lib/api";
 import type { Comment, ReportDetail } from "@/types/api";
@@ -122,6 +123,20 @@ function CommentRow({
         <div className="flex items-baseline justify-between gap-2">
           <span className="flex items-center gap-1.5 truncate text-sm font-semibold text-card-foreground">
             {comment.authorName ?? "Anonymous"}
+            {(() => {
+              const badge = getRoleBadge(comment.authorRole);
+              return badge ? (
+                <span
+                  className={cn(
+                    "rounded-full px-1.5 py-0.5 text-[10px] font-semibold uppercase",
+                    badge.bg,
+                    badge.text,
+                  )}
+                >
+                  {badge.label}
+                </span>
+              ) : null;
+            })()}
             {comment.isHidden && (
               <span className="rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
                 Hidden

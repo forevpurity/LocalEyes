@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { USER_ROLES } from "../../db/schema/users.js";
 
 export const reportResponse = z
   .object({
@@ -25,6 +26,7 @@ export const commentResponse = z
     body: z.string().nullable(),
     newStatus: z.string().nullable(),
     authorName: z.string().nullable(),
+    authorRole: z.enum(USER_ROLES).nullable(),
     isMine: z.boolean(),
     isHidden: z.boolean(),
     isEdited: z.boolean(),

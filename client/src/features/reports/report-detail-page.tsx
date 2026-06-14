@@ -48,6 +48,27 @@ function MetaItem({
   );
 }
 
+function ManagedDetailTopBar({
+  label,
+  onBack,
+}: {
+  label: string;
+  onBack: () => void;
+}) {
+  return (
+    <header className="sticky top-0 z-40 border-b border-border bg-card/95 backdrop-blur">
+      <div className="mx-auto flex h-16 max-w-6xl items-center px-4 md:px-6">
+        <button
+          onClick={onBack}
+          className="inline-flex items-center gap-2 rounded-lg px-2 py-1 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-primary"
+        >
+          <ArrowLeft className="h-4 w-4" /> {label}
+        </button>
+      </div>
+    </header>
+  );
+}
+
 export function ReportDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -58,12 +79,42 @@ export function ReportDetailPage() {
   const withdrawReport = useWithdrawReport(id ?? "");
   const [isEditing, setIsEditing] = useState(false);
   const [changingStatus, setChangingStatus] = useState(false);
+  const isStaff = user?.role === "staff";
+  const isAdmin = user?.role === "admin";
+  const usesManagedChrome = isStaff || isAdmin;
+  const handleBack = () => {
+    if (isStaff) {
+      navigate("/queue");
+      return;
+    }
+    if (isAdmin) {
+      navigate("/reports");
+      return;
+    }
+    navigate(-1);
+  };
+  const pageChrome = usesManagedChrome ? (
+    <ManagedDetailTopBar
+      label={isAdmin ? "Back to reports" : "Back to queue"}
+      onBack={handleBack}
+    />
+  ) : (
+    <Navbar />
+  );
+  // Managed chrome (top bar) is 64px tall; the citizen Navbar is 72px. These
+  // class strings must stay literal so Tailwind's JIT scanner can emit them.
+  const mainClassName = usesManagedChrome
+    ? "min-h-[calc(100vh-64px)] bg-surface-container-low"
+    : "min-h-[calc(100vh-72px)] bg-surface-container-low";
+  const contentHeight = usesManagedChrome
+    ? "h-[calc(100vh-64px)]"
+    : "h-[calc(100vh-72px)]";
 
   if (isLoading) {
     return (
       <>
-        <Navbar />
-        <div className="flex h-[calc(100vh-72px)] items-center justify-center">
+        {pageChrome}
+        <div className={cn("flex items-center justify-center", contentHeight)}>
           <p className="text-muted-foreground">Loading...</p>
         </div>
       </>
@@ -73,8 +124,8 @@ export function ReportDetailPage() {
   if (error || !report) {
     return (
       <>
-        <Navbar />
-        <div className="flex h-[calc(100vh-72px)] items-center justify-center">
+        {pageChrome}
+        <div className={cn("flex items-center justify-center", contentHeight)}>
           <p className="text-muted-foreground">Report not found.</p>
         </div>
       </>
@@ -104,15 +155,17 @@ export function ReportDetailPage() {
 
   return (
     <>
-      <Navbar />
-      <main className="min-h-[calc(100vh-72px)] bg-surface-container-low">
+      {pageChrome}
+      <main className={mainClassName}>
         <div className="mx-auto max-w-6xl px-4 py-5 md:px-6 md:py-8">
-          <button
-            onClick={() => navigate(-1)}
-            className="mb-4 inline-flex items-center gap-2 rounded-lg px-2 py-1 text-sm font-medium text-muted-foreground transition-colors hover:bg-background hover:text-primary"
-          >
-            <ArrowLeft className="h-4 w-4" /> Back
-          </button>
+          {!usesManagedChrome && (
+            <button
+              onClick={handleBack}
+              className="mb-4 inline-flex items-center gap-2 rounded-lg px-2 py-1 text-sm font-medium text-muted-foreground transition-colors hover:bg-background hover:text-primary"
+            >
+              <ArrowLeft className="h-4 w-4" /> Back
+            </button>
+          )}
 
           <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_21rem]">
             <div className="space-y-5">

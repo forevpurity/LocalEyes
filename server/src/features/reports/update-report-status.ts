@@ -4,6 +4,7 @@ import { z } from "zod";
 import { and, eq } from "drizzle-orm";
 import { db } from "../../db/client.js";
 import { reports, REPORT_STATUSES } from "../../db/schema/reports.js";
+import { USER_ROLES } from "../../db/schema/users.js";
 import { comments } from "../../db/schema/comments.js";
 import { subscriptions } from "../../db/schema/subscriptions.js";
 import { users } from "../../db/schema/users.js";
@@ -37,7 +38,10 @@ const statusNoteResponseSchema = z
     body: z.string().nullable(),
     newStatus: z.string().nullable(),
     authorName: z.string().nullable(),
+    authorRole: z.enum(USER_ROLES).nullable(),
+    isMine: z.boolean(),
     isHidden: z.boolean(),
+    isEdited: z.boolean(),
     createdAt: z.string(),
   })
   .meta({ id: "StatusNoteResponse" });
@@ -166,6 +170,8 @@ export function updateReportStatus(router: Router) {
         body: comment.body,
         newStatus: comment.newStatus,
         authorName: actor.displayName,
+        authorRole: actor.role,
+        isMine: true,
         isHidden: comment.isHidden,
         isEdited: comment.isEdited,
         createdAt: comment.createdAt.toISOString(),

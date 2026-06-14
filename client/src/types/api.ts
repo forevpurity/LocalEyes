@@ -16,6 +16,7 @@ export interface User {
   role: Role;
   departmentId?: string | null;
   bannedAt?: string | null;
+  mustChangePassword: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -76,6 +77,7 @@ export interface Comment {
   body: string | null;
   newStatus: string | null;
   authorName: string | null;
+  authorRole?: Role | null;
   isMine: boolean;
   isHidden: boolean;
   isEdited: boolean;

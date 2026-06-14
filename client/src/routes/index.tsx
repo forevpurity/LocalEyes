@@ -1,5 +1,6 @@
 import { useAuth } from "@/features/auth/auth-context";
 import { CivicShield } from "@/components/civic-shield";
+import { ForcePasswordChangePage } from "@/features/auth/force-password-change-page";
 import { PublicRoutes } from "./public-routes";
 import { CitizenRoutes } from "./citizen-routes";
 import { StaffRoutes } from "./staff-routes";
@@ -17,6 +18,8 @@ export function AppRoutes() {
   }
 
   if (!user) return <PublicRoutes />;
+
+  if (user.mustChangePassword) return <ForcePasswordChangePage />;
 
   switch (user.role) {
     case "admin":

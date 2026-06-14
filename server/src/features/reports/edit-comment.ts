@@ -131,7 +131,7 @@ export function editComment(router: Router) {
       const authorRow = updated.authorId
         ? await db.query.users.findFirst({
             where: eq(users.id, updated.authorId),
-            columns: { displayName: true },
+            columns: { displayName: true, role: true },
           })
         : null;
 
@@ -141,6 +141,7 @@ export function editComment(router: Router) {
         body: updated.body,
         newStatus: updated.newStatus,
         authorName: authorRow?.displayName ?? null,
+        authorRole: authorRow?.role ?? null,
         isMine: true,
         isHidden: updated.isHidden,
         isEdited: updated.isEdited,

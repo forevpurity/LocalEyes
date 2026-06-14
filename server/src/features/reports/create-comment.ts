@@ -154,6 +154,7 @@ export function createComment(router: Router) {
         body: comment.body,
         newStatus: comment.newStatus,
         authorName: actor.displayName,
+        authorRole: actor.role,
         isMine: true,
         isHidden: comment.isHidden,
         isEdited: comment.isEdited,

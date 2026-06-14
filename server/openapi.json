@@ -3680,6 +3680,21 @@
                     }
                   ]
                 },
+                "authorRole": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "enum": [
+                        "citizen",
+                        "staff",
+                        "admin"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
                 "isMine": {
                   "type": "boolean"
                 },
@@ -3699,6 +3714,7 @@
                 "body",
                 "newStatus",
                 "authorName",
+                "authorRole",
                 "isMine",
                 "isHidden",
                 "isEdited",
@@ -3779,6 +3795,21 @@
               }
             ]
           },
+          "authorRole": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "citizen",
+                  "staff",
+                  "admin"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "isMine": {
             "type": "boolean"
           },
@@ -3798,6 +3829,7 @@
           "body",
           "newStatus",
           "authorName",
+          "authorRole",
           "isMine",
           "isHidden",
           "isEdited",
@@ -3850,7 +3882,28 @@
               }
             ]
           },
+          "authorRole": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "citizen",
+                  "staff",
+                  "admin"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "isMine": {
+            "type": "boolean"
+          },
           "isHidden": {
+            "type": "boolean"
+          },
+          "isEdited": {
             "type": "boolean"
           },
           "createdAt": {
@@ -3863,7 +3916,10 @@
           "body",
           "newStatus",
           "authorName",
+          "authorRole",
+          "isMine",
           "isHidden",
+          "isEdited",
           "createdAt"
         ],
         "additionalProperties": false

@@ -28,6 +28,7 @@ type ChangePasswordFormData = z.infer<typeof changePasswordSchema>;
 
 export function ProfilePage() {
   const { user, setUser } = useAuth();
+  const isStaff = user?.role === "staff";
 
   const {
     register: regName,
@@ -94,7 +95,7 @@ export function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-background text-on-background">
-      <Navbar />
+      {!isStaff && <Navbar />}
       <div className="max-w-2xl mx-auto px-4 py-10 space-y-8">
         <div>
           <h1 className="text-headline-md font-headline-md text-on-surface">Profile</h1>

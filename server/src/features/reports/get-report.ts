@@ -6,7 +6,7 @@ import { db } from "../../db/client.js";
 import { reports } from "../../db/schema/reports.js";
 import { categories } from "../../db/schema/categories.js";
 import { departments } from "../../db/schema/departments.js";
-import { users } from "../../db/schema/users.js";
+import { users, USER_ROLES } from "../../db/schema/users.js";
 import { reportPhotos } from "../../db/schema/report-photos.js";
 import { comments } from "../../db/schema/comments.js";
 import { subscriptions } from "../../db/schema/subscriptions.js";
@@ -24,6 +24,7 @@ const commentItemSchema = z.object({
   body: z.string().nullable(),
   newStatus: z.string().nullable(),
   authorName: z.string().nullable(),
+  authorRole: z.enum(USER_ROLES).nullable(),
   isMine: z.boolean(),
   isHidden: z.boolean(),
   isEdited: z.boolean(),
@@ -151,6 +152,7 @@ export function getReport(router: Router) {
           body: comments.body,
           newStatus: comments.newStatus,
           authorName: users.displayName,
+          authorRole: users.role,
           authorId: comments.authorId,
           isHidden: comments.isHidden,
           isEdited: comments.isEdited,
@@ -168,6 +170,7 @@ export function getReport(router: Router) {
       body: c.isHidden && (!actor || actor.role === "citizen") ? null : c.body,
       newStatus: c.newStatus,
       authorName: c.authorName,
+      authorRole: c.authorRole,
       isMine: actor != null && c.authorId === actor.id,
       isHidden: c.isHidden,
       isEdited: c.isEdited,
