@@ -1,10 +1,127 @@
+import { useState } from "react";
+import { Loader2, Clock } from "lucide-react";
+import { useAnalyticsSummary } from "./analytics/hooks/use-analytics-summary";
+import { StatCard } from "./analytics/components/stat-card";
+import {
+  CountBarChart,
+  type CountDatum,
+} from "./analytics/components/count-bar-chart";
+import { TrendsLineChart } from "./analytics/components/trends-line-chart";
+import { TopVotedList } from "./analytics/components/top-voted-list";
+import { formatResolution } from "./analytics/lib/format-resolution";
+import { ExportButtons } from "./exports/export-buttons";
+import {
+  getStatusStyle,
+  getStatusColor,
+} from "@/features/reports/lib/status-styles";
+import type { AnalyticsGranularity } from "@/types/api";
+
+const GRANULARITIES: AnalyticsGranularity[] = ["day", "week", "month"];
+
 export function AdminAnalyticsPage() {
+  const [granularity, setGranularity] = useState<AnalyticsGranularity>("day");
+  const { data, isLoading, error } = useAnalyticsSummary(granularity);
+
+  const statusData: CountDatum[] =
+    data?.statusCounts.map((s) => ({
+      label: getStatusStyle(s.status).label,
+      count: s.count,
+      color: getStatusColor(s.status),
+    })) ?? [];
+  const categoryData: CountDatum[] =
+    data?.categoryCounts.map((c) => ({
+      label: c.categoryName,
+      count: c.count,
+    })) ?? [];
+  const departmentData: CountDatum[] =
+    data?.departmentCounts.map((d) => ({
+      label: d.departmentName,
+      count: d.count,
+    })) ?? [];
+
   return (
     <div className="p-6">
-      <h1 className="text-headline-sm font-semibold">Analytics</h1>
-      <p className="text-body-sm text-muted-foreground mt-2">
-        System-wide analytics and trends — will be implemented in a future step
-      </p>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="text-headline-sm font-semibold">Analytics</h1>
+          <p className="text-body-sm text-muted-foreground">
+            System-wide trends and metrics
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <select
+            value={granularity}
+            onChange={(e) =>
+              setGranularity(e.target.value as AnalyticsGranularity)
+            }
+            className="rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary/20"
+          >
+            {GRANULARITIES.map((g) => (
+              <option key={g} value={g}>
+                By {g}
+              </option>
+            ))}
+          </select>
+          <ExportButtons />
+        </div>
+      </div>
+
+      {isLoading && (
+        <div
+          role="status"
+          className="flex h-64 items-center justify-center"
+        >
+          <Loader2
+            className="h-6 w-6 animate-spin text-muted-foreground"
+            aria-hidden="true"
+          />
+          <span className="sr-only">Loading analytics…</span>
+        </div>
+      )}
+
+      {error && (
+        <div className="flex h-64 items-center justify-center text-center text-sm text-destructive">
+          Failed to load analytics.
+          <button
+            onClick={() => window.location.reload()}
+            className="ml-1 underline hover:no-underline"
+          >
+            Retry
+          </button>
+        </div>
+      )}
+
+      {!isLoading && !error && data && (
+        <div className="space-y-4">
+          <div className="grid gap-4 sm:grid-cols-3">
+            <StatCard label="Total reports" value={data.totalReports} />
+            <StatCard
+              label="Avg. time to resolve"
+              value={formatResolution(data.averageResolution.averageHours)}
+              icon={Clock}
+            />
+            <StatCard
+              label="Resolved reports"
+              value={data.averageResolution.resolvedCount}
+            />
+          </div>
+
+          <TrendsLineChart
+            data={data.reportsOverTime}
+            granularity={granularity}
+          />
+
+          <div className="grid gap-4 lg:grid-cols-2">
+            <CountBarChart title="Reports by status" data={statusData} />
+            <CountBarChart title="Reports by category" data={categoryData} />
+            <CountBarChart
+              title="Reports by department"
+              data={departmentData}
+            />
+            <TopVotedList reports={data.topVotedReports} />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

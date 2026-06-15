@@ -14,6 +14,8 @@ import { reportsRouter } from "./features/reports/index.js";
 import { staffRouter } from "./features/staff/index.js";
 import { citizensRouter } from "./features/citizens/index.js";
 import { notificationsRouter } from "./features/notifications/index.js";
+import { analyticsRouter } from "./features/analytics/index.js";
+import { exportsRouter } from "./features/exports/index.js";
 import { errorHandler, notFoundHandler } from "./common/middleware.js";
 import { initSocket } from "./common/socket.js";
 
@@ -37,6 +39,8 @@ api.use("/categories", categoriesRouter);
 api.use("/reports", reportsRouter);
 api.use("/admin/staff", staffRouter);
 api.use("/admin/citizens", citizensRouter);
+api.use("/admin/analytics", analyticsRouter);
+api.use("/admin/exports", exportsRouter);
 api.use("/notifications", notificationsRouter);
 app.use("/api", api);
 

@@ -207,6 +207,13 @@
     --on-primary: #ffffff;
     --on-secondary: #ffffff;
     --surface: #f8f9ff;
+
+    /* Chart palette (light) — categorical, on-brand blue/green/amber/violet/cyan */
+    --chart-1: oklch(0.55 0.18 255);
+    --chart-2: oklch(0.6 0.15 150);
+    --chart-3: oklch(0.72 0.16 70);
+    --chart-4: oklch(0.55 0.2 300);
+    --chart-5: oklch(0.65 0.13 200);
 }
 
 .dark {

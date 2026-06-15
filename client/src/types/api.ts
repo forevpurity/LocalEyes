@@ -157,6 +157,53 @@ export interface ToggleBanResponse {
   banned: boolean;
 }
 
+export interface StatusCount {
+  status: ReportStatus;
+  count: number;
+}
+
+export interface CategoryCount {
+  categoryId: string;
+  categoryName: string;
+  count: number;
+}
+
+export interface DepartmentCount {
+  departmentId: string | null;
+  departmentName: string;
+  count: number;
+}
+
+export interface TrendPoint {
+  period: string;
+  count: number;
+}
+
+export interface AverageResolution {
+  averageSeconds: number | null;
+  averageHours: number | null;
+  resolvedCount: number;
+}
+
+export interface TopVotedReport {
+  id: string;
+  title: string;
+  status: ReportStatus;
+  voteCount: number;
+}
+
+export interface AnalyticsSummary {
+  totalReports: number;
+  statusCounts: StatusCount[];
+  categoryCounts: CategoryCount[];
+  departmentCounts: DepartmentCount[];
+  reportsOverTime: TrendPoint[];
+  averageResolution: AverageResolution;
+  topVotedReports: TopVotedReport[];
+}
+
+export type AnalyticsGranularity = "day" | "week" | "month";
+
 export interface ApiErrorResponse {
   error: {
     code: string;

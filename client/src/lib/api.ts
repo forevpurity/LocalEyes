@@ -43,7 +43,7 @@ async function parseErrorResponse(res: Response) {
   );
 }
 
-async function fetchWithAuth(
+export async function fetchWithAuth(
   url: string,
   options: RequestInit = {},
 ): Promise<Response> {
