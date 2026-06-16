@@ -1,11 +1,23 @@
+import { sql } from "drizzle-orm";
 import {
   DomainRuleError,
   ForbiddenError,
   NotFoundError,
 } from "../../common/errors.js";
+import { users } from "../../db/schema/users.js";
 import type { UserRole } from "../../db/schema/users.js";
 
 type Actor = { id: string; role: UserRole; displayName: string };
+
+// Banned Citizens are anonymised on public-facing report data (CONTEXT.md).
+export const anonymizedCitizenName = sql<string | null>`
+  CASE WHEN ${users.bannedAt} IS NULL THEN ${users.displayName} ELSE NULL END`;
+
+// Comments: only anonymise banned *citizens*; preserve staff/admin authorship
+// on status notes for accountability.
+export const anonymizedAuthorName = sql<string | null>`
+  CASE WHEN ${users.bannedAt} IS NOT NULL AND ${users.role} = 'citizen'
+       THEN NULL ELSE ${users.displayName} END`;
 
 const STAFF_TRANSITIONS: Record<string, ReadonlySet<string>> = {
   submitted: new Set(["acknowledged", "rejected"]),

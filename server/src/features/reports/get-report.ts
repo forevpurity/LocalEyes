@@ -15,7 +15,12 @@ import {
   errorResponseSchema,
 } from "../../common/errors.js";
 import { optionalAuthenticate } from "../../common/auth.js";
-import { requireReportVisibleToCitizen, getAllowedTransitions } from "./report-rules.js";
+import {
+  requireReportVisibleToCitizen,
+  getAllowedTransitions,
+  anonymizedCitizenName,
+  anonymizedAuthorName,
+} from "./report-rules.js";
 import { enforceStaffScope } from "./enforce-staff-scope.js";
 
 const commentItemSchema = z.object({
@@ -91,6 +96,7 @@ export function getReport(router: Router) {
   router.get("/:id", optionalAuthenticate(), async (req, res) => {
     const actor = req.actor ?? null;
     const { id } = req.params;
+    const hideName = !actor || actor.role === "citizen"; // public sees Anonymous
 
     const row = await db
       .select({
@@ -109,7 +115,7 @@ export function getReport(router: Router) {
         longitude: sql<number>`ST_X(${reports.location})`,
         categoryName: categories.name,
         departmentName: departments.name,
-        citizenName: users.displayName,
+        citizenName: hideName ? anonymizedCitizenName : users.displayName,
         voteCount: sql<number>`(SELECT COUNT(*)::int FROM votes WHERE votes.report_id = ${reports.id})`,
         hasVoted:
           actor?.role === "citizen"
@@ -151,7 +157,7 @@ export function getReport(router: Router) {
           type: comments.type,
           body: comments.body,
           newStatus: comments.newStatus,
-          authorName: users.displayName,
+          authorName: hideName ? anonymizedAuthorName : users.displayName,
           authorRole: users.role,
           authorId: comments.authorId,
           isHidden: comments.isHidden,

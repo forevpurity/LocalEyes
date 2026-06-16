@@ -19,6 +19,7 @@ import {
   errorResponseSchema,
 } from "../../common/errors.js";
 import { optionalAuthenticate } from "../../common/auth.js";
+import { anonymizedCitizenName } from "./report-rules.js";
 
 const MAP_LIMIT = 200;
 
@@ -112,6 +113,7 @@ export function listReports(router: Router) {
     const isStaff = actor?.role === "staff";
     const isAdmin = actor?.role === "admin";
     const isGuestOrCitizen = !actor || actor.role === "citizen";
+    const hideName = isGuestOrCitizen; // public sees Anonymous for banned citizens
     const hasBbox =
       query.minLat != null &&
       query.maxLat != null &&
@@ -237,7 +239,7 @@ export function listReports(router: Router) {
         longitude: sql<number>`ST_X(${reports.location})`,
         categoryName: categories.name,
         departmentName: departments.name,
-        citizenName: users.displayName,
+        citizenName: hideName ? anonymizedCitizenName : users.displayName,
         voteCount: sql<number>`(SELECT COUNT(*)::int FROM votes WHERE votes.report_id = ${reports.id})`,
         hasVoted:
           actor?.role === "citizen"
