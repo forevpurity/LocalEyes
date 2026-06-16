@@ -17,6 +17,7 @@ import {
 } from "../../common/errors.js";
 import { parseAndValidate } from "../../common/validate.js";
 import { authenticate } from "../../common/auth.js";
+import { reportCreateLimiter } from "../../common/rate-limit.js";
 import { getCoveringDepartment } from "../../common/geo.js";
 import { reportResponse } from "./schemas.js";
 
@@ -111,6 +112,7 @@ export const createReportDoc = {
 export function createReport(router: Router) {
   router.post(
     "/",
+    reportCreateLimiter,
     authenticate("citizen"),
     upload.array("photos", MAX_FILES),
     async (req, res) => {

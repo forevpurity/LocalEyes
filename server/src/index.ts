@@ -18,6 +18,7 @@ import { analyticsRouter } from "./features/analytics/index.js";
 import { exportsRouter } from "./features/exports/index.js";
 import { errorHandler, notFoundHandler } from "./common/middleware.js";
 import { initSocket } from "./common/socket.js";
+import { globalLimiter, authLimiter } from "./common/rate-limit.js";
 
 const UPLOAD_DIR = process.env.UPLOAD_DIR ?? "uploads";
 
@@ -32,6 +33,11 @@ app.use(cookieParser());
 app.use("/uploads", express.static(UPLOAD_DIR));
 
 const api = express.Router();
+
+// Rate limiting — specific limiters first, then global
+api.use("/auth", authLimiter);
+api.use(globalLimiter);
+
 api.use(healthRouter);
 api.use("/auth", authRouter);
 api.use("/departments", departmentsRouter);
