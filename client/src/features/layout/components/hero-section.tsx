@@ -25,7 +25,7 @@ export function HeroSection() {
           </div>
           <div className="flex flex-col sm:flex-row gap-3">
             <Link
-              to="/report"
+              to="/login?redirect=/reports/new"
               className="bg-primary text-primary-foreground font-label-md text-label-md h-[48px] px-6 rounded-lg flex items-center justify-center gap-2 hover:bg-primary/90 transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
             >
               <span className="material-symbols-outlined">add_circle</span>

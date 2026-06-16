@@ -8,3 +8,4 @@ dist/
 clientbak/
 plan/
 uploads/
+.playwright-mcp/

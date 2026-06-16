@@ -1,7 +1,8 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Link } from "react-router";
+import { flushSync } from "react-dom";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { useMutation } from "@tanstack/react-query";
 import { api, ApiRequestError } from "@/lib/api";
 import type { User } from "@/types/api";
@@ -18,6 +19,14 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 export function LoginPage() {
   const { setUser } = useAuth();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirectParam = searchParams.get("redirect");
+  // Only allow internal, single-slash paths to avoid open redirects
+  const redirectTo =
+    redirectParam && redirectParam.startsWith("/") && !redirectParam.startsWith("//")
+      ? redirectParam
+      : null;
   const {
     register,
     handleSubmit,
@@ -34,7 +43,15 @@ export function LoginPage() {
         body: JSON.stringify(data),
       }),
     onSuccess: (data) => {
-      setUser(data);
+      if (redirectTo) {
+        // Commit the auth state (which swaps the route tree to the role-based
+        // routes) before navigating, so the intended destination isn't stolen
+        // by the role routes' catch-all redirect.
+        flushSync(() => setUser(data));
+        navigate(redirectTo, { replace: true });
+      } else {
+        setUser(data);
+      }
       toast.success("Welcome back!");
     },
     onError: (err) => {
