@@ -238,6 +238,7 @@ export function RegisterPage() {
                     className={`block w-full pl-16 pr-10 py-3 border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary bg-surface-bright text-on-surface text-body-md transition-all outline-none placeholder-on-surface-variant/50 ${errors.password ? "border-error" : "border-outline-variant"}`}
                     id="password"
                     type={showPassword ? "text" : "password"}
+                    autoComplete="new-password"
                     placeholder="••••••••"
                     {...register("password")}
                   />
@@ -276,6 +277,7 @@ export function RegisterPage() {
                     className={`block w-full pl-16 pr-10 py-3 border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary bg-surface-bright text-on-surface text-body-md transition-all outline-none placeholder-on-surface-variant/50 ${errors.confirmPassword ? "border-error" : "border-outline-variant"}`}
                     id="confirmPassword"
                     type={showConfirmPassword ? "text" : "password"}
+                    autoComplete="new-password"
                     placeholder="••••••••"
                     {...register("confirmPassword")}
                   />

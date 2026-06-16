@@ -115,6 +115,7 @@ export function CreateStaffModal({ onClose }: CreateStaffModalProps) {
           <span className="font-medium text-foreground">Temporary password</span>
           <input
             type="password"
+            autoComplete="new-password"
             value={password}
             onChange={(e) => {
               setPassword(e.target.value);

@@ -94,6 +94,7 @@ export function ForcePasswordChangePage() {
             <input
               id="newPassword"
               type="password"
+              autoComplete="new-password"
               placeholder="••••••••"
               className={`block w-full rounded-lg border px-3 py-2.5 text-sm text-foreground outline-none transition-all focus:border-primary focus:ring-1 focus:ring-primary/20 ${
                 errors.newPassword ? "border-destructive" : "border-border"
@@ -117,6 +118,7 @@ export function ForcePasswordChangePage() {
             <input
               id="confirmPassword"
               type="password"
+              autoComplete="new-password"
               placeholder="••••••••"
               className={`block w-full rounded-lg border px-3 py-2.5 text-sm text-foreground outline-none transition-all focus:border-primary focus:ring-1 focus:ring-primary/20 ${
                 errors.confirmPassword ? "border-destructive" : "border-border"

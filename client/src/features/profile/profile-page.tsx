@@ -162,6 +162,7 @@ export function ProfilePage() {
               <input
                 id="currentPassword"
                 type="password"
+                autoComplete="current-password"
                 placeholder="••••••••"
                 className={`block w-full px-3 py-3 border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary bg-surface-bright text-on-surface text-body-md font-body-md transition-all outline-none placeholder-on-surface-variant/50 ${pwErrors.currentPassword ? "border-error" : "border-outline-variant"}`}
                 {...regPw("currentPassword")}
@@ -177,6 +178,7 @@ export function ProfilePage() {
               <input
                 id="newPassword"
                 type="password"
+                autoComplete="new-password"
                 placeholder="••••••••"
                 className={`block w-full px-3 py-3 border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary bg-surface-bright text-on-surface text-body-md font-body-md transition-all outline-none placeholder-on-surface-variant/50 ${pwErrors.newPassword ? "border-error" : "border-outline-variant"}`}
                 {...regPw("newPassword")}
@@ -192,6 +194,7 @@ export function ProfilePage() {
               <input
                 id="confirmPassword"
                 type="password"
+                autoComplete="new-password"
                 placeholder="••••••••"
                 className={`block w-full px-3 py-3 border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary bg-surface-bright text-on-surface text-body-md font-body-md transition-all outline-none placeholder-on-surface-variant/50 ${pwErrors.confirmPassword ? "border-error" : "border-outline-variant"}`}
                 {...regPw("confirmPassword")}
