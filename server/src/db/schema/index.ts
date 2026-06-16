@@ -8,3 +8,4 @@ export { comments } from "./comments.js";
 export { votes } from "./votes.js";
 export { subscriptions } from "./subscriptions.js";
 export { notifications } from "./notifications.js";
+export { passwordResetTokens } from "./password-reset-tokens.js";

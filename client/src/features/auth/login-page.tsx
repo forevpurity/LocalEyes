@@ -194,7 +194,7 @@ export function LoginPage() {
                   </label>
                   <Link
                     className="text-label-sm font-label-sm text-primary hover:text-on-primary-fixed-variant transition-colors"
-                    to="#"
+                    to="/forgot-password"
                   >
                     Forgot Password?
                   </Link>
