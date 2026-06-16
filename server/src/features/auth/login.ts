@@ -22,6 +22,7 @@ const loginResponse = z
     email: zEmail(),
     displayName: z.string(),
     role: z.enum(USER_ROLES),
+    departmentId: z.uuid().nullable(),
     mustChangePassword: z.boolean(),
   })
   .meta({ id: "LoginResponse" });
@@ -84,6 +85,7 @@ export function login(router: Router) {
       email: user.email,
       displayName: user.displayName,
       role: user.role,
+      departmentId: user.departmentId,
       mustChangePassword: user.mustChangePassword,
     });
   });
