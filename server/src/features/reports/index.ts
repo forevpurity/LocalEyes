@@ -17,11 +17,13 @@ import { toggleVote, toggleVoteDoc } from "./toggle-vote.js";
 import { toggleSubscribe, toggleSubscribeDoc } from "./toggle-subscribe.js";
 import { hideComment, hideCommentDoc } from "./hide-comment.js";
 import { editComment, editCommentDoc } from "./edit-comment.js";
+import { myStats, myStatsDoc } from "./my-stats.js";
 
 export const reportsRouter = Router();
 
 createReport(reportsRouter);
 listReports(reportsRouter);
+myStats(reportsRouter);
 getReport(reportsRouter);
 createComment(reportsRouter);
 updateReportStatus(reportsRouter);
@@ -73,5 +75,8 @@ export const reportsPaths = {
   },
   "/reports/{id}/comments/{commentId}": {
     patch: editCommentDoc,
+  },
+  "/reports/my-stats": {
+    get: myStatsDoc,
   },
 } satisfies ZodOpenApiPathsObject;

@@ -185,6 +185,12 @@ export interface AverageResolution {
   resolvedCount: number;
 }
 
+export interface MyReportStats {
+  totalReports: number;
+  statusCounts: { status: ReportStatus; count: number }[];
+  averageResolution: AverageResolution;
+}
+
 export interface TopVotedReport {
   id: string;
   title: string;

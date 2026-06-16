@@ -1,11 +1,21 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
-import { FileText, Plus, Search } from "lucide-react";
+import {
+  CheckCircle2,
+  Clock,
+  FileText,
+  Plus,
+  Search,
+  Timer,
+} from "lucide-react";
 import { Navbar } from "@/features/layout/components/navbar";
 import { useCategories } from "@/features/admin/categories/hooks/use-categories";
+import { StatCard } from "@/features/admin/analytics/components/stat-card";
+import { formatResolution } from "@/features/admin/analytics/lib/format-resolution";
 import { ReportCard } from "@/features/reports/components/report-card";
 import { useMyReports } from "@/features/reports/hooks/use-my-reports";
 import type { ReportsScope } from "@/features/reports/hooks/use-my-reports";
+import { useMyStats } from "@/features/reports/hooks/use-my-stats";
 import { getStatusStyle } from "@/features/reports/lib/status-styles";
 import { cn } from "@/lib/utils";
 import type { ReportStatus } from "@/types/api";
@@ -33,7 +43,9 @@ export function MyReportsPage() {
   const activeStatus = filter === "all" ? undefined : filter;
   const activeCategoryId = categoryId === "all" ? undefined : categoryId;
   const hasActiveFilters =
-    filter !== "all" || activeCategoryId !== undefined || debouncedSearch.length > 0;
+    filter !== "all" ||
+    activeCategoryId !== undefined ||
+    debouncedSearch.length > 0;
   const {
     data,
     isLoading,
@@ -47,6 +59,17 @@ export function MyReportsPage() {
     categoryId: activeCategoryId,
   });
   const reports = data?.items ?? [];
+
+  const { data: stats } = useMyStats({ enabled: scope === "mine" });
+  const resolved = stats?.averageResolution.resolvedCount ?? 0;
+  const open =
+    stats?.statusCounts
+      .filter((s) =>
+        ["submitted", "acknowledged", "in_progress"].includes(s.status),
+      )
+      .reduce((sum, s) => sum + s.count, 0) ?? 0;
+  const avgHours = stats?.averageResolution.averageHours ?? null;
+  const hasResolved = stats && stats.averageResolution.resolvedCount > 0;
 
   return (
     <>
@@ -85,6 +108,25 @@ export function MyReportsPage() {
               onClick={() => setScope("subscribed")}
             />
           </div>
+
+          {scope === "mine" && stats && (
+            <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <StatCard
+                label="Total"
+                value={stats.totalReports}
+                icon={FileText}
+              />
+              <StatCard label="Resolved" value={resolved} icon={CheckCircle2} />
+              <StatCard label="Open" value={open} icon={Clock} />
+              {hasResolved && (
+                <StatCard
+                  label="Avg. fix"
+                  value={formatResolution(avgHours)}
+                  icon={Timer}
+                />
+              )}
+            </div>
+          )}
 
           <div className="mb-3 flex flex-col gap-2 sm:flex-row">
             <div className="relative flex-1">
@@ -130,14 +172,19 @@ export function MyReportsPage() {
           </div>
 
           {isLoading ? (
-            <p className="py-16 text-center text-muted-foreground">Loading...</p>
+            <p className="py-16 text-center text-muted-foreground">
+              Loading...
+            </p>
           ) : error ? (
             <p className="py-16 text-center text-muted-foreground">
               Failed to load your reports.
             </p>
           ) : reports.length === 0 && !hasActiveFilters ? (
             <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed border-border bg-card py-16 text-center">
-              <FileText className="h-8 w-8 text-muted-foreground" aria-hidden="true" />
+              <FileText
+                className="h-8 w-8 text-muted-foreground"
+                aria-hidden="true"
+              />
               {scope === "mine" ? (
                 <>
                   <p className="text-sm text-muted-foreground">

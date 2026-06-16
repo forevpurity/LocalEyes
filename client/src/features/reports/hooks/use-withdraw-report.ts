@@ -11,6 +11,7 @@ export function useWithdrawReport(id: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["reports", id] });
       queryClient.invalidateQueries({ queryKey: ["reports", "mine"] });
+      queryClient.invalidateQueries({ queryKey: ["reports", "my-stats"] });
     },
   });
 }
