@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from "react";
 import { api } from "@/lib/api";
+import { queryClient } from "@/lib/query-client";
 import type { User } from "@/types/api";
 
 interface AuthContextValue {
@@ -44,6 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(async () => {
     await api("/auth/logout", { method: "POST" }).catch(() => {});
     setUser(null);
+    queryClient.clear();
   }, []);
 
   return (
