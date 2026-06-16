@@ -1,10 +1,11 @@
 ﻿import { Router } from "express";
 import { z } from "zod";
 import type { ZodOpenApiOperationObject } from "zod-openapi";
-import { authenticate } from "../../common/auth.js";
-import { errorResponseSchema } from "../../common/errors.js";
+import { pool } from "../../db/client.js";
 
-const healthResponse = z.object({ status: z.string() }).meta({ id: "HealthResponse" });
+const healthResponse = z
+  .object({ status: z.string(), db: z.string() })
+  .meta({ id: "HealthResponse" });
 
 export const checkHealthDoc = {
   summary: "Health check",
@@ -17,17 +18,35 @@ export const checkHealthDoc = {
         "application/json": { schema: healthResponse },
       },
     },
-    401: {
-      description: "Unauthorized",
+    503: {
+      description: "Service Unavailable — database is not reachable",
       content: {
-        "application/json": { schema: errorResponseSchema },
+        "application/json": { schema: healthResponse },
       },
     },
   },
 } satisfies ZodOpenApiOperationObject;
 
 export function checkHealth(router: Router) {
-  router.get("/health", authenticate(), (req, res) => {
-    res.json({ status: "ok" });
+  router.get("/health", async (_req, res) => {
+    let dbOk = false;
+    try {
+      await Promise.race([
+        pool.query("SELECT 1"),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error("timeout")), 2000),
+        ),
+      ]);
+      dbOk = true;
+    } catch {
+      // dbOk stays false
+    }
+
+    if (!dbOk) {
+      return res
+        .status(503)
+        .json({ status: "degraded", db: "disconnected" });
+    }
+    res.json({ status: "ok", db: "connected" });
   });
 }
