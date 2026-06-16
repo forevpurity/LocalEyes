@@ -33,6 +33,17 @@ export class ApiRequestError extends Error {
   }
 }
 
+/**
+ * Reads `retryAfterSeconds` from a rate-limit (429) error. The server sends it
+ * inside `error.details`, which is otherwise field→messages; cast locally so we
+ * don't loosen the type used by form field-mapping.
+ */
+export function getRetryAfterSeconds(err: ApiRequestError): number | undefined {
+  const value = (err.details as Record<string, unknown> | undefined)
+    ?.retryAfterSeconds;
+  return typeof value === "number" ? value : undefined;
+}
+
 async function parseErrorResponse(res: Response) {
   const err = await res.json().catch(() => ({}));
   return new ApiRequestError(

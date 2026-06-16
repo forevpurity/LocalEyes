@@ -2030,6 +2030,47 @@
         }
       }
     },
+    "/reports/my-stats": {
+      "get": {
+        "summary": "Personal report statistics for the current citizen",
+        "tags": [
+          "Reports"
+        ],
+        "operationId": "getMyReportStats",
+        "responses": {
+          "200": {
+            "description": "Aggregated stats for the citizen's own reports",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyReportStats"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Citizen only",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/admin/staff": {
       "post": {
         "summary": "Create a staff account",
@@ -4342,6 +4383,73 @@
         },
         "required": [
           "subscribed"
+        ],
+        "additionalProperties": false
+      },
+      "MyReportStats": {
+        "type": "object",
+        "properties": {
+          "totalReports": {
+            "type": "number"
+          },
+          "statusCounts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string"
+                },
+                "count": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "status",
+                "count"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "averageResolution": {
+            "type": "object",
+            "properties": {
+              "averageSeconds": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "averageHours": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "resolvedCount": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "averageSeconds",
+              "averageHours",
+              "resolvedCount"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "totalReports",
+          "statusCounts",
+          "averageResolution"
         ],
         "additionalProperties": false
       },
