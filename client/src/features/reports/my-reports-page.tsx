@@ -114,22 +114,19 @@ export function MyReportsPage() {
                 </option>
               ))}
             </select>
-          </div>
-
-          <div className="mb-4 flex flex-wrap gap-2">
-            <FilterChip
-              label="All"
-              active={filter === "all"}
-              onClick={() => setFilter("all")}
-            />
-            {STATUS_ORDER.map((status) => (
-              <FilterChip
-                key={status}
-                label={getStatusStyle(status).label}
-                active={filter === status}
-                onClick={() => setFilter(status)}
-              />
-            ))}
+            <select
+              value={filter}
+              onChange={(e) => setFilter(e.target.value as Filter)}
+              aria-label="Filter your owned reports by status"
+              className="h-10 shrink-0 appearance-none rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary/20 sm:w-52"
+            >
+              <option value="all">All statuses</option>
+              {STATUS_ORDER.map((status) => (
+                <option key={status} value={status}>
+                  {getStatusStyle(status).label}
+                </option>
+              ))}
+            </select>
           </div>
 
           {isLoading ? (
@@ -220,30 +217,6 @@ function ScopeTab({
         active
           ? "bg-primary text-primary-foreground shadow-sm"
           : "text-muted-foreground hover:text-foreground",
-      )}
-    >
-      {label}
-    </button>
-  );
-}
-
-function FilterChip({
-  label,
-  active,
-  onClick,
-}: {
-  label: string;
-  active: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm font-medium transition-colors",
-        active
-          ? "border-primary bg-primary text-primary-foreground"
-          : "border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground",
       )}
     >
       {label}

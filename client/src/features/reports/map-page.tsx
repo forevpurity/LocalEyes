@@ -8,8 +8,9 @@ import { CreateReportFab } from "@/features/reports/components/create-report-fab
 import { MobileReportSheet } from "@/features/reports/components/mobile-report-sheet";
 import { useMapReports, type BBox, type ViewportChange } from "@/features/reports/hooks/use-map-reports";
 import { useCategories } from "@/features/admin/categories/hooks/use-categories";
+import type { ReportSort } from "@/features/reports/components/sort-control";
 import { HCM_CENTER, DEFAULT_ZOOM } from "@/lib/map-constants";
-import type { Report } from "@/types/api";
+import type { Report, ReportStatus } from "@/types/api";
 
 function parseUrlViewport(searchParams: URLSearchParams) {
   const lat = parseFloat(searchParams.get("lat") ?? "");
@@ -33,6 +34,8 @@ export function MapPage() {
 
   const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedStatus, setSelectedStatus] = useState<ReportStatus | null>(null);
+  const [sortBy, setSortBy] = useState<ReportSort>("recent");
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
   const [bbox, setBbox] = useState<BBox | null>(null);
@@ -42,16 +45,28 @@ export function MapPage() {
 
   const filteredReports = useMemo(() => {
     const reports = data?.items ?? [];
-    return reports.filter((r) => {
+    const matched = reports.filter((r) => {
       const matchesCategory =
         selectedCategory === null || r.categoryId === selectedCategory;
+      const matchesStatus =
+        selectedStatus === null || r.status === selectedStatus;
       const matchesSearch =
         searchQuery.trim() === "" ||
         r.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         r.description.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchesCategory && matchesSearch;
+      return matchesCategory && matchesStatus && matchesSearch;
     });
-  }, [data?.items, selectedCategory, searchQuery]);
+
+    // The endpoint already returns newest-first, which is the "recent" order.
+    if (sortBy === "votes") {
+      return [...matched].sort(
+        (a, b) =>
+          b.voteCount - a.voteCount ||
+          b.createdAt.localeCompare(a.createdAt),
+      );
+    }
+    return matched;
+  }, [data?.items, selectedCategory, selectedStatus, searchQuery, sortBy]);
 
   const handleViewportChange = useCallback((viewport: ViewportChange) => {
     setBbox(viewport);
@@ -79,11 +94,15 @@ export function MapPage() {
           <MapSidebar
             selectedReportId={selectedReportId}
             selectedCategory={selectedCategory}
+            selectedStatus={selectedStatus}
+            sortBy={sortBy}
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
             filteredReports={filteredReports}
             categories={categories}
             onSelectCategory={handleSelectCategory}
+            onSelectStatus={setSelectedStatus}
+            onSortChange={setSortBy}
             onSelectReport={handleSelectReport}
           />
         </div>
@@ -108,11 +127,15 @@ export function MapPage() {
         <MobileReportSheet
           selectedReportId={selectedReportId}
           selectedCategory={selectedCategory}
+          selectedStatus={selectedStatus}
+          sortBy={sortBy}
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
           filteredReports={filteredReports}
           categories={categories}
           onSelectCategory={handleSelectCategory}
+          onSelectStatus={setSelectedStatus}
+          onSortChange={setSortBy}
           onSelectReport={handleSelectReport}
           isOpen={mobileSheetOpen}
           onOpenChange={setMobileSheetOpen}
