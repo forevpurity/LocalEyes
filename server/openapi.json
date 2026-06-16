@@ -2309,6 +2309,62 @@
         }
       }
     },
+    "/admin/analytics/department": {
+      "get": {
+        "summary": "Department-scoped analytics summary for staff",
+        "tags": [
+          "Analytics"
+        ],
+        "operationId": "getDepartmentSummary",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "granularity",
+            "schema": {
+              "default": "day",
+              "type": "string",
+              "enum": [
+                "day",
+                "week",
+                "month"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Aggregated report metrics for the staff member's department",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DepartmentSummary"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Staff only",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/admin/exports/reports.csv": {
       "get": {
         "summary": "Export all reports as CSV",
@@ -4391,6 +4447,166 @@
           "reportsOverTime",
           "averageResolution",
           "topVotedReports"
+        ],
+        "additionalProperties": false
+      },
+      "DepartmentSummary": {
+        "type": "object",
+        "properties": {
+          "totalReports": {
+            "type": "number"
+          },
+          "statusCounts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string"
+                },
+                "count": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "status",
+                "count"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "categoryCounts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "categoryId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "categoryName": {
+                  "type": "string"
+                },
+                "count": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "categoryId",
+                "categoryName",
+                "count"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "reportsOverTime": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "period": {
+                  "type": "string"
+                },
+                "count": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "period",
+                "count"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "averageResolution": {
+            "type": "object",
+            "properties": {
+              "averageSeconds": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "averageHours": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "resolvedCount": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "averageSeconds",
+              "averageHours",
+              "resolvedCount"
+            ],
+            "additionalProperties": false
+          },
+          "topVotedReports": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string"
+                },
+                "voteCount": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "id",
+                "title",
+                "status",
+                "voteCount"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "personalStats": {
+            "type": "object",
+            "properties": {
+              "reportsResolved": {
+                "type": "number"
+              },
+              "commentsAdded": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "reportsResolved",
+              "commentsAdded"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "totalReports",
+          "statusCounts",
+          "categoryCounts",
+          "reportsOverTime",
+          "averageResolution",
+          "topVotedReports",
+          "personalStats"
         ],
         "additionalProperties": false
       },

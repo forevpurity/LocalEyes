@@ -202,6 +202,21 @@ export interface AnalyticsSummary {
   topVotedReports: TopVotedReport[];
 }
 
+export interface DepartmentSummaryPersonalStats {
+  reportsResolved: number;
+  commentsAdded: number;
+}
+
+export interface DepartmentSummary {
+  totalReports: number;
+  statusCounts: StatusCount[];
+  categoryCounts: CategoryCount[];
+  reportsOverTime: TrendPoint[];
+  averageResolution: AverageResolution;
+  topVotedReports: TopVotedReport[];
+  personalStats: DepartmentSummaryPersonalStats;
+}
+
 export type AnalyticsGranularity = "day" | "week" | "month";
 
 export interface ApiErrorResponse {

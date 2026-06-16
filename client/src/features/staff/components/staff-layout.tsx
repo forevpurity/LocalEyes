@@ -1,8 +1,9 @@
-import { FileText, UserCircle, Briefcase, LogOut } from "lucide-react";
+import { LayoutDashboard, FileText, UserCircle, Briefcase, LogOut } from "lucide-react";
 import { NavLink, Outlet, useNavigate } from "react-router";
 import { useAuth } from "@/features/auth/auth-context";
 
 const navItems = [
+  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/queue", label: "Queue", icon: FileText },
   { to: "/profile", label: "Profile", icon: UserCircle },
 ];
