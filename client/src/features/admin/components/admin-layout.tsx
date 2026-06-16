@@ -1,4 +1,4 @@
-import { LayoutDashboard, FileText, Building2, Tags, Users, UserCircle, BarChart3, Shield, LogOut } from "lucide-react";
+import { LayoutDashboard, FileText, Building2, Tags, Users, UserCircle, BarChart3, CircleUserRound, Shield, LogOut } from "lucide-react";
 import { NavLink, Outlet, useNavigate } from "react-router";
 import { useAuth } from "@/features/auth/auth-context";
 
@@ -10,6 +10,7 @@ const navItems = [
   { to: "/staff", label: "Staff", icon: Users },
   { to: "/citizens", label: "Citizens", icon: UserCircle },
   { to: "/analytics", label: "Analytics", icon: BarChart3 },
+  { to: "/profile", label: "Profile", icon: CircleUserRound },
 ];
 
 export function AdminLayout() {

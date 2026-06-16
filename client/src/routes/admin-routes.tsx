@@ -10,6 +10,7 @@ import { AdminStaffPage } from "@/features/admin/staff-page";
 import { AdminCitizensPage } from "@/features/admin/citizens-page";
 import { AdminAnalyticsPage } from "@/features/admin/analytics-page";
 import { ReportDetailPage } from "@/features/reports/report-detail-page";
+import { ProfilePage } from "@/features/profile/profile-page";
 
 export function AdminRoutes() {
   return (
@@ -25,6 +26,7 @@ export function AdminRoutes() {
         <Route path="staff" element={<AdminStaffPage />} />
         <Route path="citizens" element={<AdminCitizensPage />} />
         <Route path="analytics" element={<AdminAnalyticsPage />} />
+        <Route path="profile" element={<ProfilePage />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Route>
     </Routes>
