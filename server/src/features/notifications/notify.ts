@@ -60,7 +60,7 @@ function renderNotification(input: NotificationTemplateInput): {
     case "report_hidden":
       return {
         title: "Report hidden",
-        body: `Your report '${input.reportTitle}' has been hidden by staff`,
+        body: `Your report '${input.reportTitle}' has been hidden`,
       };
   }
 }
