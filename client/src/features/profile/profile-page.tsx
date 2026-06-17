@@ -10,13 +10,18 @@ import { Avatar } from "@/components/avatar";
 import { toast } from "sonner";
 
 const displayNameSchema = z.object({
-  displayName: z.string().min(2, "Name must be at least 2 characters").max(50, "Name must be 50 characters or fewer"),
+  displayName: z
+    .string()
+    .min(2, "Name must be at least 2 characters")
+    .max(50, "Name must be 50 characters or fewer"),
 });
 
 const changePasswordSchema = z
   .object({
     currentPassword: z.string().min(1, "Current password is required"),
-    newPassword: z.string().min(8, "New password must be at least 8 characters"),
+    newPassword: z
+      .string()
+      .min(8, "New password must be at least 8 characters"),
     confirmPassword: z.string().min(1, "Please confirm your new password"),
   })
   .refine((d) => d.newPassword === d.confirmPassword, {
@@ -62,7 +67,9 @@ export function ProfilePage() {
       if (err instanceof ApiRequestError && err.details) {
         for (const [field, messages] of Object.entries(err.details)) {
           if (field in displayNameSchema.shape) {
-            setNameError(field as keyof DisplayNameFormData, { message: messages[0] });
+            setNameError(field as keyof DisplayNameFormData, {
+              message: messages[0],
+            });
           }
         }
       }
@@ -95,11 +102,13 @@ export function ProfilePage() {
   });
 
   return (
-    <div className="min-h-screen bg-background text-on-background">
+    <div className="min-h-screen bg-surface-container-low text-on-background">
       {!isStaff && <Navbar />}
       <div className="max-w-2xl mx-auto px-4 py-10 space-y-8">
         <div>
-          <h1 className="text-headline-md font-headline-md text-on-surface">Profile</h1>
+          <h1 className="text-headline-md font-headline-md text-on-surface">
+            Profile
+          </h1>
           <p className="text-body-md font-body-md text-on-surface-variant mt-1">
             Manage your account details.
           </p>
@@ -108,7 +117,9 @@ export function ProfilePage() {
         {/* Avatar */}
         <section className="bg-surface-container-lowest border border-outline-variant/30 rounded-xl shadow-sm overflow-hidden">
           <div className="px-6 py-4 border-b border-outline-variant/30">
-            <h2 className="text-title-md font-title-md text-on-surface">Profile Picture</h2>
+            <h2 className="text-title-md font-title-md text-on-surface">
+              Profile Picture
+            </h2>
           </div>
           <div className="px-6 py-5">
             <div className="flex items-center gap-4">
@@ -138,7 +149,10 @@ export function ProfilePage() {
                       const formData = new FormData();
                       formData.append("avatar", file);
                       try {
-                        const result = await apiUpload<{ avatarUrl: string }>("/auth/avatar", formData);
+                        const result = await apiUpload<{ avatarUrl: string }>(
+                          "/auth/avatar",
+                          formData,
+                        );
                         setUser({ ...user!, avatarUrl: result.avatarUrl });
                         toast.success("Profile picture updated.");
                       } catch {
@@ -151,7 +165,10 @@ export function ProfilePage() {
                   <button
                     onClick={async () => {
                       try {
-                        const result = await api<{ avatarUrl: null }>("/auth/avatar", { method: "DELETE" });
+                        const result = await api<{ avatarUrl: null }>(
+                          "/auth/avatar",
+                          { method: "DELETE" },
+                        );
                         setUser({ ...user!, avatarUrl: result.avatarUrl });
                         toast.success("Profile picture removed.");
                       } catch {
@@ -174,10 +191,14 @@ export function ProfilePage() {
         {/* Display Name */}
         <section className="bg-surface-container-lowest border border-outline-variant/30 rounded-xl shadow-sm overflow-hidden">
           <div className="px-6 py-4 border-b border-outline-variant/30">
-            <h2 className="text-title-md font-title-md text-on-surface">Display Name</h2>
+            <h2 className="text-title-md font-title-md text-on-surface">
+              Display Name
+            </h2>
           </div>
           <form
-            onSubmit={handleNameSubmit((data) => updateNameMutation.mutate(data))}
+            onSubmit={handleNameSubmit((data) =>
+              updateNameMutation.mutate(data),
+            )}
             className="px-6 py-5 space-y-4"
           >
             {updateNameMutation.isError &&
@@ -188,7 +209,10 @@ export function ProfilePage() {
                 </div>
               )}
             <div className="space-y-1">
-              <label className="block text-label-md font-label-md text-on-surface" htmlFor="displayName">
+              <label
+                className="block text-label-md font-label-md text-on-surface"
+                htmlFor="displayName"
+              >
                 Name
               </label>
               <input
@@ -198,7 +222,9 @@ export function ProfilePage() {
                 {...regName("displayName")}
               />
               {nameErrors.displayName && (
-                <p className="text-body-sm text-error">{nameErrors.displayName.message}</p>
+                <p className="text-body-sm text-error">
+                  {nameErrors.displayName.message}
+                </p>
               )}
             </div>
             <div className="flex justify-end">
@@ -216,14 +242,21 @@ export function ProfilePage() {
         {/* Change Password */}
         <section className="bg-surface-container-lowest border border-outline-variant/30 rounded-xl shadow-sm overflow-hidden">
           <div className="px-6 py-4 border-b border-outline-variant/30">
-            <h2 className="text-title-md font-title-md text-on-surface">Change Password</h2>
+            <h2 className="text-title-md font-title-md text-on-surface">
+              Change Password
+            </h2>
           </div>
           <form
-            onSubmit={handlePwSubmit((data) => changePasswordMutation.mutate(data))}
+            onSubmit={handlePwSubmit((data) =>
+              changePasswordMutation.mutate(data),
+            )}
             className="px-6 py-5 space-y-4"
           >
             <div className="space-y-1">
-              <label className="block text-label-md font-label-md text-on-surface" htmlFor="currentPassword">
+              <label
+                className="block text-label-md font-label-md text-on-surface"
+                htmlFor="currentPassword"
+              >
                 Current Password
               </label>
               <input
@@ -235,11 +268,16 @@ export function ProfilePage() {
                 {...regPw("currentPassword")}
               />
               {pwErrors.currentPassword && (
-                <p className="text-body-sm text-error">{pwErrors.currentPassword.message}</p>
+                <p className="text-body-sm text-error">
+                  {pwErrors.currentPassword.message}
+                </p>
               )}
             </div>
             <div className="space-y-1">
-              <label className="block text-label-md font-label-md text-on-surface" htmlFor="newPassword">
+              <label
+                className="block text-label-md font-label-md text-on-surface"
+                htmlFor="newPassword"
+              >
                 New Password
               </label>
               <input
@@ -251,11 +289,16 @@ export function ProfilePage() {
                 {...regPw("newPassword")}
               />
               {pwErrors.newPassword && (
-                <p className="text-body-sm text-error">{pwErrors.newPassword.message}</p>
+                <p className="text-body-sm text-error">
+                  {pwErrors.newPassword.message}
+                </p>
               )}
             </div>
             <div className="space-y-1">
-              <label className="block text-label-md font-label-md text-on-surface" htmlFor="confirmPassword">
+              <label
+                className="block text-label-md font-label-md text-on-surface"
+                htmlFor="confirmPassword"
+              >
                 Confirm New Password
               </label>
               <input
@@ -267,7 +310,9 @@ export function ProfilePage() {
                 {...regPw("confirmPassword")}
               />
               {pwErrors.confirmPassword && (
-                <p className="text-body-sm text-error">{pwErrors.confirmPassword.message}</p>
+                <p className="text-body-sm text-error">
+                  {pwErrors.confirmPassword.message}
+                </p>
               )}
             </div>
             <div className="flex justify-end">
@@ -276,7 +321,9 @@ export function ProfilePage() {
                 disabled={changePasswordMutation.isPending}
                 className="py-2 px-5 rounded-lg bg-primary text-on-primary text-label-md font-label-md hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {changePasswordMutation.isPending ? "Saving..." : "Change Password"}
+                {changePasswordMutation.isPending
+                  ? "Saving..."
+                  : "Change Password"}
               </button>
             </div>
           </form>

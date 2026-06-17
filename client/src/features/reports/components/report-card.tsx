@@ -25,7 +25,7 @@ export function ReportCard({ report, isSelected, onClick }: ReportCardProps) {
       }`}
       onClick={() => onClick?.(report)}
     >
-      <div className="w-20 shrink-0 self-stretch">
+      <div className="w-20 shrink-0 aspect-square">
         {photo ? (
           <img
             src={photo}

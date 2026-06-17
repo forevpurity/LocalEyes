@@ -10,7 +10,7 @@ export function ExportButtons() {
         onClick={() => download("csv")}
         disabled={pending !== null}
         aria-busy={pending === "csv"}
-        className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-sm font-medium transition-colors hover:bg-muted disabled:opacity-50"
+        className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/80 disabled:opacity-50"
       >
         {pending === "csv" ? (
           <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
@@ -23,7 +23,7 @@ export function ExportButtons() {
         onClick={() => download("geojson")}
         disabled={pending !== null}
         aria-busy={pending === "geojson"}
-        className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-sm font-medium transition-colors hover:bg-muted disabled:opacity-50"
+        className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/80 disabled:opacity-50"
       >
         {pending === "geojson" ? (
           <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />

@@ -85,7 +85,7 @@ export function AdminLayout() {
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 overflow-auto bg-background">
+      <main className="flex-1 overflow-auto bg-surface-container-low">
         <Outlet />
       </main>
     </div>
