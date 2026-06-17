@@ -3,7 +3,8 @@ import { Ban, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { getRelativeTime } from "@/lib/utils";
 import type { StaffListItem } from "@/types/api";
-import { useToggleStaffBan } from "../hooks/use-toggle-staff-ban";
+import { useBanStaff } from "../hooks/use-ban-staff";
+import { useUnbanStaff } from "../hooks/use-unban-staff";
 
 interface StaffRowProps {
   staff: StaffListItem;
@@ -14,17 +15,18 @@ type RowMode = "view" | "ban-confirm";
 export function StaffRow({ staff }: StaffRowProps) {
   const [mode, setMode] = useState<RowMode>("view");
   const isBanned = staff.bannedAt !== null;
-  const toggleBan = useToggleStaffBan(staff.id);
+  const banStaff = useBanStaff(staff.id);
+  const unbanStaff = useUnbanStaff(staff.id);
 
   const handleUnban = () => {
-    toggleBan.mutate(undefined, {
+    unbanStaff.mutate(undefined, {
       onSuccess: () => toast.success("Staff member unbanned"),
       onError: () => toast.error("Couldn't unban staff member."),
     });
   };
 
   const confirmBan = () => {
-    toggleBan.mutate(undefined, {
+    banStaff.mutate(undefined, {
       onSuccess: () => {
         setMode("view");
         toast.success("Staff member banned");
@@ -83,7 +85,7 @@ export function StaffRow({ staff }: StaffRowProps) {
             <div className="flex items-center gap-1.5">
               <button
                 onClick={confirmBan}
-                disabled={toggleBan.isPending}
+                disabled={banStaff.isPending}
                 className="rounded-md bg-destructive px-2 py-1 text-xs font-medium text-destructive-foreground transition-colors hover:bg-destructive/80 disabled:opacity-50"
               >
                 Ban
@@ -99,7 +101,7 @@ export function StaffRow({ staff }: StaffRowProps) {
         ) : isBanned ? (
           <button
             onClick={handleUnban}
-            disabled={toggleBan.isPending}
+            disabled={unbanStaff.isPending}
             title="Unban"
             className="inline-flex items-center gap-1 rounded p-1 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-50"
           >

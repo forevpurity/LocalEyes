@@ -153,7 +153,7 @@ export interface ListCitizensResponse {
   nextCursor: string | null;
 }
 
-export interface ToggleBanResponse {
+export interface BanResponse {
   banned: boolean;
 }
 

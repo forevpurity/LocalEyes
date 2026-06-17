@@ -2197,12 +2197,12 @@
       }
     },
     "/admin/staff/{id}/ban": {
-      "patch": {
-        "summary": "Toggle ban on a staff member",
+      "post": {
+        "summary": "Ban a staff member",
         "tags": [
           "Staff"
         ],
-        "operationId": "toggleStaffBan",
+        "operationId": "banStaff",
         "parameters": [
           {
             "in": "path",
@@ -2219,17 +2219,82 @@
         ],
         "responses": {
           "200": {
-            "description": "Ban toggled",
+            "description": "Staff banned",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ToggleStaffBanResponse"
+                  "$ref": "#/components/schemas/BanResponse"
                 }
               }
             }
           },
           "403": {
-            "description": "Cannot ban yourself or another admin",
+            "description": "Cannot ban yourself or an admin",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Staff not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Target is not a staff member",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/staff/{id}/unban": {
+      "post": {
+        "summary": "Unban a staff member",
+        "tags": [
+          "Staff"
+        ],
+        "operationId": "unbanStaff",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+              "description": "Staff Id"
+            },
+            "required": true,
+            "description": "Staff Id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Staff unbanned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BanResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Cannot unban yourself or an admin",
             "content": {
               "application/json": {
                 "schema": {
@@ -2320,12 +2385,12 @@
       }
     },
     "/admin/citizens/{id}/ban": {
-      "patch": {
-        "summary": "Toggle ban on a citizen",
+      "post": {
+        "summary": "Ban a citizen",
         "tags": [
           "Citizens"
         ],
-        "operationId": "toggleBan",
+        "operationId": "banCitizen",
         "parameters": [
           {
             "in": "path",
@@ -2342,17 +2407,82 @@
         ],
         "responses": {
           "200": {
-            "description": "Ban toggled",
+            "description": "Citizen banned",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ToggleBanResponse"
+                  "$ref": "#/components/schemas/BanResponse"
                 }
               }
             }
           },
           "403": {
-            "description": "Cannot ban yourself or another admin",
+            "description": "Cannot ban yourself or an admin",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Citizen not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Target is not a citizen",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/citizens/{id}/unban": {
+      "post": {
+        "summary": "Unban a citizen",
+        "tags": [
+          "Citizens"
+        ],
+        "operationId": "unbanCitizen",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+              "description": "Citizen Id"
+            },
+            "required": true,
+            "description": "Citizen Id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Citizen unbanned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BanResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Cannot unban yourself or an admin",
             "content": {
               "application/json": {
                 "schema": {
@@ -4483,7 +4613,7 @@
         ],
         "additionalProperties": false
       },
-      "ToggleStaffBanResponse": {
+      "BanResponse": {
         "type": "object",
         "properties": {
           "banned": {
@@ -4555,18 +4685,6 @@
           "displayName",
           "bannedAt",
           "createdAt"
-        ],
-        "additionalProperties": false
-      },
-      "ToggleBanResponse": {
-        "type": "object",
-        "properties": {
-          "banned": {
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "banned"
         ],
         "additionalProperties": false
       },

@@ -3,7 +3,8 @@ import { Ban, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { getRelativeTime } from "@/lib/utils";
 import type { CitizenListItem } from "@/types/api";
-import { useToggleCitizenBan } from "../hooks/use-toggle-citizen-ban";
+import { useBanCitizen } from "../hooks/use-ban-citizen";
+import { useUnbanCitizen } from "../hooks/use-unban-citizen";
 
 interface CitizenRowProps {
   citizen: CitizenListItem;
@@ -14,17 +15,18 @@ type RowMode = "view" | "ban-confirm";
 export function CitizenRow({ citizen }: CitizenRowProps) {
   const [mode, setMode] = useState<RowMode>("view");
   const isBanned = citizen.bannedAt !== null;
-  const toggleBan = useToggleCitizenBan(citizen.id);
+  const banCitizen = useBanCitizen(citizen.id);
+  const unbanCitizen = useUnbanCitizen(citizen.id);
 
   const handleUnban = () => {
-    toggleBan.mutate(undefined, {
+    unbanCitizen.mutate(undefined, {
       onSuccess: () => toast.success("Citizen unbanned"),
       onError: () => toast.error("Couldn't unban citizen."),
     });
   };
 
   const confirmBan = () => {
-    toggleBan.mutate(undefined, {
+    banCitizen.mutate(undefined, {
       onSuccess: () => {
         setMode("view");
         toast.success("Citizen banned");
@@ -76,7 +78,7 @@ export function CitizenRow({ citizen }: CitizenRowProps) {
             <div className="flex items-center gap-1.5">
               <button
                 onClick={confirmBan}
-                disabled={toggleBan.isPending}
+                disabled={banCitizen.isPending}
                 className="rounded-md bg-destructive px-2 py-1 text-xs font-medium text-destructive-foreground transition-colors hover:bg-destructive/80 disabled:opacity-50"
               >
                 Ban
@@ -92,7 +94,7 @@ export function CitizenRow({ citizen }: CitizenRowProps) {
         ) : isBanned ? (
           <button
             onClick={handleUnban}
-            disabled={toggleBan.isPending}
+            disabled={unbanCitizen.isPending}
             title="Unban"
             className="inline-flex items-center gap-1 rounded p-1 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-50"
           >
