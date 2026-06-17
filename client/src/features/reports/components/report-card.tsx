@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 import type { Report } from "@/types/api";
 import { getRelativeTime } from "@/lib/utils";
 import { getStatusStyle } from "@/features/reports/lib/status-styles";
+import { ReportFlagBadges } from "@/features/reports/components/report-flag-badges";
 
 interface ReportCardProps {
   report: Report;
@@ -43,12 +44,19 @@ export function ReportCard({ report, isSelected, onClick }: ReportCardProps) {
           <span className="truncate text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
             {report.categoryName}
           </span>
-          <span
-            className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-medium ${style.bg} ${style.text}`}
-          >
-            <span className="h-1.5 w-1.5 rounded-full bg-current" />
-            {style.label}
-          </span>
+          <div className="flex shrink-0 flex-wrap items-center justify-end gap-1">
+            <ReportFlagBadges
+              isHidden={report.isHidden}
+              isLocked={report.isLocked}
+              iconOnly
+            />
+            <span
+              className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-medium ${style.bg} ${style.text}`}
+            >
+              <span className="h-1.5 w-1.5 rounded-full bg-current" />
+              {style.label}
+            </span>
+          </div>
         </div>
 
         <h3 className="truncate text-sm font-semibold text-card-foreground">

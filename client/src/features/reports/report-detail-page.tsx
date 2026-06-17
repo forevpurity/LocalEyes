@@ -28,6 +28,7 @@ import { ReportDiscussion } from "@/features/reports/components/detail/report-di
 import { ReportPhotoGallery } from "@/features/reports/components/detail/report-photo-gallery";
 import { ReportEditForm } from "@/features/reports/components/detail/report-edit-form";
 import { StatusChangeModal } from "@/features/reports/components/detail/status-change-modal";
+import { ReportFlagBadges } from "@/features/reports/components/report-flag-badges";
 import { canModerate } from "@/features/reports/lib/permissions";
 
 function MetaItem({
@@ -185,6 +186,11 @@ export function ReportDetailPage() {
                     <span className="h-1.5 w-1.5 rounded-full bg-current" />
                     {status.label}
                   </span>
+                  <ReportFlagBadges
+                    isHidden={report.isHidden}
+                    isLocked={report.isLocked}
+                    size="sm"
+                  />
                 </div>
 
                 <h1 className="mt-4 text-2xl font-bold leading-tight text-card-foreground md:text-headline-lg">
