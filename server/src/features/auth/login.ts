@@ -24,6 +24,7 @@ const loginResponse = z
     role: z.enum(USER_ROLES),
     departmentId: z.uuid().nullable(),
     mustChangePassword: z.boolean(),
+    avatarUrl: z.string().nullable(),
   })
   .meta({ id: "LoginResponse" });
 
@@ -87,6 +88,7 @@ export function login(router: Router) {
       role: user.role,
       departmentId: user.departmentId,
       mustChangePassword: user.mustChangePassword,
+      avatarUrl: user.avatarUrl ?? null,
     });
   });
 }

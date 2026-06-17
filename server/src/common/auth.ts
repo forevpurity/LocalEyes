@@ -24,6 +24,7 @@ export function authenticate(...roles: UserRole[]): RequestHandler {
       id: payload.sub,
       role: payload.role,
       displayName: payload.displayName,
+      avatarUrl: payload.avatarUrl,
     };
 
     if (roles.length > 0 && !roles.includes(payload.role)) {
@@ -54,6 +55,7 @@ export function optionalAuthenticate(): RequestHandler {
       id: payload.sub,
       role: payload.role,
       displayName: payload.displayName,
+      avatarUrl: payload.avatarUrl,
     };
 
     next();

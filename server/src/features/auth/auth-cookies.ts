@@ -20,7 +20,7 @@ const COOKIE_OPTIONS = {
 
 export function setAuthCookies(
   res: Response,
-  user: { id: string; role: UserRole; displayName: string },
+  user: { id: string; role: UserRole; displayName: string; avatarUrl?: string | null },
 ) {
   const accessToken = signAccessToken(user);
   const refreshToken = signRefreshToken(user);

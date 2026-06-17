@@ -7,6 +7,7 @@ declare global {
         id: string;
         role: UserRole;
         displayName: string;
+        avatarUrl: string | null;
       };
     }
   }

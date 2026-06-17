@@ -10,18 +10,10 @@ import { canModerate } from "@/features/reports/lib/permissions";
 import { getRoleBadge } from "@/features/reports/lib/role-styles";
 import { getRelativeTime, isWithinPast, cn } from "@/lib/utils";
 import { ApiRequestError } from "@/lib/api";
+import { Avatar } from "@/components/avatar";
 import type { Comment, ReportDetail } from "@/types/api";
 
 const EDIT_WINDOW_MS = 15 * 60 * 1000;
-
-function initials(name: string | null): string {
-  if (!name) return "?";
-  return name
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((p) => p[0]?.toUpperCase() ?? "")
-    .join("");
-}
 
 function CommentRow({
   reportId,
@@ -111,9 +103,11 @@ function CommentRow({
 
   return (
     <li className="flex gap-3">
-      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-surface-container-low text-xs font-semibold text-muted-foreground">
-        {initials(comment.authorName)}
-      </span>
+      <Avatar
+        src={comment.authorAvatarUrl}
+        name={comment.authorName}
+        size="sm"
+      />
       <div
         className={cn(
           "min-w-0 flex-1 rounded-lg bg-surface-container-low px-3 py-2",

@@ -5,6 +5,7 @@ export const citizenListItem = z
     id: z.uuid(),
     email: z.string(),
     displayName: z.string(),
+    avatarUrl: z.string().nullable(),
     bannedAt: z.string().nullable(),
     createdAt: z.string(),
   })

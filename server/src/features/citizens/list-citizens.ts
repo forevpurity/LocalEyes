@@ -70,6 +70,7 @@ export function listCitizens(router: Router) {
         id: users.id,
         email: users.email,
         displayName: users.displayName,
+        avatarUrl: users.avatarUrl,
         bannedAt: users.bannedAt,
         createdAt: users.createdAt,
       })
@@ -85,6 +86,7 @@ export function listCitizens(router: Router) {
       id: r.id,
       email: r.email,
       displayName: r.displayName,
+      avatarUrl: r.avatarUrl ?? null,
       bannedAt: r.bannedAt?.toISOString() ?? null,
       createdAt: r.createdAt.toISOString(),
     }));

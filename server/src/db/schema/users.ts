@@ -14,5 +14,6 @@ export const users = pgTable("users", {
   mustChangePassword: boolean("must_change_password").default(false).notNull(),
   bannedAt: timestamp("banned_at", { mode: "date" }),
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  avatarUrl: text("avatar_url"),
   updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow().notNull().$onUpdate(() => new Date()),
 });

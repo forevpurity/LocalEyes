@@ -19,6 +19,11 @@ export const anonymizedAuthorName = sql<string | null>`
   CASE WHEN ${users.bannedAt} IS NOT NULL AND ${users.role} = 'citizen'
        THEN NULL ELSE ${users.displayName} END`;
 
+// Avatar URL obeys the same ban-rule as author name.
+export const anonymizedAuthorAvatar = sql<string | null>`
+  CASE WHEN ${users.bannedAt} IS NOT NULL AND ${users.role} = 'citizen'
+       THEN NULL ELSE ${users.avatarUrl} END`;
+
 const STAFF_TRANSITIONS: Record<string, ReadonlySet<string>> = {
   submitted: new Set(["acknowledged", "rejected"]),
   acknowledged: new Set(["in_progress"]),

@@ -2,10 +2,11 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useMutation } from "@tanstack/react-query";
-import { api, ApiRequestError } from "@/lib/api";
+import { api, apiUpload, ApiRequestError } from "@/lib/api";
 import type { User } from "@/types/api";
 import { useAuth } from "@/features/auth/auth-context";
 import { Navbar } from "@/features/layout/components/navbar";
+import { Avatar } from "@/components/avatar";
 import { toast } from "sonner";
 
 const displayNameSchema = z.object({
@@ -103,6 +104,72 @@ export function ProfilePage() {
             Manage your account details.
           </p>
         </div>
+
+        {/* Avatar */}
+        <section className="bg-surface-container-lowest border border-outline-variant/30 rounded-xl shadow-sm overflow-hidden">
+          <div className="px-6 py-4 border-b border-outline-variant/30">
+            <h2 className="text-title-md font-title-md text-on-surface">Profile Picture</h2>
+          </div>
+          <div className="px-6 py-5">
+            <div className="flex items-center gap-4">
+              <Avatar
+                src={user?.avatarUrl}
+                name={user?.displayName}
+                size="lg"
+                className="ring-1 ring-outline-variant/40"
+              />
+              <div className="space-y-2">
+                <label className="inline-block cursor-pointer rounded-lg bg-primary px-4 py-2 text-label-md font-label-md text-on-primary hover:bg-primary/90 transition-colors">
+                  Upload Photo
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    className="hidden"
+                    onChange={async (e) => {
+                      const input = e.target;
+                      const file = input.files?.[0];
+                      // Reset so re-selecting the same file fires onChange again
+                      input.value = "";
+                      if (!file) return;
+                      if (file.size > 2 * 1024 * 1024) {
+                        toast.error("File must be under 2 MB");
+                        return;
+                      }
+                      const formData = new FormData();
+                      formData.append("avatar", file);
+                      try {
+                        const result = await apiUpload<{ avatarUrl: string }>("/auth/avatar", formData);
+                        setUser({ ...user!, avatarUrl: result.avatarUrl });
+                        toast.success("Profile picture updated.");
+                      } catch {
+                        toast.error("Couldn't upload profile picture.");
+                      }
+                    }}
+                  />
+                </label>
+                {user?.avatarUrl && (
+                  <button
+                    onClick={async () => {
+                      try {
+                        const result = await api<{ avatarUrl: null }>("/auth/avatar", { method: "DELETE" });
+                        setUser({ ...user!, avatarUrl: result.avatarUrl });
+                        toast.success("Profile picture removed.");
+                      } catch {
+                        toast.error("Couldn't remove profile picture.");
+                      }
+                    }}
+                    className="block text-label-md font-label-md text-error hover:text-error/80 transition-colors"
+                  >
+                    Remove
+                  </button>
+                )}
+                <p className="text-body-sm text-on-surface-variant">
+                  JPEG, PNG, or WebP. Max 2 MB.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
 
         {/* Display Name */}
         <section className="bg-surface-container-lowest border border-outline-variant/30 rounded-xl shadow-sm overflow-hidden">

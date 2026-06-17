@@ -12,6 +12,8 @@ import {
   forgotPasswordDoc,
 } from "./forgot-password.js";
 import { resetPassword, resetPasswordDoc } from "./reset-password.js";
+import { uploadAvatar, uploadAvatarDoc } from "./upload-avatar.js";
+import { removeAvatar, removeAvatarDoc } from "./remove-avatar.js";
 
 export const authRouter = Router();
 
@@ -24,6 +26,8 @@ updateMe(authRouter);
 changePassword(authRouter);
 forgotPassword(authRouter);
 resetPassword(authRouter);
+uploadAvatar(authRouter);
+removeAvatar(authRouter);
 
 export const authPaths = {
   "/auth/register": { post: registerDoc },
@@ -34,4 +38,5 @@ export const authPaths = {
   "/auth/password": { patch: changePasswordDoc },
   "/auth/forgot-password": { post: forgotPasswordDoc },
   "/auth/reset-password": { post: resetPasswordDoc },
+  "/auth/avatar": { post: uploadAvatarDoc, delete: removeAvatarDoc },
 } satisfies ZodOpenApiPathsObject;

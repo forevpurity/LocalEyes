@@ -9,6 +9,7 @@ export type AccessTokenPayload = {
   sub: string;
   role: UserRole;
   displayName: string;
+  avatarUrl: string | null;
 };
 
 export type RefreshTokenPayload = {
@@ -17,10 +18,10 @@ export type RefreshTokenPayload = {
 };
 
 export function signAccessToken(
-  user: { id: string; role: UserRole; displayName: string }
+  user: { id: string; role: UserRole; displayName: string; avatarUrl?: string | null }
 ): string {
   return jwt.sign(
-    { sub: user.id, role: user.role, displayName: user.displayName },
+    { sub: user.id, role: user.role, displayName: user.displayName, avatarUrl: user.avatarUrl ?? null },
     process.env.JWT_ACCESS_SECRET!,
     { expiresIn: ACCESS_EXPIRES_IN }
   );

@@ -11,7 +11,7 @@ export function Providers({ children }: { children: ReactNode }) {
       <BrowserRouter>
         <AuthProvider>
           {children}
-          <Toaster position="top-right" richColors />
+          <Toaster position="top-right" richColors closeButton />
         </AuthProvider>
       </BrowserRouter>
     </QueryClientProvider>

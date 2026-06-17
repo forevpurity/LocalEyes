@@ -20,6 +20,7 @@ import {
   getAllowedTransitions,
   anonymizedCitizenName,
   anonymizedAuthorName,
+  anonymizedAuthorAvatar,
 } from "./report-rules.js";
 import { enforceStaffScope } from "./enforce-staff-scope.js";
 
@@ -30,6 +31,7 @@ const commentItemSchema = z.object({
   newStatus: z.string().nullable(),
   authorName: z.string().nullable(),
   authorRole: z.enum(USER_ROLES).nullable(),
+  authorAvatarUrl: z.string().nullable(),
   isMine: z.boolean(),
   isHidden: z.boolean(),
   isEdited: z.boolean(),
@@ -158,6 +160,7 @@ export function getReport(router: Router) {
           body: comments.body,
           newStatus: comments.newStatus,
           authorName: hideName ? anonymizedAuthorName : users.displayName,
+          authorAvatarUrl: hideName ? anonymizedAuthorAvatar : users.avatarUrl,
           authorRole: users.role,
           authorId: comments.authorId,
           isHidden: comments.isHidden,
@@ -176,6 +179,7 @@ export function getReport(router: Router) {
       body: c.isHidden && (!actor || actor.role === "citizen") ? null : c.body,
       newStatus: c.newStatus,
       authorName: c.authorName,
+      authorAvatarUrl: c.authorAvatarUrl,
       authorRole: c.authorRole,
       isMine: actor != null && c.authorId === actor.id,
       isHidden: c.isHidden,

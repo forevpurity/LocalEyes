@@ -77,6 +77,7 @@ export function listStaff(router: Router) {
         email: users.email,
         displayName: users.displayName,
         departmentId: users.departmentId,
+        avatarUrl: users.avatarUrl,
         bannedAt: users.bannedAt,
         createdAt: users.createdAt,
       })
@@ -111,6 +112,7 @@ export function listStaff(router: Router) {
       displayName: r.displayName,
       departmentId: r.departmentId,
       departmentName: r.departmentId ? (deptMap.get(r.departmentId) ?? null) : null,
+      avatarUrl: r.avatarUrl ?? null,
       bannedAt: r.bannedAt?.toISOString() ?? null,
       createdAt: r.createdAt.toISOString(),
     }));

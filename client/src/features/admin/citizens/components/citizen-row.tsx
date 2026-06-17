@@ -3,6 +3,7 @@ import { Ban, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { getRelativeTime } from "@/lib/utils";
 import type { CitizenListItem } from "@/types/api";
+import { Avatar } from "@/components/avatar";
 import { useBanCitizen } from "../hooks/use-ban-citizen";
 import { useUnbanCitizen } from "../hooks/use-unban-citizen";
 
@@ -46,8 +47,13 @@ export function CitizenRow({ citizen }: CitizenRowProps) {
     >
       {/* Name */}
       <td className="px-4 py-3">
-        <p className="font-medium text-foreground">{citizen.displayName}</p>
-        <p className="text-xs text-muted-foreground">{citizen.email}</p>
+        <div className="flex items-center gap-3">
+          <Avatar src={citizen.avatarUrl} name={citizen.displayName} size="md" />
+          <div>
+            <p className="font-medium text-foreground">{citizen.displayName}</p>
+            <p className="text-xs text-muted-foreground">{citizen.email}</p>
+          </div>
+        </div>
       </td>
 
       {/* Status */}

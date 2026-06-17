@@ -17,6 +17,7 @@ export interface User {
   departmentId?: string | null;
   bannedAt?: string | null;
   mustChangePassword: boolean;
+  avatarUrl?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -78,6 +79,7 @@ export interface Comment {
   newStatus: string | null;
   authorName: string | null;
   authorRole?: Role | null;
+  authorAvatarUrl?: string | null;
   isMine: boolean;
   isHidden: boolean;
   isEdited: boolean;
@@ -131,6 +133,7 @@ export interface StaffListItem {
   displayName: string;
   departmentId: string | null;
   departmentName: string | null;
+  avatarUrl?: string | null;
   bannedAt: string | null;
   createdAt: string;
 }
@@ -139,6 +142,7 @@ export interface CitizenListItem {
   id: string;
   email: string;
   displayName: string;
+  avatarUrl?: string | null;
   bannedAt: string | null;
   createdAt: string;
 }

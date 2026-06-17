@@ -171,6 +171,7 @@ export function updateReportStatus(router: Router) {
         newStatus: comment.newStatus,
         authorName: actor.displayName,
         authorRole: actor.role,
+        authorAvatarUrl: actor.avatarUrl ?? null,
         isMine: true,
         isHidden: comment.isHidden,
         isEdited: comment.isEdited,

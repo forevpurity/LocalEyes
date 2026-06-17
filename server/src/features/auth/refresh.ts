@@ -17,6 +17,7 @@ const refreshResponse = z
     displayName: z.string(),
     role: z.enum(USER_ROLES),
     mustChangePassword: z.boolean(),
+    avatarUrl: z.string().nullable(),
   })
   .meta({ id: "RefreshResponse" });
 
@@ -69,6 +70,7 @@ export function refresh(router: Router) {
       displayName: user.displayName,
       role: user.role,
       mustChangePassword: user.mustChangePassword,
+      avatarUrl: user.avatarUrl ?? null,
     });
   });
 }

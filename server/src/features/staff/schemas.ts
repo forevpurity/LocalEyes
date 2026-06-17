@@ -7,6 +7,7 @@ export const staffListItem = z
     displayName: z.string(),
     departmentId: z.uuid().nullable(),
     departmentName: z.string().nullable(),
+    avatarUrl: z.string().nullable(),
     bannedAt: z.string().nullable(),
     createdAt: z.string(),
   })

@@ -79,6 +79,7 @@ export function register(router: Router) {
         email: users.email,
         displayName: users.displayName,
         role: users.role,
+        avatarUrl: users.avatarUrl,
       });
 
     setAuthCookies(res, user);

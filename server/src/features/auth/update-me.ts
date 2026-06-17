@@ -62,6 +62,7 @@ export function updateMe(router: Router) {
         role: users.role,
         departmentId: users.departmentId,
         mustChangePassword: users.mustChangePassword,
+        avatarUrl: users.avatarUrl,
       });
 
     if (!user) {

@@ -4,12 +4,14 @@ import {
   getStatusColor,
   getStatusStyle,
 } from "@/features/reports/lib/status-styles";
+import { Avatar } from "@/components/avatar";
 
 interface TimelineEvent {
   status: string;
   title: string;
   body: string | null;
   author: string | null;
+  authorAvatarUrl: string | null;
   createdAt: string;
 }
 
@@ -21,6 +23,7 @@ function buildEvents(report: ReportDetail): TimelineEvent[] {
       title: getStatusStyle(c.newStatus!).label,
       body: c.body,
       author: c.authorName,
+      authorAvatarUrl: c.authorAvatarUrl ?? null,
       createdAt: c.createdAt,
     }));
 
@@ -29,6 +32,7 @@ function buildEvents(report: ReportDetail): TimelineEvent[] {
     title: "Issue Submitted",
     body: null,
     author: report.citizenName,
+    authorAvatarUrl: null,
     createdAt: report.createdAt,
   };
 
@@ -85,8 +89,14 @@ export function ReportTimeline({ report }: { report: ReportDetail }) {
                     {event.body}
                   </p>
                 )}
-                <p className="mt-1 text-[11px] text-muted-foreground">
-                  {event.author && `${event.author} · `}
+                <p className="mt-1 flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                  {event.author && (
+                    <>
+                      <Avatar src={event.authorAvatarUrl} name={event.author} size="sm" className="inline-flex" />
+                      <span>{event.author}</span>
+                      <span>·</span>
+                    </>
+                  )}
                   {formatDateTime(event.createdAt)}
                 </p>
               </div>
