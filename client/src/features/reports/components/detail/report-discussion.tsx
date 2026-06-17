@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { toast } from "sonner";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Lock } from "lucide-react";
 import { useAuth } from "@/features/auth/auth-context";
 import { useCreateComment } from "@/features/reports/hooks/use-create-comment";
 import { useEditComment } from "@/features/reports/hooks/use-edit-comment";
@@ -19,10 +19,12 @@ function CommentRow({
   reportId,
   comment,
   canModerate: canMod,
+  reportIsLocked,
 }: {
   reportId: string;
   comment: Comment;
   canModerate: boolean;
+  reportIsLocked: boolean;
 }) {
   const editComment = useEditComment(reportId, comment.id);
   const toggleHide = useToggleCommentHide(reportId);
@@ -35,6 +37,7 @@ function CommentRow({
     comment.isMine &&
     !comment.isHidden &&
     comment.type === "discussion" &&
+    !reportIsLocked &&
     isWithinPast(comment.createdAt, EDIT_WINDOW_MS);
 
   const handleToggleHide = () => {
@@ -263,16 +266,24 @@ export function ReportDiscussion({ report }: { report: ReportDetail }) {
               reportId={report.id}
               comment={c}
               canModerate={canMod}
+              reportIsLocked={report.isLocked}
             />
           ))}
         </ul>
       ) : (
         <p className="text-sm text-muted-foreground">
-          No comments yet. Be the first to weigh in.
+          {report.isLocked
+            ? "No comments yet."
+            : "No comments yet. Be the first to weigh in."}
         </p>
       )}
 
-      {user ? (
+      {report.isLocked ? (
+        <div className="mt-4 flex items-center gap-2 rounded-lg border border-border bg-muted/40 px-3 py-2.5 text-sm text-muted-foreground">
+          <Lock className="h-4 w-4 shrink-0" />
+          <span>This report is locked.</span>
+        </div>
+      ) : user ? (
         <form onSubmit={handleSubmit} className="mt-4">
           <textarea
             value={body}
