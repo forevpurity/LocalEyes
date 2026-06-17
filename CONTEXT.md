@@ -52,7 +52,7 @@ Setting a Department to `isActive: false`. The Department and all its data remai
 Admin manually assigns an unassigned Report to a Department. The Report's Department is set regardless of geography — Admin override takes precedence. Once assigned, the Report stays with that Department permanently.
 
 **Unassigned Queue**:
-Reports pinned at a location that falls outside every Department's polygon, or Reports in a deactivated Department. These have no Department assigned and are visible to Admin for manual Assignment.
+Reports pinned at a location that falls outside every Department's polygon. These have no Department assigned and are visible to Admin for manual Assignment.
 
 ### Social
 
