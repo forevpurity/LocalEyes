@@ -8,25 +8,18 @@ import { errorResponseSchema } from "../../common/errors.js";
 import { authenticate } from "../../common/auth.js";
 import { hydrateReport } from "./hydrate-report.js";
 import { reportResponse } from "./schemas.js";
-import {
-  getReportSubscriberIds,
-  loadReportForModeration,
-} from "./report-moderation.js";
-import {
-  createNotificationRows,
-  emitNotifications,
-} from "../notifications/notify.js";
+import { loadReportForModeration } from "./report-moderation.js";
 
-export const lockReportDoc = {
-  summary: "Lock a report",
+export const unlockReportDoc = {
+  summary: "Unlock a report",
   tags: ["Reports"],
-  operationId: "lockReport",
+  operationId: "unlockReport",
   requestParams: {
     path: z.object({ id: z.uuid().meta({ description: "Report Id" }) }),
   },
   responses: {
     200: {
-      description: "Report locked",
+      description: "Report unlocked",
       content: {
         "application/json": { schema: reportResponse },
       },
@@ -46,9 +39,9 @@ export const lockReportDoc = {
   },
 } satisfies ZodOpenApiOperationObject;
 
-export function lockReport(router: Router) {
+export function unlockReport(router: Router) {
   router.patch(
-    "/:id/lock",
+    "/:id/unlock",
     authenticate("staff", "admin"),
     async (req, res) => {
       const actor = req.actor!;
@@ -56,29 +49,14 @@ export function lockReport(router: Router) {
 
       const report = await loadReportForModeration(id, actor);
 
-      // Idempotent: locking an already-locked report is a no-op that emits no
-      // duplicate notification.
-      const notificationRows =
-        report.isLocked
-          ? []
-          : await db.transaction(async (tx) => {
-              await tx
-                .update(reports)
-                .set({ isLocked: true })
-                .where(eq(reports.id, id));
-
-              return createNotificationRows(tx, {
-                recipientIds: await getReportSubscriberIds(tx, id),
-                actorId: actor.id,
-                reportId: id,
-                template: {
-                  type: "report_locked",
-                  reportTitle: report.title,
-                },
-              });
-            });
-
-      emitNotifications(notificationRows);
+      // Lifting a restriction is not notification-worthy; unlock stays silent
+      // (see CONTEXT.md "Notification"). Idempotent if already unlocked.
+      if (report.isLocked) {
+        await db
+          .update(reports)
+          .set({ isLocked: false })
+          .where(eq(reports.id, id));
+      }
 
       res.json(await hydrateReport(id));
     },

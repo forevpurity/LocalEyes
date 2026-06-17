@@ -8,25 +8,18 @@ import { errorResponseSchema } from "../../common/errors.js";
 import { authenticate } from "../../common/auth.js";
 import { hydrateReport } from "./hydrate-report.js";
 import { reportResponse } from "./schemas.js";
-import {
-  getReportSubscriberIds,
-  loadReportForModeration,
-} from "./report-moderation.js";
-import {
-  createNotificationRows,
-  emitNotifications,
-} from "../notifications/notify.js";
+import { loadReportForModeration } from "./report-moderation.js";
 
-export const lockReportDoc = {
-  summary: "Lock a report",
+export const unhideReportDoc = {
+  summary: "Unhide a report",
   tags: ["Reports"],
-  operationId: "lockReport",
+  operationId: "unhideReport",
   requestParams: {
     path: z.object({ id: z.uuid().meta({ description: "Report Id" }) }),
   },
   responses: {
     200: {
-      description: "Report locked",
+      description: "Report unhidden",
       content: {
         "application/json": { schema: reportResponse },
       },
@@ -46,9 +39,9 @@ export const lockReportDoc = {
   },
 } satisfies ZodOpenApiOperationObject;
 
-export function lockReport(router: Router) {
+export function unhideReport(router: Router) {
   router.patch(
-    "/:id/lock",
+    "/:id/unhide",
     authenticate("staff", "admin"),
     async (req, res) => {
       const actor = req.actor!;
@@ -56,29 +49,15 @@ export function lockReport(router: Router) {
 
       const report = await loadReportForModeration(id, actor);
 
-      // Idempotent: locking an already-locked report is a no-op that emits no
-      // duplicate notification.
-      const notificationRows =
-        report.isLocked
-          ? []
-          : await db.transaction(async (tx) => {
-              await tx
-                .update(reports)
-                .set({ isLocked: true })
-                .where(eq(reports.id, id));
-
-              return createNotificationRows(tx, {
-                recipientIds: await getReportSubscriberIds(tx, id),
-                actorId: actor.id,
-                reportId: id,
-                template: {
-                  type: "report_locked",
-                  reportTitle: report.title,
-                },
-              });
-            });
-
-      emitNotifications(notificationRows);
+      // Restoring public visibility is not notification-worthy, and the owner
+      // never lost access to their hidden report anyway (see CONTEXT.md
+      // "Notification"). Idempotent if already visible.
+      if (report.isHidden) {
+        await db
+          .update(reports)
+          .set({ isHidden: false })
+          .where(eq(reports.id, id));
+      }
 
       res.json(await hydrateReport(id));
     },

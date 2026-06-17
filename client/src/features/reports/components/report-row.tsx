@@ -7,8 +7,8 @@ import { getStatusStyle } from "@/features/reports/lib/status-styles";
 import { canModerate } from "@/features/reports/lib/permissions";
 import { useAuth } from "@/features/auth/auth-context";
 import type { Report } from "@/types/api";
-import { useToggleReportHide } from "../hooks/use-toggle-report-hide";
-import { useToggleReportLock } from "../hooks/use-toggle-report-lock";
+import { useSetReportHide } from "../hooks/use-set-report-hide";
+import { useSetReportLock } from "../hooks/use-set-report-lock";
 
 interface ReportRowProps {
   report: Report;
@@ -19,12 +19,12 @@ interface ReportRowProps {
 export function ReportRow({ report, extraActions }: ReportRowProps) {
   const { user } = useAuth();
   const status = getStatusStyle(report.status);
-  const toggleHide = useToggleReportHide(report.id);
-  const toggleLock = useToggleReportLock(report.id);
+  const setHide = useSetReportHide(report.id);
+  const setLock = useSetReportLock(report.id);
   const canMod = canModerate(report, user);
 
   const handleHide = () => {
-    toggleHide.mutate(undefined, {
+    setHide.mutate(!report.isHidden, {
       onSuccess: () =>
         toast.success(report.isHidden ? "Report unhidden" : "Report hidden"),
       onError: () => toast.error("Couldn't change visibility."),
@@ -32,7 +32,7 @@ export function ReportRow({ report, extraActions }: ReportRowProps) {
   };
 
   const handleLock = () => {
-    toggleLock.mutate(undefined, {
+    setLock.mutate(!report.isLocked, {
       onSuccess: () =>
         toast.success(report.isLocked ? "Report unlocked" : "Report locked"),
       onError: () => toast.error("Couldn't change lock state."),
@@ -103,7 +103,7 @@ export function ReportRow({ report, extraActions }: ReportRowProps) {
             <>
               <button
                 onClick={handleHide}
-                disabled={toggleHide.isPending}
+                disabled={setHide.isPending}
                 className="rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-50"
                 title={report.isHidden ? "Unhide report" : "Hide report"}
               >
@@ -115,7 +115,7 @@ export function ReportRow({ report, extraActions }: ReportRowProps) {
               </button>
               <button
                 onClick={handleLock}
-                disabled={toggleLock.isPending}
+                disabled={setLock.isPending}
                 className="rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-50"
                 title={report.isLocked ? "Unlock report" : "Lock report"}
               >

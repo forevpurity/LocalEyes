@@ -1,13 +1,12 @@
 import { Router } from "express";
 import type { ZodOpenApiOperationObject } from "zod-openapi";
 import { z } from "zod";
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { db } from "../../db/client.js";
 import { reports, REPORT_STATUSES } from "../../db/schema/reports.js";
 import { USER_ROLES } from "../../db/schema/users.js";
 import { comments } from "../../db/schema/comments.js";
-import { subscriptions } from "../../db/schema/subscriptions.js";
-import { users } from "../../db/schema/users.js";
+import { getReportSubscriberIds } from "./report-moderation.js";
 import { parseAndValidate } from "../../common/validate.js";
 import {
   NotFoundError,
@@ -140,16 +139,8 @@ export function updateReportStatus(router: Router) {
             createdAt: comments.createdAt,
           });
 
-        const recipients = await tx
-          .select({ id: subscriptions.citizenId })
-          .from(subscriptions)
-          .innerJoin(users, eq(subscriptions.citizenId, users.id))
-          .where(
-            and(eq(subscriptions.reportId, id), eq(users.role, "citizen")),
-          );
-
         const notificationRows = await createNotificationRows(tx, {
-          recipientIds: recipients.map((recipient) => recipient.id),
+          recipientIds: await getReportSubscriberIds(tx, id),
           actorId: actor.id,
           reportId: id,
           template: {

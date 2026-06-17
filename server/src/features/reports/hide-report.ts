@@ -1,24 +1,21 @@
 import { Router } from "express";
 import type { ZodOpenApiOperationObject } from "zod-openapi";
 import { z } from "zod";
-import { eq, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { db } from "../../db/client.js";
 import { reports } from "../../db/schema/reports.js";
-import {
-  NotFoundError,
-  errorResponseSchema,
-} from "../../common/errors.js";
+import { errorResponseSchema } from "../../common/errors.js";
 import { authenticate } from "../../common/auth.js";
-import { enforceStaffScope } from "./enforce-staff-scope.js";
 import { hydrateReport } from "./hydrate-report.js";
 import { reportResponse } from "./schemas.js";
+import { loadReportForModeration } from "./report-moderation.js";
 import {
   createNotificationRows,
   emitNotifications,
 } from "../notifications/notify.js";
 
 export const hideReportDoc = {
-  summary: "Toggle report visibility",
+  summary: "Hide a report",
   tags: ["Reports"],
   operationId: "hideReport",
   requestParams: {
@@ -26,7 +23,7 @@ export const hideReportDoc = {
   },
   responses: {
     200: {
-      description: "Report visibility toggled",
+      description: "Report hidden",
       content: {
         "application/json": { schema: reportResponse },
       },
@@ -54,37 +51,25 @@ export function hideReport(router: Router) {
       const actor = req.actor!;
       const { id } = req.params;
 
-      const row = await db
-        .select({
-          title: reports.title,
-          isHidden: reports.isHidden,
-          citizenId: reports.citizenId,
-          departmentId: reports.departmentId,
-          categoryId: reports.categoryId,
-          address: reports.address,
-          latitude: sql<number>`ST_Y(${reports.location})`,
-          longitude: sql<number>`ST_X(${reports.location})`,
-          createdAt: reports.createdAt,
-        })
-        .from(reports)
-        .where(eq(reports.id, id))
-        .limit(1);
+      const report = await loadReportForModeration(id, actor);
 
-      if (row.length === 0) {
-        throw new NotFoundError("Report not found");
+      // Idempotent: hiding an already-hidden report is a no-op.
+      if (report.isHidden) {
+        res.json(await hydrateReport(id));
+        return;
       }
 
-      const report = row[0];
-
-      await enforceStaffScope(actor, report);
-
+      // `report_hidden` is owner-targeted only — the report leaves public view,
+      // so notifying other subscribers would point them at content they can no
+      // longer see (see CONTEXT.md "Notification"). An anonymised report has no
+      // owner to notify, but is still hidden.
       const notificationRows = await db.transaction(async (tx) => {
         await tx
           .update(reports)
-          .set({ isHidden: !report.isHidden })
+          .set({ isHidden: true })
           .where(eq(reports.id, id));
 
-        if (report.isHidden || !report.citizenId) return [];
+        if (!report.citizenId) return [];
 
         return createNotificationRows(tx, {
           recipientIds: [report.citizenId],

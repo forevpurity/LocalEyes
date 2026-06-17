@@ -11,7 +11,9 @@ import {
 import { updateReport, updateReportDoc } from "./update-report.js";
 import { withdrawReport, withdrawReportDoc } from "./withdraw-report.js";
 import { hideReport, hideReportDoc } from "./hide-report.js";
+import { unhideReport, unhideReportDoc } from "./unhide-report.js";
 import { lockReport, lockReportDoc } from "./lock-report.js";
+import { unlockReport, unlockReportDoc } from "./unlock-report.js";
 import { assignReport, assignReportDoc } from "./assign-report.js";
 import { toggleVote, toggleVoteDoc } from "./toggle-vote.js";
 import { toggleSubscribe, toggleSubscribeDoc } from "./toggle-subscribe.js";
@@ -30,7 +32,9 @@ updateReportStatus(reportsRouter);
 updateReport(reportsRouter);
 withdrawReport(reportsRouter);
 hideReport(reportsRouter);
+unhideReport(reportsRouter);
 lockReport(reportsRouter);
+unlockReport(reportsRouter);
 assignReport(reportsRouter);
 toggleVote(reportsRouter);
 toggleSubscribe(reportsRouter);
@@ -58,8 +62,14 @@ export const reportsPaths = {
   "/reports/{id}/hide": {
     patch: hideReportDoc,
   },
+  "/reports/{id}/unhide": {
+    patch: unhideReportDoc,
+  },
   "/reports/{id}/lock": {
     patch: lockReportDoc,
+  },
+  "/reports/{id}/unlock": {
+    patch: unlockReportDoc,
   },
   "/reports/{id}/assign": {
     patch: assignReportDoc,

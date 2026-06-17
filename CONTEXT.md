@@ -73,7 +73,15 @@ Controls notification delivery. Citizens are auto-subscribed to their own Report
 The set of Reports a Citizen is subscribed to, including their own Reports because owner subscriptions are automatic and cannot be removed.
 
 **Notification**:
-In-app notification delivered to subscribed Citizens only. Persisted in the database (source of truth) and pushed in real-time via Socket.io as a best-effort overlay. Socket.io is not a reliability layer — offline Citizens fetch missed notifications on next page load. Notification types: `status_change`, `new_comment`, `report_locked`, `report_hidden`. Staff and Admin do not receive notifications — their workflow is queue-based. Appears as a bell icon indicator. No email notifications for now.
+In-app notification delivered to Citizens only — never Staff or Admin, whose workflow is queue-based. Persisted in the database (source of truth) and pushed in real-time via Socket.io as a best-effort overlay. Socket.io is not a reliability layer — offline Citizens fetch missed notifications on next page load. Appears as a bell icon indicator. No email notifications for now.
+
+Recipients are scoped per type, not a blanket fan-out to every subscriber:
+
+- `status_change` (includes `withdrawn`) and `new_comment` → all subscribed Citizens, minus the actor. A Citizen withdrawing their own Report does not self-notify, but its other subscribers are notified.
+- `report_locked` → all subscribed Citizens. Locking removes everyone's ability to comment, vote, and subscribe, so every watcher is told.
+- `report_hidden` → the owner Citizen only. A hidden Report leaves public view, so other subscribers can no longer see it; notifying them would point at inaccessible content.
+
+Notifications fire only on the constraining transition, never on its reversal: **unlocking and unhiding are silent**. Unhiding in particular is a non-event for the owner, who retains access to their hidden Report throughout. There are deliberately no `report_unlocked` / `report_unhidden` types.
 _Avoid_: alert, message (use "notification" consistently)
 
 ### Moderation

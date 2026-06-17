@@ -13,6 +13,11 @@ import { authenticate } from "../../common/auth.js";
 import { requireCanWithdrawReport } from "./report-rules.js";
 import { hydrateReport } from "./hydrate-report.js";
 import { reportResponse } from "./schemas.js";
+import { getReportSubscriberIds } from "./report-moderation.js";
+import {
+  createNotificationRows,
+  emitNotifications,
+} from "../notifications/notify.js";
 
 export const withdrawReportDoc = {
   summary: "Withdraw a report",
@@ -61,6 +66,7 @@ export function withdrawReport(router: Router) {
       const row = await db
         .select({
           id: reports.id,
+          title: reports.title,
           status: reports.status,
           isHidden: reports.isHidden,
           isLocked: reports.isLocked,
@@ -84,7 +90,7 @@ export function withdrawReport(router: Router) {
 
       requireCanWithdrawReport(report, actor);
 
-      await db.transaction(async (tx) => {
+      const notificationRows = await db.transaction(async (tx) => {
         await tx
           .update(reports)
           .set({ status: "withdrawn" })
@@ -97,7 +103,22 @@ export function withdrawReport(router: Router) {
           type: "status_note",
           newStatus: "withdrawn",
         });
+
+        // Withdrawal is a status change like any other — notify subscribers
+        // (the owner is the actor and is filtered out by `actorId`).
+        return createNotificationRows(tx, {
+          recipientIds: await getReportSubscriberIds(tx, id),
+          actorId: actor.id,
+          reportId: id,
+          template: {
+            type: "status_change",
+            reportTitle: report.title,
+            newStatus: "withdrawn",
+          },
+        });
       });
+
+      emitNotifications(notificationRows);
 
       res.json(await hydrateReport(id));
     },
