@@ -60,7 +60,7 @@ export function NotificationBell() {
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-1 w-80 max-w-[calc(100vw-2rem)] rounded-lg border border-outline-variant bg-surface-container-lowest shadow-md py-1 z-50">
+        <div className="absolute right-0 mt-1 w-80 max-w-[calc(100vw-2rem)] rounded-lg border border-outline-variant bg-surface-container-lowest shadow-md pt-1 z-50">
           <div className="flex items-center justify-between px-3 py-2">
             <span className="text-sm font-medium text-on-surface">
               Notifications
@@ -75,7 +75,7 @@ export function NotificationBell() {
               </button>
             )}
           </div>
-          <div className="my-1 h-px bg-outline-variant" />
+          <div className="my-0 h-px bg-outline-variant" />
 
           <div className="max-h-96 overflow-y-auto">
             {isLoading ? (
