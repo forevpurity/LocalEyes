@@ -20,6 +20,7 @@ import { authenticate } from "../../common/auth.js";
 import { reportCreateLimiter } from "../../common/rate-limit.js";
 import { getCoveringDepartment } from "../../common/geo.js";
 import { reportResponse } from "./schemas.js";
+import { emitToMapViewers } from "../../common/socket.js";
 
 const MIME_TO_EXT: Record<string, string> = {
   "image/jpeg": "jpg",
@@ -204,7 +205,7 @@ export function createReport(router: Router) {
         return report;
       });
 
-      res.status(201).json({
+      const reportPayload = {
         id: result.id,
         title: result.title,
         description: result.description,
@@ -218,7 +219,12 @@ export function createReport(router: Router) {
         photos: savedFiles.map((f) => ({ url: f.url, order: f.order })),
         voteCount: 0,
         createdAt: result.createdAt.toISOString(),
-      });
+      };
+
+      // Broadcast to all map viewers for real-time updates
+      emitToMapViewers("report:created", reportPayload);
+
+      res.status(201).json(reportPayload);
     },
   );
 }

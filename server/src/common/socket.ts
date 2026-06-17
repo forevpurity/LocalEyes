@@ -5,6 +5,15 @@ import { ensureNotBanned } from "./ban-users.js";
 
 let io: Server | null = null;
 
+// Room name for all users currently viewing the map
+const MAP_VIEWERS_ROOM = "map-viewers";
+
+export function emitToMapViewers(event: string, payload: unknown): void {
+  if (io) {
+    io.to(MAP_VIEWERS_ROOM).emit(event, payload);
+  }
+}
+
 function parseCookies(header: string | undefined): Record<string, string> {
   if (!header) return {};
 
@@ -57,6 +66,15 @@ export function initSocket(server: HttpServer): Server {
 
   io.on("connection", (socket) => {
     socket.join(`user:${socket.data.actor.sub}`);
+
+    // Handle map room membership for real-time updates
+    socket.on("map:join", () => {
+      socket.join(MAP_VIEWERS_ROOM);
+    });
+
+    socket.on("map:leave", () => {
+      socket.leave(MAP_VIEWERS_ROOM);
+    });
   });
 
   return io;

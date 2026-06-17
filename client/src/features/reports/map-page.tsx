@@ -7,6 +7,7 @@ import { ReportMap } from "@/features/reports/components/report-map";
 import { CreateReportFab } from "@/features/reports/components/create-report-fab";
 import { MobileReportSheet } from "@/features/reports/components/mobile-report-sheet";
 import { useMapReports, type BBox, type ViewportChange } from "@/features/reports/hooks/use-map-reports";
+import { useMapRealtime } from "@/features/reports/hooks/use-map-realtime";
 import { useCategories } from "@/features/admin/categories/hooks/use-categories";
 import type { ReportSort } from "@/features/reports/components/sort-control";
 import { HCM_CENTER, DEFAULT_ZOOM } from "@/lib/map-constants";
@@ -41,6 +42,7 @@ export function MapPage() {
   const [bbox, setBbox] = useState<BBox | null>(null);
 
   const { data, isPlaceholderData } = useMapReports(bbox);
+  useMapRealtime(bbox);
   const { data: categories } = useCategories();
 
   const filteredReports = useMemo(() => {
