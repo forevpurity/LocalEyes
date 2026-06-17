@@ -53,7 +53,7 @@ const reportListItemSchema = z
     departmentId: z.uuid().nullable(),
     departmentName: z.string().nullable(),
     citizenName: z.string().nullable(),
-    photos: z.array(z.object({ url: z.string(), order: z.number() })),
+    photos: z.array(z.object({ url: z.string(), order: z.number(), kind: z.string() })),
     voteCount: z.number(),
     hasVoted: z.boolean(),
     isHidden: z.boolean(),
@@ -265,16 +265,17 @@ export function listReports(router: Router) {
               reportId: reportPhotos.reportId,
               url: reportPhotos.url,
               order: reportPhotos.order,
+              kind: reportPhotos.kind,
             })
             .from(reportPhotos)
             .where(inArray(reportPhotos.reportId, reportIds))
             .orderBy(reportPhotos.order)
         : [];
 
-    const photoMap = new Map<string, { url: string; order: number }[]>();
+    const photoMap = new Map<string, { url: string; order: number; kind: string }[]>();
     for (const p of photoRows) {
       const list = photoMap.get(p.reportId) ?? [];
-      list.push({ url: p.url, order: p.order });
+      list.push({ url: p.url, order: p.order, kind: p.kind });
       photoMap.set(p.reportId, list);
     }
 

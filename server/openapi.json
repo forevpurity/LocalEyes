@@ -2143,6 +2143,104 @@
         }
       }
     },
+    "/reports/{id}/photos": {
+      "post": {
+        "summary": "Add after-resolution photos to a report",
+        "tags": [
+          "Reports"
+        ],
+        "operationId": "addReportPhotos",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+              "description": "Report Id"
+            },
+            "required": true,
+            "description": "Report Id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "photos": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary",
+                      "contentEncoding": "binary"
+                    }
+                  }
+                },
+                "required": [
+                  "photos"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Photos added",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AddPhotosResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Staff accessing a report outside their department",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Report not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/reports/{id}/comments/{commentId}": {
       "patch": {
         "summary": "Edit a comment",
@@ -4166,11 +4264,19 @@
                 },
                 "order": {
                   "type": "number"
+                },
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "before",
+                    "after"
+                  ]
                 }
               },
               "required": [
                 "url",
-                "order"
+                "order",
+                "kind"
               ],
               "additionalProperties": false
             }
@@ -4310,11 +4416,15 @@
                 },
                 "order": {
                   "type": "number"
+                },
+                "kind": {
+                  "type": "string"
                 }
               },
               "required": [
                 "url",
-                "order"
+                "order",
+                "kind"
               ],
               "additionalProperties": false
             }
@@ -4440,11 +4550,19 @@
                 },
                 "order": {
                   "type": "number"
+                },
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "before",
+                    "after"
+                  ]
                 }
               },
               "required": [
                 "url",
-                "order"
+                "order",
+                "kind"
               ],
               "additionalProperties": false
             }
@@ -4814,6 +4932,42 @@
         },
         "required": [
           "subscribed"
+        ],
+        "additionalProperties": false
+      },
+      "AddPhotosResponse": {
+        "type": "object",
+        "properties": {
+          "photos": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "url": {
+                  "type": "string"
+                },
+                "order": {
+                  "type": "number"
+                },
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "before",
+                    "after"
+                  ]
+                }
+              },
+              "required": [
+                "url",
+                "order",
+                "kind"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "photos"
         ],
         "additionalProperties": false
       },

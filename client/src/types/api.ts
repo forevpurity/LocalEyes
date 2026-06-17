@@ -40,6 +40,7 @@ export interface Department {
 export interface ReportPhoto {
   url: string;
   order: number;
+  kind: "before" | "after";
 }
 
 export interface Report {

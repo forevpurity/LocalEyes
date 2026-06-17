@@ -13,7 +13,7 @@ export const reportResponse = z
     latitude: z.number(),
     longitude: z.number(),
     departmentId: z.uuid().nullable(),
-    photos: z.array(z.object({ url: z.string(), order: z.number() })),
+    photos: z.array(z.object({ url: z.string(), order: z.number(), kind: z.enum(["before", "after"]) })),
     voteCount: z.number(),
     createdAt: z.string(),
   })

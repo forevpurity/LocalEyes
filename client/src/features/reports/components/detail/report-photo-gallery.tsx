@@ -22,12 +22,45 @@ export function ReportPhotoGallery({ photos }: { photos: ReportPhoto[] }) {
   const go = (delta: number) =>
     setActiveIndex((i) => (i + delta + ordered.length) % ordered.length);
 
+  // Partition thumbnails by kind while keeping each photo's index into `ordered`
+  // so a single hero/lightbox spans both groups. The server returns before-photos
+  // first (lower `order`), so the groups stay contiguous.
+  const indexed = ordered.map((photo, index) => ({ photo, index }));
+  const beforeThumbs = indexed.filter((t) => t.photo.kind === "before");
+  const afterThumbs = indexed.filter((t) => t.photo.kind === "after");
+  const showLabels = beforeThumbs.length > 0 && afterThumbs.length > 0;
+  const activeKindLabel = ordered[active].kind === "after" ? "After" : "Before";
+
+  const renderThumb = ({
+    photo,
+    index,
+  }: {
+    photo: ReportPhoto;
+    index: number;
+  }) => (
+    <button
+      key={`${photo.url}-${index}`}
+      type="button"
+      onClick={() => setActiveIndex(index)}
+      className={cn(
+        "h-14 w-14 overflow-hidden rounded-md bg-muted ring-offset-2 ring-offset-card transition-all sm:h-16 sm:w-16",
+        index === active
+          ? "ring-2 ring-primary"
+          : "opacity-70 hover:opacity-100",
+      )}
+      aria-label={`View photo ${index + 1}`}
+      aria-current={index === active}
+    >
+      <img src={photo.url} alt="" className="h-full w-full object-cover" />
+    </button>
+  );
+
   return (
     <div className="space-y-2">
       <button
         type="button"
         onClick={() => setLightboxOpen(true)}
-        className="block w-full overflow-hidden rounded-lg bg-muted"
+        className="relative block w-full overflow-hidden rounded-lg bg-muted"
         aria-label="Open photo in full screen"
       >
         <img
@@ -35,29 +68,33 @@ export function ReportPhotoGallery({ photos }: { photos: ReportPhoto[] }) {
           alt=""
           className="h-72 w-full object-cover transition-opacity md:h-80"
         />
+        {showLabels && (
+          <span className="absolute left-2 top-2 rounded-full bg-black/60 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-white">
+            {activeKindLabel}
+          </span>
+        )}
       </button>
 
-      {ordered.length > 1 && (
-        <div className="flex flex-wrap gap-2">
-          {ordered.map((photo, i) => (
-            <button
-              key={photo.url}
-              type="button"
-              onClick={() => setActiveIndex(i)}
-              className={cn(
-                "h-14 w-14 overflow-hidden rounded-md bg-muted ring-offset-2 ring-offset-card transition-all sm:h-16 sm:w-16",
-                i === active
-                  ? "ring-2 ring-primary"
-                  : "opacity-70 hover:opacity-100",
-              )}
-              aria-label={`View photo ${i + 1}`}
-              aria-current={i === active}
-            >
-              <img src={photo.url} alt="" className="h-full w-full object-cover" />
-            </button>
-          ))}
-        </div>
-      )}
+      {ordered.length > 1 &&
+        (showLabels ? (
+          <div className="space-y-2">
+            {[
+              { label: "Before", thumbs: beforeThumbs },
+              { label: "After", thumbs: afterThumbs },
+            ].map(({ label, thumbs }) => (
+              <div key={label} className="space-y-1">
+                <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                  {label}
+                </span>
+                <div className="flex flex-wrap gap-2">
+                  {thumbs.map(renderThumb)}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-wrap gap-2">{indexed.map(renderThumb)}</div>
+        ))}
 
       <Dialog.Root open={lightboxOpen} onOpenChange={setLightboxOpen}>
         <Dialog.Portal>
@@ -78,6 +115,12 @@ export function ReportPhotoGallery({ photos }: { photos: ReportPhoto[] }) {
             >
               <X className="h-5 w-5" />
             </Dialog.Close>
+
+            {showLabels && (
+              <span className="absolute left-4 top-4 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white">
+                {activeKindLabel}
+              </span>
+            )}
 
             <img
               src={ordered[active].url}

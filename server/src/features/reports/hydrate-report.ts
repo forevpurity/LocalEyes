@@ -27,7 +27,7 @@ export async function hydrateReport(id: string) {
       .where(eq(reports.id, id))
       .limit(1),
     db
-      .select({ url: reportPhotos.url, order: reportPhotos.order })
+      .select({ url: reportPhotos.url, order: reportPhotos.order, kind: reportPhotos.kind })
       .from(reportPhotos)
       .where(eq(reportPhotos.reportId, id))
       .orderBy(reportPhotos.order),

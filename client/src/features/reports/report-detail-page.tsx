@@ -26,6 +26,7 @@ import { ReportTimeline } from "@/features/reports/components/detail/report-time
 import { ReportLocationCard } from "@/features/reports/components/detail/report-location-card";
 import { ReportDiscussion } from "@/features/reports/components/detail/report-discussion";
 import { ReportPhotoGallery } from "@/features/reports/components/detail/report-photo-gallery";
+import { ResolutionPhotoUpload } from "@/features/reports/components/detail/resolution-photo-upload";
 import { ReportEditForm } from "@/features/reports/components/detail/report-edit-form";
 import { StatusChangeModal } from "@/features/reports/components/detail/status-change-modal";
 import { ReportFlagBadges } from "@/features/reports/components/report-flag-badges";
@@ -197,8 +198,12 @@ export function ReportDetailPage() {
                   {report.title}
                 </h1>
 
-                <div className="mt-5">
+                <div className="mt-5 space-y-4">
+                  {/* Single gallery; before/after photos are labeled inline */}
                   <ReportPhotoGallery photos={report.photos} />
+                  {(isStaff || isAdmin) && (
+                    <ResolutionPhotoUpload reportId={report.id} />
+                  )}
                 </div>
 
                 <div className="mt-4 flex flex-col gap-2 border-t border-border pt-4 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-4 sm:gap-y-2">

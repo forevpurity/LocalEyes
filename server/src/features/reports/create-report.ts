@@ -1,15 +1,10 @@
 import { Router } from "express";
-import multer from "multer";
 import { z } from "zod";
-import { randomUUID } from "crypto";
-import { extname } from "path";
-import { writeFile } from "fs/promises";
 import type { ZodOpenApiOperationObject } from "zod-openapi";
 import { db } from "../../db/client.js";
 import { reports } from "../../db/schema/reports.js";
 import { reportPhotos } from "../../db/schema/report-photos.js";
 import { subscriptions } from "../../db/schema/subscriptions.js";
-import { categories } from "../../db/schema/categories.js";
 import {
   ValidationError,
   DomainRuleError,
@@ -21,22 +16,12 @@ import { reportCreateLimiter } from "../../common/rate-limit.js";
 import { getCoveringDepartment } from "../../common/geo.js";
 import { reportResponse } from "./schemas.js";
 import { emitToMapViewers } from "../../common/socket.js";
-
-const MIME_TO_EXT: Record<string, string> = {
-  "image/jpeg": "jpg",
-  "image/png": "png",
-  "image/webp": "webp",
-};
-
-const ALLOWED_MIMES = new Set(Object.keys(MIME_TO_EXT));
-const MAX_FILE_SIZE = 5 * 1024 * 1024;
-const MAX_FILES = 5;
-const UPLOAD_DIR = process.env.UPLOAD_DIR ?? "uploads";
-
-const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: { fileSize: MAX_FILE_SIZE, files: MAX_FILES },
-});
+import {
+  imageUpload,
+  validateImageFiles,
+  saveImageFiles,
+  MAX_FILES,
+} from "./photo-upload.js";
 
 const createReportSchema = z
   .object({
@@ -115,7 +100,7 @@ export function createReport(router: Router) {
     "/",
     reportCreateLimiter,
     authenticate("citizen"),
-    upload.array("photos", MAX_FILES),
+    imageUpload.array("photos", MAX_FILES),
     async (req, res) => {
       const files = req.files as Express.Multer.File[];
 
@@ -125,16 +110,7 @@ export function createReport(router: Router) {
         ]);
       }
 
-      for (const file of files) {
-        if (!ALLOWED_MIMES.has(file.mimetype)) {
-          throw new ValidationError("Invalid file type", [
-            {
-              field: "photos",
-              message: `File "${file.originalname}" is not a supported image type. Allowed: JPEG, PNG, WebP`,
-            },
-          ]);
-        }
-      }
+      validateImageFiles(files);
 
       const data = parseAndValidate(createReportSchema, req.body);
 
@@ -152,15 +128,7 @@ export function createReport(router: Router) {
         );
       }
 
-      const savedFiles: { filename: string; url: string; order: number }[] = [];
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        const ext = MIME_TO_EXT[file.mimetype];
-        const filename = `${randomUUID()}.${ext}`;
-        const url = `/uploads/${filename}`;
-        await writeFile(`${UPLOAD_DIR}/${filename}`, file.buffer);
-        savedFiles.push({ filename, url, order: i });
-      }
+      const savedFiles = await saveImageFiles(files);
 
       const catName = covering.categories.find(
         (c) => c.id === data.categoryId,
@@ -193,6 +161,7 @@ export function createReport(router: Router) {
           savedFiles.map((f) => ({
             reportId: report.id,
             url: f.url,
+            kind: "before" as const,
             order: f.order,
           })),
         );
@@ -216,7 +185,7 @@ export function createReport(router: Router) {
         latitude: data.latitude,
         longitude: data.longitude,
         departmentId: covering.department?.id ?? null,
-        photos: savedFiles.map((f) => ({ url: f.url, order: f.order })),
+        photos: savedFiles.map((f) => ({ url: f.url, order: f.order, kind: "before" })),
         voteCount: 0,
         createdAt: result.createdAt.toISOString(),
       };

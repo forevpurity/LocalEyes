@@ -52,7 +52,7 @@ const reportDetailSchema = z
     departmentId: z.uuid().nullable(),
     departmentName: z.string().nullable(),
     citizenName: z.string().nullable(),
-    photos: z.array(z.object({ url: z.string(), order: z.number() })),
+    photos: z.array(z.object({ url: z.string(), order: z.number(), kind: z.enum(["before", "after"]) })),
     voteCount: z.number(),
     hasVoted: z.boolean(),
     isOwner: z.boolean(),
@@ -149,7 +149,7 @@ export function getReport(router: Router) {
 
     const [photoRows, commentRows] = await Promise.all([
       db
-        .select({ url: reportPhotos.url, order: reportPhotos.order })
+        .select({ url: reportPhotos.url, order: reportPhotos.order, kind: reportPhotos.kind })
         .from(reportPhotos)
         .where(eq(reportPhotos.reportId, id))
         .orderBy(reportPhotos.order),
