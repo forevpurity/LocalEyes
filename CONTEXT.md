@@ -29,7 +29,7 @@ The set of Reports submitted by a Citizen. This is the Citizen-facing personal l
 _Avoid_: my reports, personal archive
 
 **Report Status**:
-The lifecycle state of a Report. Transitions: `submitted → acknowledged → in_progress → resolved → closed`. A Report can also go from `submitted → rejected` or `submitted → withdrawn`. `closed`, `rejected`, and `withdrawn` are terminal. Reports are never reopened — a recurring problem is a new Report.
+The lifecycle state of a Report. Transitions: `submitted → acknowledged → in_progress → resolved → closed`. A Report can also go from `submitted → rejected` or `submitted → withdrawn`. `closed`, `rejected`, and `withdrawn` are terminal. As part of normal workflow Reports are never reopened — a recurring problem is a new Report. The one exception is **Admin correction**: an Admin may reverse a mistaken terminal transition (`rejected → submitted`, `closed → acknowledged`) to undo an error. `withdrawn` is the Citizen's own choice and is never reversible, even by Admin. Correction is an administrative undo, not a workflow reopening; every status change — including corrections — requires a note and an explicit confirmation.
 
 **Report Edit**:
 A Citizen can edit the title and description of their own Report only while it is in `submitted` status and the Report is not locked. Once acknowledged by Staff, the Report content is fixed — further updates go through Comments. Location, category, and address are never editable after submission; a misplaced Report should be withdrawn and resubmitted.

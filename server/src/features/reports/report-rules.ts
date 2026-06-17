@@ -34,7 +34,9 @@ const STAFF_TRANSITIONS: Record<string, ReadonlySet<string>> = {
   withdrawn: new Set(),
 };
 
-// Admins can additionally reopen terminal states to correct mistakes
+// Admin correction: reverse a mistaken terminal transition (not a workflow
+// reopening). `withdrawn` is the Citizen's own choice and stays terminal.
+// See CONTEXT.md "Report Status".
 const ADMIN_TRANSITIONS: Record<string, ReadonlySet<string>> = {
   ...Object.fromEntries(
     Object.entries(STAFF_TRANSITIONS).map(([k, v]) => [k, v]),
