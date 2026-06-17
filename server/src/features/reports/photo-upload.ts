@@ -13,6 +13,7 @@ export const MIME_TO_EXT: Record<string, string> = {
 export const ALLOWED_MIMES = new Set(Object.keys(MIME_TO_EXT));
 export const MAX_FILE_SIZE = 5 * 1024 * 1024;
 export const MAX_FILES = 5;
+export const MAX_AFTER_PHOTOS = 10;
 export const UPLOAD_DIR = process.env.UPLOAD_DIR ?? "uploads";
 
 export const imageUpload = multer({

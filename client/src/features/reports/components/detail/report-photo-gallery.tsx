@@ -4,7 +4,15 @@ import { ChevronLeft, ChevronRight, ImageIcon, X } from "lucide-react";
 import type { ReportPhoto } from "@/types/api";
 import { cn } from "@/lib/utils";
 
-export function ReportPhotoGallery({ photos }: { photos: ReportPhoto[] }) {
+export function ReportPhotoGallery({
+  photos,
+  canManage,
+  onRemove,
+}: {
+  photos: ReportPhoto[];
+  canManage?: boolean;
+  onRemove?: (photoId: string) => void;
+}) {
   const ordered = [...photos].sort((a, b) => a.order - b.order);
   const [activeIndex, setActiveIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -38,21 +46,36 @@ export function ReportPhotoGallery({ photos }: { photos: ReportPhoto[] }) {
     photo: ReportPhoto;
     index: number;
   }) => (
-    <button
-      key={`${photo.url}-${index}`}
-      type="button"
-      onClick={() => setActiveIndex(index)}
-      className={cn(
-        "h-14 w-14 overflow-hidden rounded-md bg-muted ring-offset-2 ring-offset-card transition-all sm:h-16 sm:w-16",
-        index === active
-          ? "ring-2 ring-primary"
-          : "opacity-70 hover:opacity-100",
+    <div key={`${photo.url}-${index}`} className="relative">
+      <button
+        type="button"
+        onClick={() => setActiveIndex(index)}
+        className={cn(
+          "h-14 w-14 overflow-hidden rounded-md bg-muted ring-offset-2 ring-offset-card transition-all sm:h-16 sm:w-16",
+          index === active
+            ? "ring-2 ring-primary"
+            : "opacity-70 hover:opacity-100",
+        )}
+        aria-label={`View photo ${index + 1}`}
+        aria-current={index === active}
+      >
+        <img src={photo.url} alt="" className="h-full w-full object-cover" />
+      </button>
+      {canManage && onRemove && photo.kind === "after" && (
+        <button
+          type="button"
+          onClick={() => {
+            if (window.confirm("Remove this resolution photo? This cannot be undone.")) {
+              onRemove(photo.id);
+            }
+          }}
+          className="absolute right-0.5 top-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-black/50 text-white transition-colors hover:bg-black/70"
+          aria-label="Remove photo"
+        >
+          <X className="h-3 w-3" />
+        </button>
       )}
-      aria-label={`View photo ${index + 1}`}
-      aria-current={index === active}
-    >
-      <img src={photo.url} alt="" className="h-full w-full object-cover" />
-    </button>
+    </div>
   );
 
   return (
@@ -72,6 +95,21 @@ export function ReportPhotoGallery({ photos }: { photos: ReportPhoto[] }) {
           <span className="absolute left-2 top-2 rounded-full bg-black/60 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-white">
             {activeKindLabel}
           </span>
+        )}
+        {canManage && onRemove && ordered[active].kind === "after" && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (window.confirm("Remove this resolution photo? This cannot be undone.")) {
+                onRemove(ordered[active].id);
+              }
+            }}
+            className="absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded-full bg-black/60 text-white transition-colors hover:bg-black/80"
+            aria-label="Remove photo"
+          >
+            <X className="h-4 w-4" />
+          </button>
         )}
       </button>
 

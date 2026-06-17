@@ -38,6 +38,7 @@ export interface Department {
 }
 
 export interface ReportPhoto {
+  id: string;
   url: string;
   order: number;
   kind: "before" | "after";

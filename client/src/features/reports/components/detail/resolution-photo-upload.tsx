@@ -7,12 +7,14 @@ import { cn } from "@/lib/utils";
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_FILES = 5;
+const MAX_AFTER_PHOTOS = 10;
 
 interface ResolutionPhotoUploadProps {
   reportId: string;
+  afterPhotoCount?: number;
 }
 
-export function ResolutionPhotoUpload({ reportId }: ResolutionPhotoUploadProps) {
+export function ResolutionPhotoUpload({ reportId, afterPhotoCount = 0 }: ResolutionPhotoUploadProps) {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [fileUrls, setFileUrls] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -31,6 +33,9 @@ export function ResolutionPhotoUpload({ reportId }: ResolutionPhotoUploadProps) 
     };
   }, [selectedFiles]);
 
+  const remaining = Math.max(0, MAX_AFTER_PHOTOS - afterPhotoCount);
+  const isFull = remaining === 0;
+
   const handleSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
     const valid = files.filter((f) => ALLOWED_TYPES.includes(f.type));
@@ -39,7 +44,7 @@ export function ResolutionPhotoUpload({ reportId }: ResolutionPhotoUploadProps) 
     }
     setSelectedFiles((prev) => {
       const combined = [...prev, ...valid];
-      return combined.slice(0, MAX_FILES);
+      return combined.slice(0, Math.min(MAX_FILES, remaining));
     });
     // Reset input so re-selecting the same file triggers onChange
     if (inputRef.current) inputRef.current.value = "";
@@ -115,14 +120,19 @@ export function ResolutionPhotoUpload({ reportId }: ResolutionPhotoUploadProps) 
           id="resolution-photo-input"
         />
         <label
-          htmlFor="resolution-photo-input"
+          htmlFor={isFull ? undefined : "resolution-photo-input"}
           className={cn(
-            "inline-flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-border px-4 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/50 hover:text-primary",
+            "inline-flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-border px-4 py-2.5 text-sm font-medium text-muted-foreground transition-colors",
+            isFull
+              ? "cursor-not-allowed opacity-50"
+              : "hover:border-primary/50 hover:text-primary",
             upload.isPending && "pointer-events-none opacity-50",
           )}
         >
           <Upload className="h-4 w-4" />
-          Add resolution photos
+          {isFull
+            ? `Maximum ${MAX_AFTER_PHOTOS} resolution photos`
+            : `Add resolution photos (${remaining}/${MAX_AFTER_PHOTOS})`}
         </label>
       </div>
     </div>

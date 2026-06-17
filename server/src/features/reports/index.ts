@@ -21,6 +21,7 @@ import { hideComment, hideCommentDoc } from "./hide-comment.js";
 import { editComment, editCommentDoc } from "./edit-comment.js";
 import { myStats, myStatsDoc } from "./my-stats.js";
 import { addReportPhotos, addReportPhotosDoc } from "./add-report-photos.js";
+import { removeReportPhoto, removeReportPhotoDoc } from "./remove-report-photo.js";
 
 export const reportsRouter = Router();
 
@@ -42,6 +43,7 @@ toggleSubscribe(reportsRouter);
 hideComment(reportsRouter);
 editComment(reportsRouter);
 addReportPhotos(reportsRouter);
+removeReportPhoto(reportsRouter);
 
 export const reportsPaths = {
   "/reports": {
@@ -87,6 +89,9 @@ export const reportsPaths = {
   },
   "/reports/{id}/photos": {
     post: addReportPhotosDoc,
+  },
+  "/reports/{id}/photos/{photoId}": {
+    delete: removeReportPhotoDoc,
   },
   "/reports/{id}/comments/{commentId}": {
     patch: editCommentDoc,

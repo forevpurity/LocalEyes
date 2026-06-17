@@ -18,6 +18,7 @@ import { useReport } from "@/features/reports/hooks/use-report";
 import { useToggleVote } from "@/features/reports/hooks/use-toggle-vote";
 import { useToggleSubscribe } from "@/features/reports/hooks/use-toggle-subscribe";
 import { useWithdrawReport } from "@/features/reports/hooks/use-withdraw-report";
+import { useRemoveReportPhoto } from "@/features/reports/hooks/use-remove-report-photo";
 import { useAuth } from "@/features/auth/auth-context";
 import { getCategoryIcon } from "@/features/reports/lib/category-icons";
 import { getStatusStyle } from "@/features/reports/lib/status-styles";
@@ -79,6 +80,7 @@ export function ReportDetailPage() {
   const toggleVote = useToggleVote(id ?? "");
   const toggleSubscribe = useToggleSubscribe(id ?? "");
   const withdrawReport = useWithdrawReport(id ?? "");
+  const removePhoto = useRemoveReportPhoto(id ?? "");
   const [isEditing, setIsEditing] = useState(false);
   const [changingStatus, setChangingStatus] = useState(false);
   const isStaff = user?.role === "staff";
@@ -200,9 +202,21 @@ export function ReportDetailPage() {
 
                 <div className="mt-5 space-y-4">
                   {/* Single gallery; before/after photos are labeled inline */}
-                  <ReportPhotoGallery photos={report.photos} />
+                  <ReportPhotoGallery
+                    photos={report.photos}
+                    canManage={isStaff || isAdmin}
+                    onRemove={(photoId) => {
+                      removePhoto.mutate(photoId, {
+                        onError: () =>
+                          toast.error("Couldn't remove the photo. Please try again."),
+                      });
+                    }}
+                  />
                   {(isStaff || isAdmin) && (
-                    <ResolutionPhotoUpload reportId={report.id} />
+                    <ResolutionPhotoUpload
+                      reportId={report.id}
+                      afterPhotoCount={report.photos.filter((p) => p.kind === "after").length}
+                    />
                   )}
                 </div>
 
