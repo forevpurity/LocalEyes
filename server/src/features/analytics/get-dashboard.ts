@@ -1,21 +1,25 @@
 import { Router } from "express";
 import type { ZodOpenApiOperationObject } from "zod-openapi";
 import { z } from "zod";
-import { eq, sql, and, gte, lte, lt } from "drizzle-orm";
+import { eq, sql, and, gte, lt } from "drizzle-orm";
 import { db } from "../../db/client.js";
 import { reports } from "../../db/schema/reports.js";
 import { comments } from "../../db/schema/comments.js";
 import { departments } from "../../db/schema/departments.js";
 import { authenticate } from "../../common/auth.js";
 import { errorResponseSchema } from "../../common/errors.js";
+import {
+  CURRENT_START,
+  PRIOR_START,
+  PRIOR_END,
+  currentWindow,
+  priorWindow,
+  trend,
+  dashboardKpiSchema,
+} from "./lib/windows.js";
 
 // Reuse the resolvedAt subquery from get-summary.ts:81-83
 const resolvedAt = sql`(SELECT MIN(c.created_at) FROM comments c WHERE c.report_id = ${reports.id} AND c.type = 'status_note' AND c.new_status = 'resolved')`;
-
-const dashboardKpiSchema = z.object({
-  value: z.number(),
-  trendPercent: z.number().nullable(),
-});
 
 const dashboardDepartmentSchema = z.object({
   departmentId: z.uuid().nullable(),
@@ -65,23 +69,6 @@ export const getDashboardDoc = {
     },
   },
 } satisfies ZodOpenApiOperationObject;
-
-// ─── window helpers ───
-
-const CURRENT_START = sql`now() - interval '30 days'`;
-const PRIOR_END = sql`now() - interval '30 days'`;
-const PRIOR_START = sql`now() - interval '60 days'`;
-
-function currentWindow() {
-  return and(gte(reports.createdAt, CURRENT_START));
-}
-
-function priorWindow() {
-  return and(
-    gte(reports.createdAt, PRIOR_START),
-    lt(reports.createdAt, PRIOR_END),
-  );
-}
 
 // ─── active users: distinct citizenId ∪ authorId ───
 
@@ -137,13 +124,6 @@ function activeUsersInPriorWindow(windowFilter: ReturnType<typeof and>) {
     .from(
       sql`(${reportingCitizens.union(commentingUsers)}) AS u`,
     );
-}
-
-// ─── trend helper ───
-
-function trend(currentVal: number, priorVal: number): number | null {
-  if (priorVal === 0) return null;
-  return Math.round(((currentVal - priorVal) / priorVal) * 100);
 }
 
 // ─── route ───

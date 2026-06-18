@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSearchParams } from "react-router";
 import { Loader2, Search, FileText } from "lucide-react";
 import { useStaffReports } from "./hooks/use-staff-reports";
 import { ReportRow } from "@/features/reports/components/report-row";
@@ -11,7 +12,10 @@ const STATUS_OPTIONS = Object.entries(STATUS_STYLES) as [
 ][];
 
 export function StaffQueuePage() {
-  const [status, setStatus] = useState<ReportStatus | "">("");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [status, setStatus] = useState<ReportStatus | "">(
+    () => (searchParams.get("status") as ReportStatus) ?? "",
+  );
   const [search, setSearch] = useState("");
   const [q, setQ] = useState("");
 
@@ -60,7 +64,15 @@ export function StaffQueuePage() {
 
         <select
           value={status}
-          onChange={(e) => setStatus(e.target.value as ReportStatus | "")}
+          onChange={(e) => {
+            const value = e.target.value as ReportStatus | "";
+            setStatus(value);
+            if (value) {
+              setSearchParams({ status: value });
+            } else {
+              setSearchParams({});
+            }
+          }}
           className="rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary/20"
         >
           <option value="">All statuses</option>

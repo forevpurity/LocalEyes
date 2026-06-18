@@ -1,4 +1,4 @@
-import { Loader2, FileText, FolderOpen, Inbox, CheckCircle2 } from "lucide-react";
+import { Loader2, FileText, FolderOpen, Inbox, CheckCircle2, Clock } from "lucide-react";
 import { Link } from "react-router";
 import { useDepartmentSummary } from "./hooks/use-department-summary";
 import { useStaffReports } from "./hooks/use-staff-reports";
@@ -73,7 +73,6 @@ export function StaffDashboardPage() {
     0,
   );
   const awaitingReview = countByStatus("submitted");
-  const resolvedCount = data.averageResolution.resolvedCount;
   const topCategory =
     data.categoryCounts.length > 0
       ? data.categoryCounts.reduce((a, b) => (a.count > b.count ? a : b))
@@ -92,31 +91,49 @@ export function StaffDashboardPage() {
 
       {/* Stat cards */}
       <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <Link to="/queue" className="block h-full rounded-xl transition-shadow hover:shadow-md">
+          <StatCard
+            className="h-full"
+            label="Open reports"
+            value={openCount}
+            icon={FolderOpen}
+            hint={topCategory ? `Top: ${topCategory.categoryName}` : undefined}
+          />
+        </Link>
+        <Link to="/queue?status=submitted" className="block h-full rounded-xl transition-shadow hover:shadow-md">
+          <StatCard
+            className="h-full"
+            label="Awaiting review"
+            value={awaitingReview}
+            icon={Inbox}
+          />
+        </Link>
         <StatCard
-          label="Open reports"
-          value={openCount}
-          icon={FolderOpen}
-          hint={topCategory ? `Top: ${topCategory.categoryName}` : undefined}
-        />
-        <StatCard
-          label="Awaiting review"
-          value={awaitingReview}
-          icon={Inbox}
-        />
-        <StatCard
-          label="Resolved"
-          value={resolvedCount}
+          className="h-full"
+          label="Resolved (30d)"
+          value={data.resolvedRecent.value}
           icon={CheckCircle2}
+          trend={{ percent: data.resolvedRecent.trendPercent }}
         />
         <StatCard
-          label="Avg time to resolve"
-          value={formatResolution(data.averageResolution.averageHours)}
+          className="h-full"
+          label="Avg. resolution (30d)"
+          value={formatResolution(
+            data.avgResolutionRecent.value != null
+              ? data.avgResolutionRecent.value / 3600
+              : null,
+          )}
+          icon={Clock}
+          trend={{
+            percent: data.avgResolutionRecent.trendPercent,
+            invert: true,
+          }}
         />
       </div>
 
       {/* Personal stats */}
       <p className="mb-6 text-body-sm text-muted-foreground">
-        You resolved{" "}
+        In the last 30 days, you resolved{" "}
         <span className="font-medium text-foreground">
           {data.personalStats.reportsResolved}
         </span>{" "}

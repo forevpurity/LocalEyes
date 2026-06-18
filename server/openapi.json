@@ -5562,6 +5562,59 @@
             ],
             "additionalProperties": false
           },
+          "resolvedRecent": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "number"
+              },
+              "trendPercent": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "value",
+              "trendPercent"
+            ],
+            "additionalProperties": false
+          },
+          "avgResolutionRecent": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "trendPercent": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "value",
+              "trendPercent"
+            ],
+            "additionalProperties": false
+          },
           "topVotedReports": {
             "type": "array",
             "items": {
@@ -5614,6 +5667,8 @@
           "categoryCounts",
           "reportsOverTime",
           "averageResolution",
+          "resolvedRecent",
+          "avgResolutionRecent",
           "topVotedReports",
           "personalStats"
         ],

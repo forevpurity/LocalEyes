@@ -13,12 +13,13 @@ interface StatCardProps {
   icon?: LucideIcon;
   hint?: string;
   trend?: StatCardTrend;
+  className?: string;
 }
 
-export function StatCard({ label, value, icon: Icon, hint, trend }: StatCardProps) {
+export function StatCard({ label, value, icon: Icon, hint, trend, className }: StatCardProps) {
   return (
-    <Card>
-      <CardContent className="flex items-center gap-4">
+    <Card className={className}>
+      <CardContent className="flex items-start gap-4">
         {Icon && (
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
             <Icon className="h-5 w-5" aria-hidden="true" />

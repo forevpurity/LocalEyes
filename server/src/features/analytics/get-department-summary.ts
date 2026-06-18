@@ -1,7 +1,7 @@
 import { Router } from "express";
 import type { ZodOpenApiOperationObject } from "zod-openapi";
 import { z } from "zod";
-import { desc, eq, and, sql } from "drizzle-orm";
+import { desc, eq, and, gte, sql } from "drizzle-orm";
 import { db } from "../../db/client.js";
 import { reports } from "../../db/schema/reports.js";
 import { categories } from "../../db/schema/categories.js";
@@ -10,6 +10,13 @@ import { comments } from "../../db/schema/comments.js";
 import { authenticate } from "../../common/auth.js";
 import { parseAndValidate } from "../../common/validate.js";
 import { errorResponseSchema } from "../../common/errors.js";
+import {
+  CURRENT_START,
+  currentWindow,
+  priorWindow,
+  trend,
+  dashboardKpiSchema,
+} from "./lib/windows.js";
 
 const summaryQuerySchema = z.object({
   granularity: z.enum(["day", "week", "month"]).default("day"),
@@ -35,6 +42,11 @@ const departmentSummarySchema = z
       averageSeconds: z.number().nullable(),
       averageHours: z.number().nullable(),
       resolvedCount: z.number(),
+    }),
+    resolvedRecent: dashboardKpiSchema,
+    avgResolutionRecent: z.object({
+      value: z.number().nullable(),
+      trendPercent: z.number().nullable(),
     }),
     topVotedReports: z.array(
       z.object({
@@ -104,6 +116,8 @@ export function getDepartmentSummary(router: Router) {
           averageHours: null,
           resolvedCount: 0,
         },
+        resolvedRecent: { value: 0, trendPercent: null },
+        avgResolutionRecent: { value: null, trendPercent: null },
         topVotedReports: [],
         personalStats: {
           reportsResolved: 0,
@@ -117,8 +131,18 @@ export function getDepartmentSummary(router: Router) {
 
     const truncPeriod = sql`DATE_TRUNC(${granularity}::text, ${reports.createdAt})`;
 
-    const [statusRows, categoryRows, trendRows, resolutionRows, topVoted, personal] =
-      await Promise.all([
+    const [
+      statusRows,
+      categoryRows,
+      trendRows,
+      resolutionRows,
+      topVoted,
+      personal,
+      resolvedCurr,
+      resolvedPrior,
+      avgCurr,
+      avgPrior,
+    ] = await Promise.all([
         db
           .select({ status: reports.status, count: sql<number>`COUNT(*)::int` })
           .from(reports)
@@ -163,7 +187,8 @@ export function getDepartmentSummary(router: Router) {
           .where(and(deptFilter, sql`${voteCount} > 0`))
           .orderBy(desc(voteCount), desc(reports.createdAt))
           .limit(10),
-        // Personal stats: reports this staff member resolved + comments they added
+        // Personal stats (last 30 days): reports this staff member resolved +
+        // comments they added — windowed to match the dashboard's 30d cards.
         Promise.all([
           db
             .select({ count: sql<number>`COUNT(*)::int` })
@@ -173,6 +198,7 @@ export function getDepartmentSummary(router: Router) {
                 eq(comments.authorId, req.actor!.id),
                 eq(comments.type, "status_note"),
                 eq(comments.newStatus, "resolved"),
+                gte(comments.createdAt, CURRENT_START),
               ),
             ),
           db
@@ -182,10 +208,39 @@ export function getDepartmentSummary(router: Router) {
               and(
                 eq(comments.authorId, req.actor!.id),
                 eq(comments.type, "discussion"),
+                gte(comments.createdAt, CURRENT_START),
               ),
             ),
         ]),
-      ]);
+      // resolved count in current window (reports created in last 30d)
+      db
+        .select({ count: sql<number>`COUNT(${resolvedAt})::int` })
+        .from(reports)
+        .where(and(deptFilter, currentWindow())),
+      // resolved count in prior window
+      db
+        .select({ count: sql<number>`COUNT(${resolvedAt})::int` })
+        .from(reports)
+        .where(and(deptFilter, priorWindow())),
+      // avg resolution seconds in current window
+      db
+        .select({
+          avgSeconds: sql<
+            number | null
+          >`AVG(EXTRACT(EPOCH FROM (${resolvedAt} - ${reports.createdAt})))::float8`,
+        })
+        .from(reports)
+        .where(and(deptFilter, currentWindow(), sql`${resolvedAt} IS NOT NULL`)),
+      // avg resolution seconds in prior window
+      db
+        .select({
+          avgSeconds: sql<
+            number | null
+          >`AVG(EXTRACT(EPOCH FROM (${resolvedAt} - ${reports.createdAt})))::float8`,
+        })
+        .from(reports)
+        .where(and(deptFilter, priorWindow(), sql`${resolvedAt} IS NOT NULL`)),
+    ]);
 
     const statusCounts = statusRows.map((r) => ({
       status: r.status,
@@ -194,6 +249,13 @@ export function getDepartmentSummary(router: Router) {
     const totalReports = statusCounts.reduce((sum, r) => sum + r.count, 0);
 
     const averageSeconds = resolutionRows[0]?.averageSeconds ?? null;
+
+    // ─── build windowed KPIs ───
+
+    const rc = resolvedCurr[0]?.count ?? 0;
+    const rp = resolvedPrior[0]?.count ?? 0;
+    const avgCurrSecs = avgCurr[0]?.avgSeconds ?? null;
+    const avgPriorSecs = avgPrior[0]?.avgSeconds ?? null;
 
     res.json({
       totalReports,
@@ -208,6 +270,14 @@ export function getDepartmentSummary(router: Router) {
         averageSeconds,
         averageHours: averageSeconds == null ? null : averageSeconds / 3600,
         resolvedCount: resolutionRows[0]?.resolvedCount ?? 0,
+      },
+      resolvedRecent: { value: rc, trendPercent: trend(rc, rp) },
+      avgResolutionRecent: {
+        value: avgCurrSecs ?? null,
+        trendPercent:
+          avgCurrSecs != null && avgPriorSecs != null
+            ? trend(avgCurrSecs, avgPriorSecs) // raw trend; frontend inverts for display
+            : null,
       },
       topVotedReports: topVoted,
       personalStats: {

@@ -225,6 +225,8 @@ export interface DepartmentSummary {
   categoryCounts: CategoryCount[];
   reportsOverTime: TrendPoint[];
   averageResolution: AverageResolution;
+  resolvedRecent: DashboardKpi;
+  avgResolutionRecent: { value: number | null; trendPercent: number | null };
   topVotedReports: TopVotedReport[];
   personalStats: DepartmentSummaryPersonalStats;
 }
