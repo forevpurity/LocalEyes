@@ -1,7 +1,6 @@
 import { useRef, useEffect } from "react";
 import {
   MapContainer,
-  TileLayer,
   Polygon,
   Tooltip,
   useMap,
@@ -9,6 +8,7 @@ import {
 import L from "leaflet";
 import type { Department } from "@/types/api";
 import { HCM_CENTER, HCM_BOUNDS } from "@/lib/map-constants";
+import { ThemedTileLayer } from "@/lib/themed-tile-layer";
 
 function FlyToDepartment({ department }: { department: Department | null }) {
   const map = useMap();
@@ -48,10 +48,7 @@ export function DepartmentMap({
       className="z-0 h-full w-full"
       zoomControl={false}
     >
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
+      <ThemedTileLayer />
 
       <FlyToDepartment
         department={

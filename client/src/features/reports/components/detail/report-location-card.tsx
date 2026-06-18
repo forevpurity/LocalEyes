@@ -1,5 +1,6 @@
-import { MapContainer, TileLayer, Marker } from "react-leaflet";
+import { MapContainer, Marker } from "react-leaflet";
 import L from "leaflet";
+import { ThemedTileLayer } from "@/lib/themed-tile-layer";
 import { MapPin } from "lucide-react";
 import { getStatusColor } from "@/features/reports/lib/status-styles";
 import type { ReportDetail } from "@/types/api";
@@ -33,7 +34,7 @@ export function ReportLocationCard({ report }: { report: ReportDetail }) {
         attributionControl={false}
         style={{ height: "12rem", width: "100%" }}
       >
-        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+        <ThemedTileLayer />
         <Marker position={position} icon={pinIcon(getStatusColor(report.status))} />
       </MapContainer>
       {report.address && (

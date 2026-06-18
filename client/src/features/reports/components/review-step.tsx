@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
-import { MapContainer, TileLayer, Marker } from "react-leaflet";
+import { MapContainer, Marker } from "react-leaflet";
 import { createPinIcon } from "@/features/reports/lib/leaflet-icons";
+import { ThemedTileLayer } from "@/lib/themed-tile-layer";
 import {
   ArrowLeft,
   ArrowRight,
@@ -111,10 +112,7 @@ export function ReviewStep({
                 doubleClickZoom={false}
                 boxZoom={false}
               >
-                <TileLayer
-                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
+                <ThemedTileLayer />
                 <Marker
                   position={[location.lat, location.lng]}
                   icon={createPinIcon(28)}

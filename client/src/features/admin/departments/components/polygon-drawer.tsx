@@ -1,7 +1,6 @@
 import { useState, useCallback, useMemo } from "react";
 import {
   MapContainer,
-  TileLayer,
   Polygon,
   Polyline,
   CircleMarker,
@@ -10,6 +9,7 @@ import {
 } from "react-leaflet";
 import type { Department } from "@/types/api";
 import { HCM_CENTER, HCM_BOUNDS } from "@/lib/map-constants";
+import { ThemedTileLayer } from "@/lib/themed-tile-layer";
 
 function calcArea(ring: [number, number][]): number {
   // Ring is [longitude, latitude], but area should be calculated in lat/lng space
@@ -148,10 +148,7 @@ export function PolygonDrawer({
         className="z-0 h-full w-full"
         zoomControl={false}
       >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
+        <ThemedTileLayer />
 
         <DrawingController isDrawing={isDrawing} onClick={handleMapClick} />
 

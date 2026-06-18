@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { MapContainer, TileLayer, Marker, useMap } from "react-leaflet";
+import { MapContainer, Marker, useMap } from "react-leaflet";
 import L from "leaflet";
 import { Search, Plus, Minus, Crosshair, Loader2, MapPin } from "lucide-react";
 import { createPinIcon } from "@/features/reports/lib/leaflet-icons";
 import { HCM_CENTER, HCM_BOUNDS } from "@/lib/map-constants";
+import { ThemedTileLayer } from "@/lib/themed-tile-layer";
 const NOMINATIM_SEARCH = "https://nominatim.openstreetmap.org/search";
 const NOMINATIM_REVERSE = "https://nominatim.openstreetmap.org/reverse";
 
@@ -257,10 +258,7 @@ export function PinLocationStep({
         zoomControl={false}
         style={{ height: "400px" }}
       >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
+        <ThemedTileLayer />
         <MapClickHandler onClick={handleMapClick} />
 
         {/* Search */}

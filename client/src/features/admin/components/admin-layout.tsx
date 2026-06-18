@@ -1,6 +1,7 @@
 import { LayoutDashboard, FileText, Building2, Tags, Users, UserCircle, BarChart3, CircleUserRound, Shield, LogOut } from "lucide-react";
 import { NavLink, Outlet, useNavigate } from "react-router";
 import { useAuth } from "@/features/auth/auth-context";
+import { ThemeToggle } from "@/features/theme/theme-toggle";
 
 const navItems = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -28,9 +29,10 @@ export function AdminLayout() {
       <aside className="flex w-60 flex-col border-r border-border bg-card">
         <div className="flex items-center gap-2 px-4 py-5">
           <Shield className="h-6 w-6 text-primary" />
-          <span className="text-label-md font-bold tracking-wide text-foreground">
+          <span className="text-label-md font-bold tracking-wide text-foreground flex-1">
             Admin Panel
           </span>
+          <ThemeToggle />
         </div>
 
         <nav className="flex-1 px-3 py-2">

@@ -64,7 +64,7 @@ export function CitizenRow({ citizen }: CitizenRowProps) {
             Banned
           </span>
         ) : (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-green-500/10 px-2.5 py-1 text-[11px] font-semibold uppercase text-green-600 dark:text-green-400">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-success/10 px-2.5 py-1 text-[11px] font-semibold uppercase text-success">
             <span className="h-1.5 w-1.5 rounded-full bg-current" />
             Active
           </span>

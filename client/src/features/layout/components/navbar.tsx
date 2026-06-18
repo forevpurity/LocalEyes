@@ -4,6 +4,7 @@ import { LogOut, Menu, User, X } from "lucide-react";
 import { CivicShield } from "@/components/civic-shield";
 import { useAuth } from "@/features/auth/auth-context";
 import { NotificationBell } from "@/features/notifications/notification-bell";
+import { ThemeToggle } from "@/features/theme/theme-toggle";
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   isActive
@@ -79,6 +80,7 @@ export function Navbar() {
 
         {/* Right actions */}
         <div className="flex items-center gap-3">
+          <ThemeToggle />
           {isAuthenticated ? (
             <>
               <NotificationBell />

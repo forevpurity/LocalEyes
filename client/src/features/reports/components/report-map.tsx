@@ -1,5 +1,5 @@
 import { useEffect, useRef, useCallback } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import { MapContainer, Marker, Popup, useMap } from "react-leaflet";
 import { useNavigate } from "react-router";
 import L from "leaflet";
 import {
@@ -19,6 +19,7 @@ import {
   getStatusStyle,
 } from "@/features/reports/lib/status-styles";
 import { HCM_CENTER, HCM_BOUNDS, DEFAULT_ZOOM } from "@/lib/map-constants";
+import { ThemedTileLayer } from "@/lib/themed-tile-layer";
 import type { ViewportChange } from "@/features/reports/hooks/use-map-reports";
 const NOMINATIM = "https://nominatim.openstreetmap.org/search";
 
@@ -269,7 +270,7 @@ function LegendControl() {
     { label: "Resolved", color: STATUS_COLORS.resolved },
   ];
   return (
-    <div className="absolute bottom-4 left-4 z-1000 rounded-xl border border-border bg-background/90 px-3 py-2 shadow-lg backdrop-blur-md">
+    <div className="absolute bottom-4 left-4 z-1000 rounded-xl border border-border bg-background/90 px-3 py-2 text-foreground shadow-lg backdrop-blur-md">
       <div className="flex items-center gap-3 text-xs font-medium">
         {items.map((item) => (
           <div key={item.label} className="flex items-center gap-1">
@@ -380,10 +381,7 @@ export function ReportMap({
         maxBounds={HCM_BOUNDS}
         maxBoundsViscosity={1.0}
       >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
+        <ThemedTileLayer />
         <MapStyleInjector />
         <BboxTracker onViewportChange={onViewportChange} />
         <FlyToController reportId={selectedReportId} reports={reports} />
