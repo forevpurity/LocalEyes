@@ -3,12 +3,12 @@ import { RateLimitError } from "./errors.js";
 
 const WINDOW_MS = Number(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000; // 15 minutes
 
-const GLOBAL_MAX = Number(process.env.RATE_LIMIT_GLOBAL_MAX) || 100;
-const AUTH_MAX = Number(process.env.RATE_LIMIT_AUTH_MAX) || 75;
+const GLOBAL_MAX = Number(process.env.RATE_LIMIT_GLOBAL_MAX) || 1000;
+const AUTH_MAX = Number(process.env.RATE_LIMIT_AUTH_MAX) || 200;
 const REPORT_CREATE_MAX =
-  Number(process.env.RATE_LIMIT_REPORT_CREATE_MAX) || 20;
+  Number(process.env.RATE_LIMIT_REPORT_CREATE_MAX) || 100;
 const PASSWORD_RESET_MAX =
-  Number(process.env.RATE_LIMIT_PASSWORD_RESET_MAX) || 10;
+  Number(process.env.RATE_LIMIT_PASSWORD_RESET_MAX) || 100;
 
 function createLimiter(
   max: number,

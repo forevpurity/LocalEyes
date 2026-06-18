@@ -5,11 +5,13 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useNavigate } from "react-router";
 import { api } from "@/lib/api";
 import { getSocket, disconnectSocket } from "@/lib/socket";
 import { useAuth } from "@/features/auth/auth-context";
 import type {
   Notification,
+  NotificationType,
   ListNotificationsResponse,
   UnreadCountResponse,
   MarkAllReadResponse,
@@ -68,9 +70,18 @@ export function useMarkAllRead() {
  * Connects the Socket.io client for authenticated citizens and surfaces incoming
  * `notification` events: toast + cache update. Disconnects when the user logs out.
  */
+const VARIANT: Record<NotificationType, typeof toast.success> = {
+  status_change: toast.success,
+  new_comment: toast.info,
+  new_report: toast.info,
+  report_locked: toast.warning,
+  report_hidden: toast.warning,
+};
+
 export function useNotificationSocket() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const canNotify = canReceiveNotifications(user);
 
   useEffect(() => {
@@ -84,7 +95,13 @@ export function useNotificationSocket() {
     const socket = getSocket();
 
     function handleNotification(notification: Notification) {
-      toast(notification.title, { description: notification.body ?? undefined });
+      (VARIANT[notification.type] ?? toast)(notification.title, {
+        description: notification.body ?? undefined,
+        action: {
+          label: "View",
+          onClick: () => navigate(`/reports/${notification.reportId}`),
+        },
+      });
 
       queryClient.setQueryData<UnreadCountResponse>(UNREAD_COUNT_KEY, (prev) =>
         prev ? { count: prev.count + 1 } : prev,
@@ -106,5 +123,5 @@ export function useNotificationSocket() {
       socket.off("notification", handleNotification);
     };
     // Reconnect when the logged-in user changes (e.g. logout/login).
-  }, [canNotify, user?.id, queryClient]);
+  }, [canNotify, user?.id, queryClient, navigate]);
 }
