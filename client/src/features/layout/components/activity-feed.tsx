@@ -8,7 +8,7 @@ import {
 import { useRecentReports } from "@/features/reports/hooks/use-recent-reports";
 
 export function ActivityFeed() {
-  const { data: reports, isLoading } = useRecentReports();
+  const { data: reports, isLoading } = useRecentReports(3);
 
   // Hide the section entirely once we know there are no reports to show.
   if (!isLoading && (!reports || reports.length === 0)) {
