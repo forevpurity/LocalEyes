@@ -9,9 +9,7 @@ export function useWithdrawReport(id: string) {
     mutationFn: () =>
       api<Report>(`/reports/${id}/withdraw`, { method: "PATCH" }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["reports", id] });
-      queryClient.invalidateQueries({ queryKey: ["reports", "mine"] });
-      queryClient.invalidateQueries({ queryKey: ["reports", "my-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["reports"] });
     },
   });
 }

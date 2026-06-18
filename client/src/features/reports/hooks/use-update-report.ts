@@ -17,8 +17,7 @@ export function useUpdateReport(id: string) {
         body: JSON.stringify(body),
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["reports", id] });
-      queryClient.invalidateQueries({ queryKey: ["reports", "mine"] });
+      queryClient.invalidateQueries({ queryKey: ["reports"] });
     },
   });
 }
