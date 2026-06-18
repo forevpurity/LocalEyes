@@ -231,6 +231,36 @@ export interface DepartmentSummary {
 
 export type AnalyticsGranularity = "day" | "week" | "month";
 
+export interface DashboardKpi {
+  value: number;
+  trendPercent: number | null;
+}
+
+export interface DashboardDepartment {
+  departmentId: string | null;
+  departmentName: string;
+  open: number;
+  resolved: number;
+  avgSpeedHours: number | null;
+}
+
+export interface DailyVolumePoint {
+  date: string;
+  count: number;
+}
+
+export interface AdminDashboardStats {
+  totalReports: DashboardKpi;
+  activeUsers: DashboardKpi;
+  resolutionRate: DashboardKpi;
+  avgResolutionHours: {
+    value: number | null;
+    trendPercent: number | null;
+  };
+  dailyVolume: DailyVolumePoint[];
+  departments: DashboardDepartment[];
+}
+
 export interface ApiErrorResponse {
   error: {
     code: string;

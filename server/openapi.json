@@ -3004,6 +3004,47 @@
         }
       }
     },
+    "/admin/analytics/dashboard": {
+      "get": {
+        "summary": "Admin dashboard KPIs with period-over-period trends",
+        "tags": [
+          "Analytics"
+        ],
+        "operationId": "getAdminDashboard",
+        "responses": {
+          "200": {
+            "description": "Dashboard KPIs, 30-day volume, and department performance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminDashboardStats"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Admin only",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/admin/exports/reports.csv": {
       "get": {
         "summary": "Export all reports as CSV",
@@ -5575,6 +5616,185 @@
           "averageResolution",
           "topVotedReports",
           "personalStats"
+        ],
+        "additionalProperties": false
+      },
+      "AdminDashboardStats": {
+        "type": "object",
+        "properties": {
+          "totalReports": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "number"
+              },
+              "trendPercent": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "value",
+              "trendPercent"
+            ],
+            "additionalProperties": false
+          },
+          "activeUsers": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "number"
+              },
+              "trendPercent": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "value",
+              "trendPercent"
+            ],
+            "additionalProperties": false
+          },
+          "resolutionRate": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "number"
+              },
+              "trendPercent": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "value",
+              "trendPercent"
+            ],
+            "additionalProperties": false
+          },
+          "avgResolutionHours": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "trendPercent": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "value",
+              "trendPercent"
+            ],
+            "additionalProperties": false
+          },
+          "dailyVolume": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "date": {
+                  "type": "string"
+                },
+                "count": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "date",
+                "count"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "departments": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "departmentId": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "departmentName": {
+                  "type": "string"
+                },
+                "open": {
+                  "type": "number"
+                },
+                "resolved": {
+                  "type": "number"
+                },
+                "avgSpeedHours": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "departmentId",
+                "departmentName",
+                "open",
+                "resolved",
+                "avgSpeedHours"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "totalReports",
+          "activeUsers",
+          "resolutionRate",
+          "avgResolutionHours",
+          "dailyVolume",
+          "departments"
         ],
         "additionalProperties": false
       },

@@ -1,24 +1,12 @@
-import { Loader2, FileText, FolderOpen, MapPinOff, Inbox } from "lucide-react";
-import { useAnalyticsSummary } from "./analytics/hooks/use-analytics-summary";
-import { useAdminReports } from "./reports/hooks/use-admin-reports";
+import { Loader2, FileText, Users, CheckCircle2, Clock } from "lucide-react";
+import { useDashboardStats } from "./analytics/hooks/use-dashboard-stats";
 import { StatCard } from "./analytics/components/stat-card";
-import { RecentReportsList } from "./dashboard/recent-reports-list";
-import type { ReportStatus } from "@/types/api";
-
-const OPEN_STATUSES: ReportStatus[] = [
-  "submitted",
-  "acknowledged",
-  "in_progress",
-];
-
-const RECENT_LIMIT = 8;
+import { DailyVolumeChart } from "./analytics/components/daily-volume-chart";
+import { DepartmentPerformanceTable } from "./dashboard/department-performance-table";
+import { formatResolution } from "./analytics/lib/format-resolution";
 
 export function AdminDashboard() {
-  const { data, isLoading, error } = useAnalyticsSummary("day");
-  const {
-    data: reportsData,
-    isLoading: reportsLoading,
-  } = useAdminReports();
+  const { data, isLoading, error } = useDashboardStats();
 
   if (isLoading) {
     return (
@@ -49,16 +37,6 @@ export function AdminDashboard() {
     );
   }
 
-  const countByStatus = (status: ReportStatus) =>
-    data.statusCounts.find((s) => s.status === status)?.count ?? 0;
-
-  const openCount = OPEN_STATUSES.reduce((sum, s) => sum + countByStatus(s), 0);
-  const unassignedCount =
-    data.departmentCounts.find((d) => d.departmentId === null)?.count ?? 0;
-  const awaitingReview = countByStatus("submitted");
-
-  const recentReports = (reportsData?.items ?? []).slice(0, RECENT_LIMIT);
-
   return (
     <div className="p-6">
       <div className="mb-6">
@@ -69,21 +47,40 @@ export function AdminDashboard() {
       </div>
 
       <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Total reports" value={data.totalReports} icon={FileText} />
-        <StatCard label="Open reports" value={openCount} icon={FolderOpen} />
         <StatCard
-          label="Unassigned"
-          value={unassignedCount}
-          icon={MapPinOff}
+          label="Total reports"
+          value={data.totalReports.value}
+          icon={FileText}
+          trend={{ percent: data.totalReports.trendPercent }}
         />
         <StatCard
-          label="Awaiting review"
-          value={awaitingReview}
-          icon={Inbox}
+          label="Active users"
+          value={data.activeUsers.value}
+          icon={Users}
+          trend={{ percent: data.activeUsers.trendPercent }}
+        />
+        <StatCard
+          label="Resolution rate"
+          value={`${data.resolutionRate.value}%`}
+          icon={CheckCircle2}
+          trend={{ percent: data.resolutionRate.trendPercent }}
+        />
+        <StatCard
+          label="Avg. resolution"
+          value={formatResolution(data.avgResolutionHours.value)}
+          icon={Clock}
+          trend={{
+            percent: data.avgResolutionHours.trendPercent,
+            invert: true,
+          }}
         />
       </div>
 
-      <RecentReportsList reports={recentReports} isLoading={reportsLoading} />
+      <div className="mb-6">
+        <DailyVolumeChart data={data.dailyVolume} />
+      </div>
+
+      <DepartmentPerformanceTable departments={data.departments} />
     </div>
   );
 }

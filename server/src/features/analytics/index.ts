@@ -5,11 +5,13 @@ import {
   getDepartmentSummary,
   getDepartmentSummaryDoc,
 } from "./get-department-summary.js";
+import { getDashboard, getDashboardDoc } from "./get-dashboard.js";
 
 export const analyticsRouter = Router();
 
 getSummary(analyticsRouter);
 getDepartmentSummary(analyticsRouter);
+getDashboard(analyticsRouter);
 
 export const analyticsPaths = {
   "/admin/analytics/summary": {
@@ -17,5 +19,8 @@ export const analyticsPaths = {
   },
   "/admin/analytics/department": {
     get: getDepartmentSummaryDoc,
+  },
+  "/admin/analytics/dashboard": {
+    get: getDashboardDoc,
   },
 } satisfies ZodOpenApiPathsObject;
