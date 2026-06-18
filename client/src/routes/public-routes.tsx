@@ -12,6 +12,7 @@ export function PublicRoutes() {
     <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/map" element={<MapPage />} />
+      <Route path="/reports/new" element={<Navigate to="/login" replace />} />
       <Route path="/reports/:id" element={<ReportDetailPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
