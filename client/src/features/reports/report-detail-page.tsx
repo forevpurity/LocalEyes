@@ -31,7 +31,11 @@ import { ResolutionPhotoUpload } from "@/features/reports/components/detail/reso
 import { ReportEditForm } from "@/features/reports/components/detail/report-edit-form";
 import { StatusChangeModal } from "@/features/reports/components/detail/status-change-modal";
 import { ReportFlagBadges } from "@/features/reports/components/report-flag-badges";
-import { canModerate } from "@/features/reports/lib/permissions";
+import {
+  canModerate,
+  canVote,
+  canEditReport,
+} from "@/features/reports/lib/permissions";
 
 function MetaItem({
   icon: Icon,
@@ -142,9 +146,6 @@ export function ReportDetailPage() {
   });
   const status = getStatusStyle(report.status);
   const isCitizen = user?.role === "citizen";
-  const canVote = isCitizen && !report.isOwner;
-  const canManage =
-    report.isOwner && report.status === "submitted" && !report.isLocked;
   const canMod = canModerate(report, user);
 
   const handleWithdraw = () => {
@@ -248,13 +249,13 @@ export function ReportDetailPage() {
                             toast.error("Couldn't register your vote."),
                         })
                       }
-                      disabled={!canVote || toggleVote.isPending}
+                      disabled={!canVote(report, user) || toggleVote.isPending}
                       className={cn(
                         "inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg border px-4 text-sm font-semibold transition-colors disabled:cursor-not-allowed sm:w-auto sm:justify-start",
                         report.hasVoted
                           ? "border-primary bg-primary text-primary-foreground shadow-sm"
                           : "border-border bg-card text-foreground hover:border-primary/50 hover:text-primary",
-                        !canVote && "opacity-70",
+                        !canVote(report, user) && "opacity-70",
                       )}
                       title={
                         report.isOwner
@@ -309,7 +310,7 @@ export function ReportDetailPage() {
                     )}
                   </div>
 
-                  {canManage && !isEditing && (
+                  {canEditReport(report) && !isEditing && (
                     <div className="flex w-full gap-2 sm:w-auto sm:items-center">
                       <button
                         onClick={() => setIsEditing(true)}

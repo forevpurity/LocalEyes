@@ -6,25 +6,23 @@ import { useAuth } from "@/features/auth/auth-context";
 import { useCreateComment } from "@/features/reports/hooks/use-create-comment";
 import { useEditComment } from "@/features/reports/hooks/use-edit-comment";
 import { useToggleCommentHide } from "@/features/reports/hooks/use-toggle-comment-hide";
-import { canModerate } from "@/features/reports/lib/permissions";
+import { canModerate, canEditComment } from "@/features/reports/lib/permissions";
 import { getRoleBadge } from "@/features/reports/lib/role-styles";
-import { getRelativeTime, isWithinPast, cn } from "@/lib/utils";
+import { getRelativeTime, cn } from "@/lib/utils";
 import { ApiRequestError } from "@/lib/api";
 import { Avatar } from "@/components/avatar";
 import type { Comment, ReportDetail } from "@/types/api";
-
-const EDIT_WINDOW_MS = 15 * 60 * 1000;
 
 function CommentRow({
   reportId,
   comment,
   canModerate: canMod,
-  reportIsLocked,
+  report,
 }: {
   reportId: string;
   comment: Comment;
   canModerate: boolean;
-  reportIsLocked: boolean;
+  report: ReportDetail;
 }) {
   const editComment = useEditComment(reportId, comment.id);
   const toggleHide = useToggleCommentHide(reportId);
@@ -33,12 +31,7 @@ function CommentRow({
   const [error, setError] = useState<string | null>(null);
   const [revealed, setRevealed] = useState(false);
 
-  const canEdit =
-    comment.isMine &&
-    !comment.isHidden &&
-    comment.type === "discussion" &&
-    !reportIsLocked &&
-    isWithinPast(comment.createdAt, EDIT_WINDOW_MS);
+  const canEdit = canEditComment(comment, report);
 
   const handleToggleHide = () => {
     toggleHide.mutate(comment.id, {
@@ -266,7 +259,7 @@ export function ReportDiscussion({ report }: { report: ReportDetail }) {
               reportId={report.id}
               comment={c}
               canModerate={canMod}
-              reportIsLocked={report.isLocked}
+              report={report}
             />
           ))}
         </ul>
