@@ -6,15 +6,15 @@ export function ImpactStats() {
         <div className="grid sm:grid-cols-3 gap-6 lg:gap-10">
           <div className="flex flex-col gap-1 py-10 px-6 bg-white/10 border border-white/20 rounded-2xl shadow-lg backdrop-blur-sm text-center transform transition-transform hover:scale-105">
             <span className="font-display-lg text-display-lg font-bold">15,420</span>
-            <span className="font-label-md text-label-md text-primary-fixed-dim uppercase tracking-wider">Reports Resolved</span>
+            <span className="font-label-md text-label-md text-primary-foreground/80 uppercase tracking-wider">Reports Resolved</span>
           </div>
           <div className="flex flex-col gap-1 py-10 px-6 bg-white/10 border border-white/20 rounded-2xl shadow-lg backdrop-blur-sm text-center transform transition-transform hover:scale-105">
             <span className="font-display-lg text-display-lg font-bold">24hr</span>
-            <span className="font-label-md text-label-md text-primary-fixed-dim uppercase tracking-wider">Avg Response Time</span>
+            <span className="font-label-md text-label-md text-primary-foreground/80 uppercase tracking-wider">Avg Response Time</span>
           </div>
           <div className="flex flex-col gap-1 py-10 px-6 bg-white/10 border border-white/20 rounded-2xl shadow-lg backdrop-blur-sm text-center transform transition-transform hover:scale-105">
             <span className="font-display-lg text-display-lg font-bold">85</span>
-            <span className="font-label-md text-label-md text-primary-fixed-dim uppercase tracking-wider">Neighborhoods Covered</span>
+            <span className="font-label-md text-label-md text-primary-foreground/80 uppercase tracking-wider">Neighborhoods Covered</span>
           </div>
         </div>
       </div>
