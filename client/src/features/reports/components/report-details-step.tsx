@@ -169,6 +169,9 @@ export function ReportDetailsStep({
           <p className="mt-1 text-sm text-muted-foreground">
             Please provide specific information to help council services resolve this quickly.
           </p>
+          <p className="mt-2 text-xs text-amber-700">
+            A photo is required to submit. Snap one at the location before you start.
+          </p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="px-6 py-4">
