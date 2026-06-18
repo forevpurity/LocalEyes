@@ -18,12 +18,16 @@ import type {
 const LIST_KEY = ["notifications", "list"] as const;
 const UNREAD_COUNT_KEY = ["notifications", "unread-count"] as const;
 
+function canReceiveNotifications(user: { role: string } | null): boolean {
+  return !!user && (user.role === "citizen" || user.role === "staff");
+}
+
 export function useUnreadCount() {
   const { user } = useAuth();
   return useQuery({
     queryKey: UNREAD_COUNT_KEY,
     queryFn: () => api<UnreadCountResponse>("/notifications/unread-count"),
-    enabled: !!user && user.role === "citizen",
+    enabled: canReceiveNotifications(user),
     select: (data) => data.count,
   });
 }
@@ -67,12 +71,12 @@ export function useMarkAllRead() {
 export function useNotificationSocket() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const isCitizen = !!user && user.role === "citizen";
+  const canNotify = canReceiveNotifications(user);
 
   useEffect(() => {
-    // Tear the socket down on logout (or for non-citizens), not on every page
-    // navigation — Navbar (and thus this hook) remounts on each route change.
-    if (!isCitizen) {
+    // Tear the socket down on logout (or for non-notifiable roles), not on every
+    // page navigation — Navbar (and thus this hook) remounts on each route change.
+    if (!canNotify) {
       disconnectSocket();
       return;
     }
@@ -102,5 +106,5 @@ export function useNotificationSocket() {
       socket.off("notification", handleNotification);
     };
     // Reconnect when the logged-in user changes (e.g. logout/login).
-  }, [isCitizen, user?.id, queryClient]);
+  }, [canNotify, user?.id, queryClient]);
 }

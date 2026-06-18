@@ -2,6 +2,7 @@ import { LayoutDashboard, FileText, UserCircle, Briefcase, LogOut } from "lucide
 import { NavLink, Outlet, useNavigate } from "react-router";
 import { useAuth } from "@/features/auth/auth-context";
 import { ThemeToggle } from "@/features/theme/theme-toggle";
+import { NotificationBell } from "@/features/notifications/notification-bell";
 
 const navItems = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -28,6 +29,7 @@ export function StaffLayout() {
             Staff Portal
           </span>
           <ThemeToggle />
+          <NotificationBell align="left" />
         </div>
 
         <nav className="flex-1 px-3 py-2">

@@ -1,10 +1,12 @@
 import { Router } from "express";
 import { z } from "zod";
 import type { ZodOpenApiOperationObject } from "zod-openapi";
+import { eq, and } from "drizzle-orm";
 import { db } from "../../db/client.js";
 import { reports } from "../../db/schema/reports.js";
 import { reportPhotos } from "../../db/schema/report-photos.js";
 import { subscriptions } from "../../db/schema/subscriptions.js";
+import { users } from "../../db/schema/users.js";
 import {
   ValidationError,
   DomainRuleError,
@@ -16,6 +18,7 @@ import { reportCreateLimiter } from "../../common/rate-limit.js";
 import { getCoveringDepartment } from "../../common/geo.js";
 import { reportResponse } from "./schemas.js";
 import { emitToMapViewers } from "../../common/socket.js";
+import { notify } from "../notifications/notify.js";
 import {
   imageUpload,
   validateImageFiles,
@@ -189,6 +192,38 @@ export function createReport(router: Router) {
         voteCount: 0,
         createdAt: result.createdAt.toISOString(),
       };
+
+      // Notify staff off the report-creation critical path; failures are logged, not fatal
+      if (covering.department) {
+        const staffMembers = await db
+          .select({ id: users.id })
+          .from(users)
+          .where(
+            and(
+              eq(users.role, "staff"),
+              eq(users.departmentId, covering.department.id),
+            ),
+          );
+
+        if (staffMembers.length > 0) {
+          const recipientIds = staffMembers.map((s) => s.id);
+          notify({
+            recipientIds,
+            actorId: req.actor!.id,
+            reportId: result.id,
+            template: {
+              type: "new_report",
+              reportTitle: result.title,
+              departmentName: covering.department.name,
+            },
+          }).catch((err) => {
+            console.error(
+              "Staff notification failure",
+              { reportId: result.id, departmentId: covering.department!.id, recipientCount: recipientIds.length, error: String(err) },
+            );
+          });
+        }
+      }
 
       // Broadcast to all map viewers for real-time updates
       emitToMapViewers("report:created", reportPayload);

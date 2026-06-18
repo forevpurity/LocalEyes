@@ -3184,7 +3184,7 @@
             }
           },
           "403": {
-            "description": "Only Citizens can list notifications",
+            "description": "Only Citizens and Staff can list notifications",
             "content": {
               "application/json": {
                 "schema": {
@@ -3225,7 +3225,7 @@
             }
           },
           "403": {
-            "description": "Only Citizens can get unread notification count",
+            "description": "Only Citizens and Staff can get unread notification count",
             "content": {
               "application/json": {
                 "schema": {
@@ -3280,7 +3280,7 @@
             }
           },
           "403": {
-            "description": "Only Citizens can mark notifications read",
+            "description": "Only Citizens and Staff can mark notifications read",
             "content": {
               "application/json": {
                 "schema": {
@@ -3331,7 +3331,7 @@
             }
           },
           "403": {
-            "description": "Only Citizens can mark notifications read",
+            "description": "Only Citizens and Staff can mark notifications read",
             "content": {
               "application/json": {
                 "schema": {
@@ -5903,7 +5903,8 @@
               "status_change",
               "new_comment",
               "report_locked",
-              "report_hidden"
+              "report_hidden",
+              "new_report"
             ]
           },
           "title": {

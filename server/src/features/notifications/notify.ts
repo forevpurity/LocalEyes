@@ -24,6 +24,11 @@ type NotificationTemplateInput =
   | {
       type: "report_hidden";
       reportTitle: string;
+    }
+  | {
+      type: "new_report";
+      reportTitle: string;
+      departmentName: string;
     };
 
 export type NotificationPayload = {
@@ -61,6 +66,11 @@ function renderNotification(input: NotificationTemplateInput): {
       return {
         title: "Report hidden",
         body: `Your report '${input.reportTitle}' has been hidden`,
+      };
+    case "new_report":
+      return {
+        title: "New report in your department",
+        body: `New report '${input.reportTitle}' filed in ${input.departmentName}`,
       };
   }
 }

@@ -103,7 +103,8 @@ export type NotificationType =
   | "status_change"
   | "new_comment"
   | "report_locked"
-  | "report_hidden";
+  | "report_hidden"
+  | "new_report";
 
 export interface Notification {
   id: string;

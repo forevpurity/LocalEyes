@@ -31,7 +31,7 @@ export const markAllReadDoc = {
       },
     },
     403: {
-      description: "Only Citizens can mark notifications read",
+      description: "Only Citizens and Staff can mark notifications read",
       content: {
         "application/json": { schema: errorResponseSchema },
       },
@@ -40,7 +40,7 @@ export const markAllReadDoc = {
 } satisfies ZodOpenApiOperationObject;
 
 export function markAllRead(router: Router) {
-  router.patch("/read", authenticate("citizen"), async (req, res) => {
+  router.patch("/read", authenticate("citizen", "staff"), async (req, res) => {
     const actor = req.actor!;
 
     const rows = await db

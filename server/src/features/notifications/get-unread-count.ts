@@ -31,7 +31,7 @@ export const getUnreadCountDoc = {
       },
     },
     403: {
-      description: "Only Citizens can get unread notification count",
+      description: "Only Citizens and Staff can get unread notification count",
       content: {
         "application/json": { schema: errorResponseSchema },
       },
@@ -40,7 +40,7 @@ export const getUnreadCountDoc = {
 } satisfies ZodOpenApiOperationObject;
 
 export function getUnreadCount(router: Router) {
-  router.get("/unread-count", authenticate("citizen"), async (req, res) => {
+  router.get("/unread-count", authenticate("citizen", "staff"), async (req, res) => {
     const actor = req.actor!;
 
     const [row] = await db

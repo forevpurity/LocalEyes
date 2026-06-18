@@ -38,7 +38,7 @@ export const listNotificationsDoc = {
       },
     },
     403: {
-      description: "Only Citizens can list notifications",
+      description: "Only Citizens and Staff can list notifications",
       content: {
         "application/json": { schema: errorResponseSchema },
       },
@@ -47,7 +47,7 @@ export const listNotificationsDoc = {
 } satisfies ZodOpenApiOperationObject;
 
 export function listNotifications(router: Router) {
-  router.get("/", authenticate("citizen"), async (req, res) => {
+  router.get("/", authenticate("citizen", "staff"), async (req, res) => {
     const actor = req.actor!;
     const query = parseAndValidate(listNotificationsQuerySchema, req.query);
 

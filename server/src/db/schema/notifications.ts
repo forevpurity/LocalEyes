@@ -2,7 +2,7 @@ import { index, pgTable, uuid, text, timestamp } from "drizzle-orm/pg-core";
 import { reports } from "./reports.js";
 import { users } from "./users.js";
 
-export const NOTIFICATION_TYPES = ["status_change", "new_comment", "report_locked", "report_hidden"] as const;
+export const NOTIFICATION_TYPES = ["status_change", "new_comment", "report_locked", "report_hidden", "new_report"] as const;
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
 
 export const notifications = pgTable("notifications", {

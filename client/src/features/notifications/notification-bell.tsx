@@ -11,7 +11,7 @@ import {
 } from "./use-notifications";
 import type { Notification } from "@/types/api";
 
-export function NotificationBell() {
+export function NotificationBell({ align = "right" }: { align?: "left" | "right" } = {}) {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -60,7 +60,10 @@ export function NotificationBell() {
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-1 w-80 max-w-[calc(100vw-2rem)] rounded-lg border border-outline-variant bg-surface-container-lowest shadow-md pt-1 z-50">
+        <div className={cn(
+          "absolute mt-1 w-80 max-w-[calc(100vw-2rem)] rounded-lg border border-outline-variant bg-surface-container-lowest shadow-md pt-1 z-50",
+          align === "left" ? "left-0" : "right-0",
+        )}>
           <div className="flex items-center justify-between px-3 py-2">
             <span className="text-sm font-medium text-on-surface">
               Notifications
