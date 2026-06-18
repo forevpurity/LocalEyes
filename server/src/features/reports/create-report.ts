@@ -16,7 +16,8 @@ import { parseAndValidate } from "../../common/validate.js";
 import { authenticate } from "../../common/auth.js";
 import { reportCreateLimiter } from "../../common/rate-limit.js";
 import { getCoveringDepartment } from "../../common/geo.js";
-import { reportResponse } from "./schemas.js";
+import { getReportForActor } from "./report-projection.js";
+import { reportCoreResponse } from "./schemas.js";
 import { emitToMapViewers } from "../../services/socket.js";
 import { notify } from "../notifications/notify.js";
 import {
@@ -73,7 +74,7 @@ export const createReportDoc = {
     201: {
       description: "Report created",
       content: {
-        "application/json": { schema: reportResponse },
+        "application/json": { schema: reportCoreResponse },
       },
     },
     400: {
@@ -177,21 +178,7 @@ export function createReport(router: Router) {
         return report;
       });
 
-      const reportPayload = {
-        id: result.id,
-        title: result.title,
-        description: result.description,
-        categoryId: data.categoryId,
-        categoryName: catName,
-        status: result.status,
-        address: data.address || null,
-        latitude: data.latitude,
-        longitude: data.longitude,
-        departmentId: covering.department?.id ?? null,
-        photos: savedFiles.map((f) => ({ url: f.url, order: f.order, kind: "before" })),
-        voteCount: 0,
-        createdAt: result.createdAt.toISOString(),
-      };
+      const reportPayload = await getReportForActor(result.id, req.actor!);
 
       // Notify staff off the report-creation critical path; failures are logged, not fatal
       if (covering.department) {

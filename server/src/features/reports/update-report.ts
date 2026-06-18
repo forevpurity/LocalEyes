@@ -11,8 +11,8 @@ import {
 import { parseAndValidate } from "../../common/validate.js";
 import { authenticate } from "../../common/auth.js";
 import { requireCanEditReport } from "./report-rules.js";
-import { hydrateReport } from "./hydrate-report.js";
-import { reportResponse } from "./schemas.js";
+import { getReportForActor } from "./report-projection.js";
+import { reportCoreResponse } from "./schemas.js";
 
 const updateReportSchema = z
   .object({
@@ -48,7 +48,7 @@ export const updateReportDoc = {
     200: {
       description: "Report updated",
       content: {
-        "application/json": { schema: reportResponse },
+        "application/json": { schema: reportCoreResponse },
       },
     },
     400: {
@@ -126,7 +126,7 @@ export function updateReport(router: Router) {
         .set(updateValues)
         .where(eq(reports.id, id));
 
-      res.json(await hydrateReport(id));
+      res.json(await getReportForActor(id, actor));
     },
   );
 }

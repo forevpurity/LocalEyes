@@ -6,8 +6,8 @@ import { db } from "../../db/client.js";
 import { reports } from "../../db/schema/reports.js";
 import { errorResponseSchema } from "../../common/errors.js";
 import { authenticate } from "../../common/auth.js";
-import { hydrateReport } from "./hydrate-report.js";
-import { reportResponse } from "./schemas.js";
+import { getReportForActor } from "./report-projection.js";
+import { reportCoreResponse } from "./schemas.js";
 import { loadReportForModeration } from "./report-moderation.js";
 import { emitNotifications } from "../notifications/notify.js";
 import { createReportEventNotifications } from "./report-notifications.js";
@@ -23,7 +23,7 @@ export const hideReportDoc = {
     200: {
       description: "Report hidden",
       content: {
-        "application/json": { schema: reportResponse },
+        "application/json": { schema: reportCoreResponse },
       },
     },
     403: {
@@ -53,7 +53,7 @@ export function hideReport(router: Router) {
 
       // Idempotent: hiding an already-hidden report is a no-op.
       if (report.isHidden) {
-        res.json(await hydrateReport(id));
+        res.json(await getReportForActor(id, actor));
         return;
       }
 
@@ -73,7 +73,7 @@ export function hideReport(router: Router) {
 
       emitNotifications(notificationRows);
 
-      res.json(await hydrateReport(id));
+      res.json(await getReportForActor(id, actor));
     },
   );
 }

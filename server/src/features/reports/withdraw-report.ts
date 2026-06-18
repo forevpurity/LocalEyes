@@ -11,8 +11,8 @@ import {
 } from "../../common/errors.js";
 import { authenticate } from "../../common/auth.js";
 import { requireCanWithdrawReport } from "./report-rules.js";
-import { hydrateReport } from "./hydrate-report.js";
-import { reportResponse } from "./schemas.js";
+import { getReportForActor } from "./report-projection.js";
+import { reportCoreResponse } from "./schemas.js";
 import { emitNotifications } from "../notifications/notify.js";
 import { createReportEventNotifications } from "./report-notifications.js";
 
@@ -27,7 +27,7 @@ export const withdrawReportDoc = {
     200: {
       description: "Report withdrawn",
       content: {
-        "application/json": { schema: reportResponse },
+        "application/json": { schema: reportCoreResponse },
       },
     },
     403: {
@@ -112,7 +112,7 @@ export function withdrawReport(router: Router) {
 
       emitNotifications(notificationRows);
 
-      res.json(await hydrateReport(id));
+      res.json(await getReportForActor(id, actor));
     },
   );
 }

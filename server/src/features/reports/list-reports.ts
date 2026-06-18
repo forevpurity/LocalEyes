@@ -19,7 +19,9 @@ import {
   errorResponseSchema,
 } from "../../common/errors.js";
 import { optionalAuthenticate } from "../../common/auth.js";
-import { anonymizedCitizenName } from "./report-rules.js";
+import { reportCoreColumns, shapeReportCore } from "./report-projection.js";
+import type { ReportCoreRow } from "./report-projection.js";
+import { reportCoreFields } from "./schemas.js";
 
 const MAP_LIMIT = 200;
 
@@ -40,26 +42,7 @@ const listReportsQuerySchema = z.object({
 });
 
 const reportListItemSchema = z
-  .object({
-    id: z.uuid(),
-    title: z.string(),
-    description: z.string(),
-    categoryId: z.uuid(),
-    categoryName: z.string(),
-    status: z.string(),
-    address: z.string().nullable(),
-    latitude: z.number(),
-    longitude: z.number(),
-    departmentId: z.uuid().nullable(),
-    departmentName: z.string().nullable(),
-    citizenName: z.string().nullable(),
-    photos: z.array(z.object({ url: z.string(), order: z.number(), kind: z.string() })),
-    voteCount: z.number(),
-    hasVoted: z.boolean(),
-    isHidden: z.boolean(),
-    isLocked: z.boolean(),
-    createdAt: z.string(),
-  })
+  .object({ ...reportCoreFields })
   .meta({ id: "ReportListItem" });
 
 const listReportsResponseSchema = z
@@ -113,7 +96,6 @@ export function listReports(router: Router) {
     const isStaff = actor?.role === "staff";
     const isAdmin = actor?.role === "admin";
     const isGuestOrCitizen = !actor || actor.role === "citizen";
-    const hideName = isGuestOrCitizen; // public sees Anonymous for banned citizens
     const hasBbox =
       query.minLat != null &&
       query.maxLat != null &&
@@ -223,29 +205,9 @@ export function listReports(router: Router) {
     const isMapQuery = hasBbox && isGuestOrCitizen;
     const fetchLimit = isMapQuery ? MAP_LIMIT : query.limit;
 
+    const cols = reportCoreColumns(actor);
     const rows = await db
-      .select({
-        id: reports.id,
-        title: reports.title,
-        description: reports.description,
-        status: reports.status,
-        address: reports.address,
-        departmentId: reports.departmentId,
-        isHidden: reports.isHidden,
-        isLocked: reports.isLocked,
-        createdAt: reports.createdAt,
-        categoryId: reports.categoryId,
-        latitude: sql<number>`ST_Y(${reports.location})`,
-        longitude: sql<number>`ST_X(${reports.location})`,
-        categoryName: categories.name,
-        departmentName: departments.name,
-        citizenName: hideName ? anonymizedCitizenName : users.displayName,
-        voteCount: sql<number>`(SELECT COUNT(*)::int FROM votes WHERE votes.report_id = ${reports.id})`,
-        hasVoted:
-          actor?.role === "citizen"
-            ? sql<boolean>`EXISTS(SELECT 1 FROM votes WHERE votes.report_id = ${reports.id} AND votes.citizen_id = ${actor.id})`
-            : sql<boolean>`false`,
-      })
+      .select(cols)
       .from(reports)
       .innerJoin(categories, eq(reports.categoryId, categories.id))
       .leftJoin(departments, eq(reports.departmentId, departments.id))
@@ -262,6 +224,7 @@ export function listReports(router: Router) {
       reportIds.length > 0
         ? await db
             .select({
+              id: reportPhotos.id,
               reportId: reportPhotos.reportId,
               url: reportPhotos.url,
               order: reportPhotos.order,
@@ -272,32 +235,16 @@ export function listReports(router: Router) {
             .orderBy(reportPhotos.order)
         : [];
 
-    const photoMap = new Map<string, { url: string; order: number; kind: string }[]>();
+    const photoMap = new Map<string, { id: string; url: string; order: number; kind: string }[]>();
     for (const p of photoRows) {
       const list = photoMap.get(p.reportId) ?? [];
-      list.push({ url: p.url, order: p.order, kind: p.kind });
+      list.push({ id: p.id, url: p.url, order: p.order, kind: p.kind });
       photoMap.set(p.reportId, list);
     }
 
     const items = rows.map((r) => ({
-      id: r.id,
-      title: r.title,
-      description: r.description,
-      categoryId: r.categoryId,
-      categoryName: r.categoryName,
-      status: r.status,
-      address: r.address,
-      latitude: r.latitude,
-      longitude: r.longitude,
-      departmentId: r.departmentId,
-      departmentName: r.departmentName,
-      citizenName: r.citizenName,
+      ...shapeReportCore(r as ReportCoreRow, actor),
       photos: photoMap.get(r.id) ?? [],
-      voteCount: r.voteCount,
-      hasVoted: r.hasVoted,
-      isHidden: r.isHidden,
-      isLocked: r.isLocked,
-      createdAt: r.createdAt.toISOString(),
     }));
 
     if (isMapQuery) {

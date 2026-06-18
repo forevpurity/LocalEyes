@@ -1,7 +1,7 @@
 import { Router } from "express";
 import type { ZodOpenApiOperationObject } from "zod-openapi";
 import { z } from "zod";
-import { eq, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { db } from "../../db/client.js";
 import { reports } from "../../db/schema/reports.js";
 import { categories } from "../../db/schema/categories.js";
@@ -9,7 +9,6 @@ import { departments } from "../../db/schema/departments.js";
 import { users, USER_ROLES } from "../../db/schema/users.js";
 import { reportPhotos } from "../../db/schema/report-photos.js";
 import { comments } from "../../db/schema/comments.js";
-import { subscriptions } from "../../db/schema/subscriptions.js";
 import {
   NotFoundError,
   errorResponseSchema,
@@ -18,11 +17,13 @@ import { optionalAuthenticate } from "../../common/auth.js";
 import {
   requireReportVisibleToCitizen,
   getAllowedTransitions,
-  anonymizedCitizenName,
   anonymizedAuthorName,
   anonymizedAuthorAvatar,
 } from "./report-rules.js";
 import { enforceStaffScope } from "./enforce-staff-scope.js";
+import { reportCoreColumns, shapeReportCore } from "./report-projection.js";
+import type { ReportCoreRow } from "./report-projection.js";
+import { reportCoreFields } from "./schemas.js";
 
 const commentItemSchema = z.object({
   id: z.uuid(),
@@ -40,27 +41,8 @@ const commentItemSchema = z.object({
 
 const reportDetailSchema = z
   .object({
-    id: z.uuid(),
-    title: z.string(),
-    description: z.string(),
-    categoryId: z.uuid(),
-    categoryName: z.string(),
-    status: z.string(),
-    address: z.string().nullable(),
-    latitude: z.number(),
-    longitude: z.number(),
-    departmentId: z.uuid().nullable(),
-    departmentName: z.string().nullable(),
-    citizenName: z.string().nullable(),
-    photos: z.array(z.object({ id: z.uuid(), url: z.string(), order: z.number(), kind: z.enum(["before", "after"]) })),
-    voteCount: z.number(),
-    hasVoted: z.boolean(),
-    isOwner: z.boolean(),
-    isHidden: z.boolean(),
-    isLocked: z.boolean(),
-    isSubscribed: z.boolean(),
+    ...reportCoreFields,
     allowedTransitions: z.array(z.string()),
-    createdAt: z.string(),
     comments: z.array(commentItemSchema),
   })
   .meta({ id: "ReportDetailResponse" });
@@ -98,36 +80,11 @@ export function getReport(router: Router) {
   router.get("/:id", optionalAuthenticate(), async (req, res) => {
     const actor = req.actor ?? null;
     const { id } = req.params;
-    const hideName = !actor || actor.role === "citizen"; // public sees Anonymous
+    const hideName = !actor || actor.role === "citizen";
 
-    const row = await db
-      .select({
-        id: reports.id,
-        title: reports.title,
-        description: reports.description,
-        status: reports.status,
-        address: reports.address,
-        departmentId: reports.departmentId,
-        isHidden: reports.isHidden,
-        isLocked: reports.isLocked,
-        citizenId: reports.citizenId,
-        createdAt: reports.createdAt,
-        categoryId: reports.categoryId,
-        latitude: sql<number>`ST_Y(${reports.location})`,
-        longitude: sql<number>`ST_X(${reports.location})`,
-        categoryName: categories.name,
-        departmentName: departments.name,
-        citizenName: hideName ? anonymizedCitizenName : users.displayName,
-        voteCount: sql<number>`(SELECT COUNT(*)::int FROM votes WHERE votes.report_id = ${reports.id})`,
-        hasVoted:
-          actor?.role === "citizen"
-            ? sql<boolean>`EXISTS(SELECT 1 FROM votes WHERE votes.report_id = ${reports.id} AND votes.citizen_id = ${actor.id})`
-            : sql<boolean>`false`,
-        isSubscribed:
-          actor?.role === "citizen"
-            ? sql<boolean>`EXISTS(SELECT 1 FROM subscriptions WHERE subscriptions.report_id = ${reports.id} AND subscriptions.citizen_id = ${actor.id})`
-            : sql<boolean>`false`,
-      })
+    const cols = reportCoreColumns(actor);
+    const rows = await db
+      .select(cols)
       .from(reports)
       .innerJoin(categories, eq(reports.categoryId, categories.id))
       .leftJoin(departments, eq(reports.departmentId, departments.id))
@@ -135,11 +92,11 @@ export function getReport(router: Router) {
       .where(eq(reports.id, id))
       .limit(1);
 
-    if (row.length === 0) {
+    if (rows.length === 0) {
       throw new NotFoundError("Report not found");
     }
 
-    const report = row[0];
+    const report = rows[0] as ReportCoreRow;
 
     requireReportVisibleToCitizen(report, actor);
 
@@ -187,31 +144,14 @@ export function getReport(router: Router) {
       createdAt: c.createdAt.toISOString(),
     }));
 
+    const core = shapeReportCore(report, actor);
     res.json({
-      id: report.id,
-      title: report.title,
-      description: report.description,
-      categoryId: report.categoryId,
-      categoryName: report.categoryName,
-      status: report.status,
-      address: report.address,
-      latitude: report.latitude,
-      longitude: report.longitude,
-      departmentId: report.departmentId,
-      departmentName: report.departmentName,
-      citizenName: report.citizenName,
+      ...core,
       photos: photoRows,
-      voteCount: report.voteCount,
-      hasVoted: report.hasVoted,
-      isOwner: actor?.role === "citizen" && report.citizenId === actor.id,
-      isHidden: report.isHidden,
-      isLocked: report.isLocked,
-      isSubscribed: report.isSubscribed,
       allowedTransitions:
         actor?.role === "staff" || actor?.role === "admin"
           ? getAllowedTransitions(report.status, actor.role)
           : [],
-      createdAt: report.createdAt.toISOString(),
       comments: visibleComments,
     });
   });

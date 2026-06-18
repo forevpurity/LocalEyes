@@ -12,8 +12,8 @@ import {
 } from "../../common/errors.js";
 import { parseAndValidate } from "../../common/validate.js";
 import { authenticate } from "../../common/auth.js";
-import { hydrateReport } from "./hydrate-report.js";
-import { reportResponse } from "./schemas.js";
+import { getReportForActor } from "./report-projection.js";
+import { reportCoreResponse } from "./schemas.js";
 
 const assignReportSchema = z
   .object({
@@ -38,7 +38,7 @@ export const assignReportDoc = {
     200: {
       description: "Report assigned to department",
       content: {
-        "application/json": { schema: reportResponse },
+        "application/json": { schema: reportCoreResponse },
       },
     },
     404: {
@@ -113,7 +113,7 @@ export function assignReport(router: Router) {
         .set({ departmentId: data.departmentId })
         .where(eq(reports.id, id));
 
-      res.json(await hydrateReport(id));
+      res.json(await getReportForActor(id, req.actor!));
     },
   );
 }

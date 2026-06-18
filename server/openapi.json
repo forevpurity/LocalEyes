@@ -4375,11 +4375,36 @@
               }
             ]
           },
+          "departmentName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "citizenName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "photos": {
             "type": "array",
             "items": {
               "type": "object",
               "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
                 "url": {
                   "type": "string"
                 },
@@ -4395,6 +4420,7 @@
                 }
               },
               "required": [
+                "id",
                 "url",
                 "order",
                 "kind"
@@ -4404,6 +4430,21 @@
           },
           "voteCount": {
             "type": "number"
+          },
+          "hasVoted": {
+            "type": "boolean"
+          },
+          "isHidden": {
+            "type": "boolean"
+          },
+          "isLocked": {
+            "type": "boolean"
+          },
+          "isSubscribed": {
+            "type": "boolean"
+          },
+          "isOwner": {
+            "type": "boolean"
           },
           "createdAt": {
             "type": "string"
@@ -4420,8 +4461,15 @@
           "latitude",
           "longitude",
           "departmentId",
+          "departmentName",
+          "citizenName",
           "photos",
           "voteCount",
+          "hasVoted",
+          "isHidden",
+          "isLocked",
+          "isSubscribed",
+          "isOwner",
           "createdAt"
         ],
         "additionalProperties": false
@@ -4532,6 +4580,11 @@
             "items": {
               "type": "object",
               "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
                 "url": {
                   "type": "string"
                 },
@@ -4539,10 +4592,15 @@
                   "type": "number"
                 },
                 "kind": {
-                  "type": "string"
+                  "type": "string",
+                  "enum": [
+                    "before",
+                    "after"
+                  ]
                 }
               },
               "required": [
+                "id",
                 "url",
                 "order",
                 "kind"
@@ -4560,6 +4618,12 @@
             "type": "boolean"
           },
           "isLocked": {
+            "type": "boolean"
+          },
+          "isSubscribed": {
+            "type": "boolean"
+          },
+          "isOwner": {
             "type": "boolean"
           },
           "createdAt": {
@@ -4584,6 +4648,8 @@
           "hasVoted",
           "isHidden",
           "isLocked",
+          "isSubscribed",
+          "isOwner",
           "createdAt"
         ],
         "additionalProperties": false
@@ -4700,9 +4766,6 @@
           "hasVoted": {
             "type": "boolean"
           },
-          "isOwner": {
-            "type": "boolean"
-          },
           "isHidden": {
             "type": "boolean"
           },
@@ -4712,14 +4775,17 @@
           "isSubscribed": {
             "type": "boolean"
           },
+          "isOwner": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string"
+          },
           "allowedTransitions": {
             "type": "array",
             "items": {
               "type": "string"
             }
-          },
-          "createdAt": {
-            "type": "string"
           },
           "comments": {
             "type": "array",
@@ -4839,12 +4905,12 @@
           "photos",
           "voteCount",
           "hasVoted",
-          "isOwner",
           "isHidden",
           "isLocked",
           "isSubscribed",
-          "allowedTransitions",
+          "isOwner",
           "createdAt",
+          "allowedTransitions",
           "comments"
         ],
         "additionalProperties": false
