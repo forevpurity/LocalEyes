@@ -1,4 +1,5 @@
 import { Link } from "react-router";
+import heroMap from "@/assets/hero-map.png";
 
 export function HeroSection() {
   return (
@@ -45,7 +46,7 @@ export function HeroSection() {
           <img
             alt="Ho Chi Minh City Map UI"
             className="relative w-full h-auto rounded-2xl shadow-xl border border-white/40 object-cover aspect-4/3 ring-1 ring-black/5"
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuAlWh5SlWnehcDvnwms3oQ6cYJ53gDWy5sYQ6AA4Yrp2TmdadV9H45_RdNCJQvSnZRzgDMBwlBXVL9aTT-54M_oHel9gwhhNuC5PqjNgrIlzB8VBxbAGaESkVBH7nI-PRToc2yltQm7Nmj7mUnE94Z6ZTkHBbuI5mnpj8Vq7gTRiFavlJBo9JciA-zTTHE7xjZZrmltQ-mTdBLQf-XLLnOYgMVqEPnTTAq0dyPum4rP9e9KKmC8sA3yIOAHKFk9QSZzYnrAkwqgVZjv"
+            src={heroMap}
           />
         </div>
       </div>

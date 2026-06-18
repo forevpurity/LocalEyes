@@ -1,6 +1,7 @@
 import type { Server as HttpServer } from "node:http";
 import { Server } from "socket.io";
 import { verifyAccessToken } from "../common/token-utils.js";
+import { corsOptions } from "../common/cors.js";
 import { ensureNotBanned } from "./ban-users.js";
 
 let io: Server | null = null;
@@ -36,7 +37,7 @@ function parseCookies(header: string | undefined): Record<string, string> {
 export function initSocket(server: HttpServer): Server {
   io = new Server(server, {
     cors: {
-      origin: true,
+      origin: corsOptions.origin,
       credentials: true,
     },
   });

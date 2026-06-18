@@ -19,12 +19,13 @@ import { exportsRouter } from "./features/exports/index.js";
 import { errorHandler, notFoundHandler } from "./common/middleware.js";
 import { initSocket } from "./services/socket.js";
 import { globalLimiter, authLimiter } from "./common/rate-limit.js";
+import { corsOptions } from "./common/cors.js";
 import { storage } from "./services/storage.js";
 
 const app = express();
 const PORT = process.env.PORT ?? 3000;
 
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
 
