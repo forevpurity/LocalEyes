@@ -2,7 +2,6 @@ import { Router } from "express";
 import { z } from "zod";
 import type { ZodOpenApiOperationObject } from "zod-openapi";
 import { eq, and } from "drizzle-orm";
-import { unlink } from "fs/promises";
 import { db } from "../../db/client.js";
 import { reports } from "../../db/schema/reports.js";
 import { reportPhotos } from "../../db/schema/report-photos.js";
@@ -13,7 +12,7 @@ import {
 } from "../../common/errors.js";
 import { authenticate } from "../../common/auth.js";
 import { enforceStaffScope } from "./enforce-staff-scope.js";
-import { UPLOAD_DIR } from "./photo-upload.js";
+import { storage } from "../../common/storage.js";
 
 export const removeReportPhotoDoc = {
   summary: "Remove a resolution photo from a report",
@@ -97,13 +96,8 @@ export function removeReportPhoto(router: Router) {
         throw new ValidationError("Only resolution photos can be removed");
       }
 
-      // Delete the file from disk (best-effort — missing file ≠ 500)
-      const filename = photo.url.replace(/^\/uploads\//, "");
-      try {
-        await unlink(`${UPLOAD_DIR}/${filename}`);
-      } catch {
-        // File may already be missing — that's fine
-      }
+      // Delete the stored object (best-effort — a missing object ≠ 500)
+      await storage.delete(photo.url);
 
       await db.delete(reportPhotos).where(eq(reportPhotos.id, photoId));
 

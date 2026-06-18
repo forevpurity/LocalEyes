@@ -1,22 +1,11 @@
-import { resolve } from "path";
-import { unlink } from "fs/promises";
+import { storage } from "../../common/storage.js";
 
 /**
- * Delete an avatar file from disk if it lives under /uploads/.
- * Resolves the path and guards against traversal before unlinking.
- * Silently ignores missing files.
+ * Delete a previously stored avatar object given its public URL.
+ * Delegates to the active storage driver, which ignores URLs it doesn't own
+ * and silently tolerates already-missing objects.
  */
 export async function deleteAvatarFile(avatarUrl: string | null | undefined): Promise<void> {
-  if (!avatarUrl || !avatarUrl.startsWith("/uploads/")) return;
-
-  const uploadDir = resolve(process.env.UPLOAD_DIR ?? "uploads");
-  const filename = avatarUrl.replace("/uploads/", "");
-  const filePath = resolve(uploadDir, filename);
-
-  // Path-traversal guard: the resolved path must be inside UPLOAD_DIR
-  if (!filePath.startsWith(uploadDir + "/")) return;
-
-  await unlink(filePath).catch(() => {
-    // File may have already been deleted — ignore
-  });
+  if (!avatarUrl) return;
+  await storage.delete(avatarUrl);
 }

@@ -2,8 +2,6 @@ import { Router } from "express";
 import type { ZodOpenApiOperationObject } from "zod-openapi";
 import multer from "multer";
 import { randomUUID } from "crypto";
-import { resolve } from "path";
-import { writeFile } from "fs/promises";
 import { z } from "zod";
 import { eq } from "drizzle-orm";
 import { db } from "../../db/client.js";
@@ -15,6 +13,7 @@ import {
 } from "../../common/errors.js";
 import { setAuthCookies } from "./auth-cookies.js";
 import { deleteAvatarFile } from "./avatar-utils.js";
+import { storage } from "../../common/storage.js";
 
 const MIME_TO_EXT: Record<string, string> = {
   "image/jpeg": "jpg",
@@ -24,7 +23,6 @@ const MIME_TO_EXT: Record<string, string> = {
 
 const ALLOWED_MIMES = new Set(Object.keys(MIME_TO_EXT));
 const MAX_FILE_SIZE = 2 * 1024 * 1024;
-const UPLOAD_DIR = process.env.UPLOAD_DIR ?? "uploads";
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -98,10 +96,8 @@ export function uploadAvatar(router: Router) {
       }
 
       const ext = MIME_TO_EXT[file.mimetype];
-      const filename = `${randomUUID()}.${ext}`;
-      const url = `/uploads/${filename}`;
-      const uploadDir = resolve(UPLOAD_DIR);
-      await writeFile(`${uploadDir}/${filename}`, file.buffer);
+      const key = `avatars/${randomUUID()}.${ext}`;
+      const url = await storage.put(key, file.buffer, file.mimetype);
 
       // Fetch existing avatar before updating so we can clean up the old file
       const existing = await db.query.users.findFirst({

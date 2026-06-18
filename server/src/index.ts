@@ -19,10 +19,7 @@ import { exportsRouter } from "./features/exports/index.js";
 import { errorHandler, notFoundHandler } from "./common/middleware.js";
 import { initSocket } from "./common/socket.js";
 import { globalLimiter, authLimiter } from "./common/rate-limit.js";
-
-const UPLOAD_DIR = process.env.UPLOAD_DIR ?? "uploads";
-
-mkdirSync(UPLOAD_DIR, { recursive: true });
+import { storage } from "./common/storage.js";
 
 const app = express();
 const PORT = process.env.PORT ?? 3000;
@@ -30,7 +27,14 @@ const PORT = process.env.PORT ?? 3000;
 app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
-app.use("/uploads", express.static(UPLOAD_DIR));
+
+// With the local storage driver, the server serves uploads off disk. With R2
+// (or any object-storage driver) files are served by the bucket/CDN directly.
+if (storage.servesLocally) {
+  const UPLOAD_DIR = process.env.UPLOAD_DIR ?? "uploads";
+  mkdirSync(UPLOAD_DIR, { recursive: true });
+  app.use("/uploads", express.static(UPLOAD_DIR));
+}
 
 const api = express.Router();
 
