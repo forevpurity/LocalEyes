@@ -9,10 +9,8 @@ import { authenticate } from "../../common/auth.js";
 import { hydrateReport } from "./hydrate-report.js";
 import { reportResponse } from "./schemas.js";
 import { loadReportForModeration } from "./report-moderation.js";
-import {
-  createNotificationRows,
-  emitNotifications,
-} from "../notifications/notify.js";
+import { emitNotifications } from "../notifications/notify.js";
+import { createReportEventNotifications } from "./report-notifications.js";
 
 export const hideReportDoc = {
   summary: "Hide a report",
@@ -59,25 +57,17 @@ export function hideReport(router: Router) {
         return;
       }
 
-      // `report_hidden` is owner-targeted only — the report leaves public view,
-      // so notifying other subscribers would point them at content they can no
-      // longer see (see CONTEXT.md "Notification"). An anonymised report has no
-      // owner to notify, but is still hidden.
       const notificationRows = await db.transaction(async (tx) => {
         await tx
           .update(reports)
           .set({ isHidden: true })
           .where(eq(reports.id, id));
 
-        if (!report.citizenId) return [];
-
-        return createNotificationRows(tx, {
-          recipientIds: [report.citizenId],
+        return createReportEventNotifications(tx, {
+          kind: "hidden",
           reportId: id,
-          template: {
-            type: "report_hidden",
-            reportTitle: report.title,
-          },
+          reportTitle: report.title,
+          ownerId: report.citizenId,
         });
       });
 

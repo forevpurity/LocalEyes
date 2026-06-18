@@ -6,7 +6,6 @@ import { db } from "../../db/client.js";
 import { reports, REPORT_STATUSES } from "../../db/schema/reports.js";
 import { USER_ROLES } from "../../db/schema/users.js";
 import { comments } from "../../db/schema/comments.js";
-import { getReportSubscriberIds } from "./report-moderation.js";
 import { parseAndValidate } from "../../common/validate.js";
 import {
   NotFoundError,
@@ -15,10 +14,8 @@ import {
 import { authenticate } from "../../common/auth.js";
 import { requireCanTransition } from "./report-rules.js";
 import { enforceStaffScope } from "./enforce-staff-scope.js";
-import {
-  createNotificationRows,
-  emitNotifications,
-} from "../notifications/notify.js";
+import { emitNotifications } from "../notifications/notify.js";
+import { createReportEventNotifications } from "./report-notifications.js";
 
 const updateStatusSchema = z
   .object({
@@ -139,15 +136,12 @@ export function updateReportStatus(router: Router) {
             createdAt: comments.createdAt,
           });
 
-        const notificationRows = await createNotificationRows(tx, {
-          recipientIds: await getReportSubscriberIds(tx, id),
-          actorId: actor.id,
+        const notificationRows = await createReportEventNotifications(tx, {
+          kind: "statusChanged",
           reportId: id,
-          template: {
-            type: "status_change",
-            reportTitle: report.title,
-            newStatus: data.newStatus,
-          },
+          reportTitle: report.title,
+          newStatus: data.newStatus,
+          actorId: actor.id,
         });
 
         return [inserted, notificationRows] as const;

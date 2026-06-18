@@ -8,14 +8,9 @@ import { errorResponseSchema } from "../../common/errors.js";
 import { authenticate } from "../../common/auth.js";
 import { hydrateReport } from "./hydrate-report.js";
 import { reportResponse } from "./schemas.js";
-import {
-  getReportSubscriberIds,
-  loadReportForModeration,
-} from "./report-moderation.js";
-import {
-  createNotificationRows,
-  emitNotifications,
-} from "../notifications/notify.js";
+import { loadReportForModeration } from "./report-moderation.js";
+import { emitNotifications } from "../notifications/notify.js";
+import { createReportEventNotifications } from "./report-notifications.js";
 
 export const lockReportDoc = {
   summary: "Lock a report",
@@ -67,14 +62,11 @@ export function lockReport(router: Router) {
                 .set({ isLocked: true })
                 .where(eq(reports.id, id));
 
-              return createNotificationRows(tx, {
-                recipientIds: await getReportSubscriberIds(tx, id),
-                actorId: actor.id,
+              return createReportEventNotifications(tx, {
+                kind: "locked",
                 reportId: id,
-                template: {
-                  type: "report_locked",
-                  reportTitle: report.title,
-                },
+                reportTitle: report.title,
+                actorId: actor.id,
               });
             });
 

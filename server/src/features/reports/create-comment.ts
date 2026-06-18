@@ -5,7 +5,6 @@ import { eq } from "drizzle-orm";
 import { db } from "../../db/client.js";
 import { reports } from "../../db/schema/reports.js";
 import { comments } from "../../db/schema/comments.js";
-import { getReportSubscriberIds } from "./report-moderation.js";
 import { parseAndValidate } from "../../common/validate.js";
 import {
   NotFoundError,
@@ -15,10 +14,8 @@ import { authenticate } from "../../common/auth.js";
 import { requireCanCommentOnReport, requireReportVisibleToCitizen } from "./report-rules.js";
 import { enforceStaffScope } from "./enforce-staff-scope.js";
 import { commentResponse } from "./schemas.js";
-import {
-  createNotificationRows,
-  emitNotifications,
-} from "../notifications/notify.js";
+import { emitNotifications } from "../notifications/notify.js";
+import { createReportEventNotifications } from "./report-notifications.js";
 
 const createCommentSchema = z
   .object({
@@ -123,15 +120,12 @@ export function createComment(router: Router) {
             createdAt: comments.createdAt,
           });
 
-        const notificationRows = await createNotificationRows(tx, {
-          recipientIds: await getReportSubscriberIds(tx, id),
-          actorId: actor.id,
+        const notificationRows = await createReportEventNotifications(tx, {
+          kind: "commented",
           reportId: id,
-          template: {
-            type: "new_comment",
-            reportTitle: report.title,
-            authorName: actor.displayName,
-          },
+          reportTitle: report.title,
+          authorName: actor.displayName,
+          actorId: actor.id,
         });
 
         return [inserted, notificationRows] as const;

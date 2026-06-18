@@ -13,11 +13,8 @@ import { authenticate } from "../../common/auth.js";
 import { requireCanWithdrawReport } from "./report-rules.js";
 import { hydrateReport } from "./hydrate-report.js";
 import { reportResponse } from "./schemas.js";
-import { getReportSubscriberIds } from "./report-moderation.js";
-import {
-  createNotificationRows,
-  emitNotifications,
-} from "../notifications/notify.js";
+import { emitNotifications } from "../notifications/notify.js";
+import { createReportEventNotifications } from "./report-notifications.js";
 
 export const withdrawReportDoc = {
   summary: "Withdraw a report",
@@ -104,17 +101,12 @@ export function withdrawReport(router: Router) {
           newStatus: "withdrawn",
         });
 
-        // Withdrawal is a status change like any other — notify subscribers
-        // (the owner is the actor and is filtered out by `actorId`).
-        return createNotificationRows(tx, {
-          recipientIds: await getReportSubscriberIds(tx, id),
-          actorId: actor.id,
+        return createReportEventNotifications(tx, {
+          kind: "statusChanged",
           reportId: id,
-          template: {
-            type: "status_change",
-            reportTitle: report.title,
-            newStatus: "withdrawn",
-          },
+          reportTitle: report.title,
+          newStatus: "withdrawn",
+          actorId: actor.id,
         });
       });
 

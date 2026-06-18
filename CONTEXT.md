@@ -84,6 +84,9 @@ Recipients are scoped per type, not a blanket fan-out to every subscriber:
 Notifications fire only on the constraining transition, never on its reversal: **unlocking and unhiding are silent**. Unhiding in particular is a non-event for the owner, who retains access to their hidden Report throughout. There are deliberately no `report_unlocked` / `report_unhidden` types.
 _Avoid_: alert, message (use "notification" consistently)
 
+**Queue Signal**:
+A real-time signal to Staff that a new Report has been auto-routed into their Department's queue. Distinct from a Notification — it serves the Staff queue-based workflow, not the Citizen bell. It shares the `notifications` table and Socket.io channel as infrastructure, but is a separate concept: Notifications are Citizen-only, Queue Signals are Staff-only. The `new_report` type is a Queue Signal, not a Notification.
+
 ### Moderation
 
 **Hide**:
