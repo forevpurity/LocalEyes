@@ -17,9 +17,9 @@ import { notificationsRouter } from "./features/notifications/index.js";
 import { analyticsRouter } from "./features/analytics/index.js";
 import { exportsRouter } from "./features/exports/index.js";
 import { errorHandler, notFoundHandler } from "./common/middleware.js";
-import { initSocket } from "./common/socket.js";
+import { initSocket } from "./services/socket.js";
 import { globalLimiter, authLimiter } from "./common/rate-limit.js";
-import { storage } from "./common/storage.js";
+import { storage } from "./services/storage.js";
 
 const app = express();
 const PORT = process.env.PORT ?? 3000;

@@ -6,7 +6,7 @@ import {
   NotFoundError,
   ForbiddenError,
   DomainRuleError,
-} from "./errors.js";
+} from "../common/errors.js";
 
 export type BanTargetRole = "citizen" | "staff";
 

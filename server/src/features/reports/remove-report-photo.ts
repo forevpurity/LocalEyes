@@ -12,7 +12,7 @@ import {
 } from "../../common/errors.js";
 import { authenticate } from "../../common/auth.js";
 import { enforceStaffScope } from "./enforce-staff-scope.js";
-import { storage } from "../../common/storage.js";
+import { storage } from "../../services/storage.js";
 
 export const removeReportPhotoDoc = {
   summary: "Remove a resolution photo from a report",

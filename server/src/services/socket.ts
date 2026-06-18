@@ -1,6 +1,6 @@
 import type { Server as HttpServer } from "node:http";
 import { Server } from "socket.io";
-import { verifyAccessToken } from "./token-utils.js";
+import { verifyAccessToken } from "../common/token-utils.js";
 import { ensureNotBanned } from "./ban-users.js";
 
 let io: Server | null = null;

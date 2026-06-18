@@ -13,7 +13,7 @@ import {
 } from "../../common/errors.js";
 import { setAuthCookies } from "./auth-cookies.js";
 import { deleteAvatarFile } from "./avatar-utils.js";
-import { storage } from "../../common/storage.js";
+import { storage } from "../../services/storage.js";
 
 const MIME_TO_EXT: Record<string, string> = {
   "image/jpeg": "jpg",

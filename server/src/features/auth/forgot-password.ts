@@ -9,7 +9,7 @@ import { passwordResetTokens } from "../../db/schema/password-reset-tokens.js";
 import { errorResponseSchema } from "../../common/errors.js";
 import { parseAndValidate } from "../../common/validate.js";
 import { zEmail } from "../../common/schemas.js";
-import { sendEmail } from "../../common/email.js";
+import { sendEmail } from "../../services/email.js";
 import { passwordResetLimiter } from "../../common/rate-limit.js";
 
 const forgotPasswordSchema = z

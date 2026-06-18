@@ -3,7 +3,7 @@ import { z } from "zod";
 import type { ZodOpenApiOperationObject } from "zod-openapi";
 import { errorResponseSchema } from "../../common/errors.js";
 import { authenticate } from "../../common/auth.js";
-import { banUser, banResponseSchema } from "../../common/ban-users.js";
+import { banUser, banResponseSchema } from "../../services/ban-users.js";
 
 export const banDoc = {
   summary: "Ban a staff member",

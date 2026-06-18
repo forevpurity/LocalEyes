@@ -17,7 +17,7 @@ import { authenticate } from "../../common/auth.js";
 import { reportCreateLimiter } from "../../common/rate-limit.js";
 import { getCoveringDepartment } from "../../common/geo.js";
 import { reportResponse } from "./schemas.js";
-import { emitToMapViewers } from "../../common/socket.js";
+import { emitToMapViewers } from "../../services/socket.js";
 import { notify } from "../notifications/notify.js";
 import {
   imageUpload,

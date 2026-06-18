@@ -1,4 +1,4 @@
-import { storage } from "../../common/storage.js";
+import { storage } from "../../services/storage.js";
 
 /**
  * Delete a previously stored avatar object given its public URL.

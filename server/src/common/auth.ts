@@ -2,7 +2,7 @@ import type { RequestHandler } from "express";
 import { verifyAccessToken } from "./token-utils.js";
 import { UnauthorizedError, ForbiddenError } from "./errors.js";
 import type { UserRole } from "../db/schema/users.js";
-import { ensureNotBanned } from "./ban-users.js";
+import { ensureNotBanned } from "../services/ban-users.js";
 
 export function authenticate(...roles: UserRole[]): RequestHandler {
   return async (req, _res, next) => {

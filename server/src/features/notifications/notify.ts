@@ -2,7 +2,7 @@ import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { db } from "../../db/client.js";
 import type * as schema from "../../db/schema/index.js";
 import { notifications, type NotificationType } from "../../db/schema/notifications.js";
-import { getIO } from "../../common/socket.js";
+import { getIO } from "../../services/socket.js";
 
 type DbExecutor = Pick<NodePgDatabase<typeof schema>, "insert">;
 
