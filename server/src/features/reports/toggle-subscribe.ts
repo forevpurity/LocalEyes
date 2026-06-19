@@ -11,7 +11,7 @@ import {
   errorResponseSchema,
 } from "../../common/errors.js";
 import { authenticate } from "../../common/auth.js";
-import { requireCanSubscribeToReport } from "./report-rules.js";
+import { requireCanSubscribeToReport } from "./lib/report-rules.js";
 
 const toggleSubscribeResponse = z
   .object({

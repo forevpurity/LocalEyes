@@ -10,9 +10,9 @@ import {
 } from "../../common/errors.js";
 import { parseAndValidate } from "../../common/validate.js";
 import { authenticate } from "../../common/auth.js";
-import { requireCanEditReport } from "./report-rules.js";
-import { getReportForActor } from "./report-projection.js";
-import { reportCoreResponse } from "./schemas.js";
+import { requireCanEditReport } from "./lib/report-rules.js";
+import { getReportForActor } from "./lib/report-projection.js";
+import { reportCoreResponse } from "./lib/schemas.js";
 
 const updateReportSchema = z
   .object({

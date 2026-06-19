@@ -1,13 +1,13 @@
 import { eq, sql } from "drizzle-orm";
-import { db } from "../../db/client.js";
-import { reports } from "../../db/schema/reports.js";
-import { categories } from "../../db/schema/categories.js";
-import { departments } from "../../db/schema/departments.js";
-import { users } from "../../db/schema/users.js";
-import { reportPhotos } from "../../db/schema/report-photos.js";
-import { NotFoundError } from "../../common/errors.js";
+import { db } from "../../../db/client.js";
+import { reports } from "../../../db/schema/reports.js";
+import { categories } from "../../../db/schema/categories.js";
+import { departments } from "../../../db/schema/departments.js";
+import { users } from "../../../db/schema/users.js";
+import { reportPhotos } from "../../../db/schema/report-photos.js";
+import { NotFoundError } from "../../../common/errors.js";
 import { anonymizedCitizenName } from "./report-rules.js";
-import type { UserRole } from "../../db/schema/users.js";
+import type { UserRole } from "../../../db/schema/users.js";
 
 export type Actor = { id: string; role: UserRole } | null;
 

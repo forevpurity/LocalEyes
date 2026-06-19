@@ -11,8 +11,8 @@ import {
   errorResponseSchema,
 } from "../../common/errors.js";
 import { authenticate } from "../../common/auth.js";
-import { enforceStaffScope } from "./enforce-staff-scope.js";
-import { commentResponse } from "./schemas.js";
+import { enforceStaffScope } from "./lib/enforce-staff-scope.js";
+import { commentResponse } from "./lib/schemas.js";
 
 export const hideCommentDoc = {
   summary: "Toggle comment visibility",

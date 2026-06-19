@@ -19,11 +19,11 @@ import {
   getAllowedTransitions,
   anonymizedAuthorName,
   anonymizedAuthorAvatar,
-} from "./report-rules.js";
-import { enforceStaffScope } from "./enforce-staff-scope.js";
-import { reportCoreColumns, shapeReportCore } from "./report-projection.js";
-import type { ReportCoreRow } from "./report-projection.js";
-import { reportCoreFields } from "./schemas.js";
+} from "./lib/report-rules.js";
+import { enforceStaffScope } from "./lib/enforce-staff-scope.js";
+import { reportCoreColumns, shapeReportCore } from "./lib/report-projection.js";
+import type { ReportCoreRow } from "./lib/report-projection.js";
+import { reportCoreFields } from "./lib/schemas.js";
 
 const commentItemSchema = z.object({
   id: z.uuid(),

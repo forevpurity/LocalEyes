@@ -11,11 +11,11 @@ import {
   errorResponseSchema,
 } from "../../common/errors.js";
 import { authenticate } from "../../common/auth.js";
-import { requireCanCommentOnReport, requireReportVisibleToCitizen } from "./report-rules.js";
-import { enforceStaffScope } from "./enforce-staff-scope.js";
-import { commentResponse } from "./schemas.js";
+import { requireCanCommentOnReport, requireReportVisibleToCitizen } from "./lib/report-rules.js";
+import { enforceStaffScope } from "./lib/enforce-staff-scope.js";
+import { commentResponse } from "./lib/schemas.js";
 import { emitNotifications } from "../notifications/notify.js";
-import { createReportEventNotifications } from "./report-notifications.js";
+import { createReportEventNotifications } from "./lib/report-notifications.js";
 
 const createCommentSchema = z
   .object({

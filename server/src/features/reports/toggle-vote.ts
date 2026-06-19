@@ -10,7 +10,7 @@ import {
   errorResponseSchema,
 } from "../../common/errors.js";
 import { authenticate } from "../../common/auth.js";
-import { requireCanVoteOnReport } from "./report-rules.js";
+import { requireCanVoteOnReport } from "./lib/report-rules.js";
 
 const toggleVoteResponse = z
   .object({

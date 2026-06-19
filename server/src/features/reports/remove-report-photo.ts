@@ -11,7 +11,7 @@ import {
   errorResponseSchema,
 } from "../../common/errors.js";
 import { authenticate } from "../../common/auth.js";
-import { enforceStaffScope } from "./enforce-staff-scope.js";
+import { enforceStaffScope } from "./lib/enforce-staff-scope.js";
 import { storage } from "../../services/storage.js";
 
 export const removeReportPhotoDoc = {

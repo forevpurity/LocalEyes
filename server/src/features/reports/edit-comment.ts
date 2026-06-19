@@ -12,8 +12,8 @@ import {
   errorResponseSchema,
 } from "../../common/errors.js";
 import { authenticate } from "../../common/auth.js";
-import { requireCanEditComment } from "./report-rules.js";
-import { commentResponse } from "./schemas.js";
+import { requireCanEditComment } from "./lib/report-rules.js";
+import { commentResponse } from "./lib/schemas.js";
 
 const editCommentSchema = z
   .object({

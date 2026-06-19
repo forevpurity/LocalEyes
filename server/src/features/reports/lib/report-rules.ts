@@ -3,9 +3,9 @@ import {
   DomainRuleError,
   ForbiddenError,
   NotFoundError,
-} from "../../common/errors.js";
-import { users } from "../../db/schema/users.js";
-import type { UserRole } from "../../db/schema/users.js";
+} from "../../../common/errors.js";
+import { users } from "../../../db/schema/users.js";
+import type { UserRole } from "../../../db/schema/users.js";
 
 type Actor = { id: string; role: UserRole; displayName: string };
 

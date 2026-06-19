@@ -55,10 +55,13 @@ gates Swagger UI (dev only). PostGIS must be available in the Postgres instance.
   (Zod), `geo.ts` (PostGIS helpers), `pagination.ts`.
 - `db/` — `client.ts` (Drizzle + pg pool), `schema/` (tables: users, reports, departments,
   categories, subscriptions, notifications, comments, votes, report-photos), `seeds/`.
-- `features/<name>/` — **feature-per-folder; one route action per file.** Each file exports
-  a function that takes the `router` and mounts a handler, plus a Zod-based OpenAPI doc
-  object; `index.ts` mounts them all. See `features/reports/` (e.g. `update-report-status.ts`,
-  `toggle-subscribe.ts`, `enforce-staff-scope.ts`) as the canonical example.
+- `features/<name>/` — **feature-per-folder; one route action per file.** Each top-level
+  file exports a function that takes the `router` and mounts a handler, plus a Zod-based
+  OpenAPI doc object; `index.ts` mounts them all. Shared, non-route helpers (domain rules,
+  projections, schemas, guards) live in an optional `lib/` subfolder so the top level reads
+  as "one file = one mounted endpoint." See `features/reports/` (route actions like
+  `update-report-status.ts`, `toggle-subscribe.ts`; helpers under `lib/` like
+  `report-rules.ts`, `enforce-staff-scope.ts`) as the canonical example.
 
 Key conventions:
 

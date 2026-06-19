@@ -1,12 +1,12 @@
 import { eq, isNull, type SQL } from "drizzle-orm";
-import { db } from "../../db/client.js";
-import { users } from "../../db/schema/users.js";
-import { reports } from "../../db/schema/reports.js";
+import { db } from "../../../db/client.js";
+import { users } from "../../../db/schema/users.js";
+import { reports } from "../../../db/schema/reports.js";
 import {
   NotFoundError,
   ForbiddenError,
-} from "../../common/errors.js";
-import type { UserRole } from "../../db/schema/users.js";
+} from "../../../common/errors.js";
+import type { UserRole } from "../../../db/schema/users.js";
 
 type Actor = { id: string; role: UserRole; displayName: string };
 

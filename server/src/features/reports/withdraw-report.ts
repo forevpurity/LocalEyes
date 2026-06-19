@@ -10,11 +10,11 @@ import {
   errorResponseSchema,
 } from "../../common/errors.js";
 import { authenticate } from "../../common/auth.js";
-import { requireCanWithdrawReport } from "./report-rules.js";
-import { getReportForActor } from "./report-projection.js";
-import { reportCoreResponse } from "./schemas.js";
+import { requireCanWithdrawReport } from "./lib/report-rules.js";
+import { getReportForActor } from "./lib/report-projection.js";
+import { reportCoreResponse } from "./lib/schemas.js";
 import { emitNotifications } from "../notifications/notify.js";
-import { createReportEventNotifications } from "./report-notifications.js";
+import { createReportEventNotifications } from "./lib/report-notifications.js";
 
 export const withdrawReportDoc = {
   summary: "Withdraw a report",

@@ -6,11 +6,11 @@ import { db } from "../../db/client.js";
 import { reports } from "../../db/schema/reports.js";
 import { errorResponseSchema } from "../../common/errors.js";
 import { authenticate } from "../../common/auth.js";
-import { getReportForActor } from "./report-projection.js";
-import { reportCoreResponse } from "./schemas.js";
-import { loadReportForModeration } from "./report-moderation.js";
+import { getReportForActor } from "./lib/report-projection.js";
+import { reportCoreResponse } from "./lib/schemas.js";
+import { loadReportForModeration } from "./lib/report-moderation.js";
 import { emitNotifications } from "../notifications/notify.js";
-import { createReportEventNotifications } from "./report-notifications.js";
+import { createReportEventNotifications } from "./lib/report-notifications.js";
 
 export const lockReportDoc = {
   summary: "Lock a report",

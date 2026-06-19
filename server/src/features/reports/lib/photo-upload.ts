@@ -1,7 +1,7 @@
 import multer from "multer";
 import { randomUUID } from "crypto";
-import { ValidationError } from "../../common/errors.js";
-import { storage } from "../../services/storage.js";
+import { ValidationError } from "../../../common/errors.js";
+import { storage } from "../../../services/storage.js";
 
 export const MIME_TO_EXT: Record<string, string> = {
   "image/jpeg": "jpg",

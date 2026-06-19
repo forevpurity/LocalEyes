@@ -16,8 +16,8 @@ import { parseAndValidate } from "../../common/validate.js";
 import { authenticate } from "../../common/auth.js";
 import { reportCreateLimiter } from "../../common/rate-limit.js";
 import { getCoveringDepartment } from "../../common/geo.js";
-import { getReportForActor } from "./report-projection.js";
-import { reportCoreResponse } from "./schemas.js";
+import { getReportForActor } from "./lib/report-projection.js";
+import { reportCoreResponse } from "./lib/schemas.js";
 import { emitToMapViewers } from "../../services/socket.js";
 import { notify } from "../notifications/notify.js";
 import {
@@ -25,7 +25,7 @@ import {
   validateImageFiles,
   saveImageFiles,
   MAX_FILES,
-} from "./photo-upload.js";
+} from "./lib/photo-upload.js";
 
 const createReportSchema = z
   .object({

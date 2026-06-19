@@ -1,11 +1,11 @@
 import { and, eq } from "drizzle-orm";
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
-import type * as schema from "../../db/schema/index.js";
-import { db } from "../../db/client.js";
-import { reports } from "../../db/schema/reports.js";
-import { subscriptions } from "../../db/schema/subscriptions.js";
-import { users, type UserRole } from "../../db/schema/users.js";
-import { NotFoundError } from "../../common/errors.js";
+import type * as schema from "../../../db/schema/index.js";
+import { db } from "../../../db/client.js";
+import { reports } from "../../../db/schema/reports.js";
+import { subscriptions } from "../../../db/schema/subscriptions.js";
+import { users, type UserRole } from "../../../db/schema/users.js";
+import { NotFoundError } from "../../../common/errors.js";
 import { enforceStaffScope } from "./enforce-staff-scope.js";
 
 type Actor = { id: string; role: UserRole; displayName: string };

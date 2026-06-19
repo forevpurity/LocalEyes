@@ -1,10 +1,10 @@
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
-import type * as schema from "../../db/schema/index.js";
+import type * as schema from "../../../db/schema/index.js";
 import { getReportSubscriberIds } from "./report-moderation.js";
 import {
   createNotificationRows,
   type NotificationPayload,
-} from "../notifications/notify.js";
+} from "../../notifications/notify.js";
 
 type DbTx = Pick<NodePgDatabase<typeof schema>, "insert" | "select">;
 

@@ -11,14 +11,14 @@ import {
   errorResponseSchema,
 } from "../../common/errors.js";
 import { authenticate } from "../../common/auth.js";
-import { enforceStaffScope } from "./enforce-staff-scope.js";
+import { enforceStaffScope } from "./lib/enforce-staff-scope.js";
 import {
   imageUpload,
   validateImageFiles,
   saveImageFiles,
   MAX_FILES,
   MAX_AFTER_PHOTOS,
-} from "./photo-upload.js";
+} from "./lib/photo-upload.js";
 
 const addPhotosResponseSchema = z
   .object({

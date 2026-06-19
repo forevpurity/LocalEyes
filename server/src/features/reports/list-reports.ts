@@ -19,10 +19,10 @@ import {
   errorResponseSchema,
 } from "../../common/errors.js";
 import { optionalAuthenticate } from "../../common/auth.js";
-import { staffDepartmentFilter } from "./enforce-staff-scope.js";
-import { reportCoreColumns, shapeReportCore } from "./report-projection.js";
-import type { ReportCoreRow } from "./report-projection.js";
-import { reportCoreFields } from "./schemas.js";
+import { staffDepartmentFilter } from "./lib/enforce-staff-scope.js";
+import { reportCoreColumns, shapeReportCore } from "./lib/report-projection.js";
+import type { ReportCoreRow } from "./lib/report-projection.js";
+import { reportCoreFields } from "./lib/schemas.js";
 
 const MAP_LIMIT = 200;
 

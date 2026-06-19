@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { USER_ROLES } from "../../db/schema/users.js";
+import { USER_ROLES } from "../../../db/schema/users.js";
 
 export const reportPhotoSchema = z.object({
   id: z.uuid(),
