@@ -1,18 +1,19 @@
 # Production-style stack: Caddy (TLS) -> Nginx client -> Node server -> PostGIS.
 # Copy .env.docker.example to .env and fill in real secrets before `docker compose up -d`.
+# Every service loads its config from .env via `env_file`, so adding a new
+# variable (e.g. an R2_* key) means editing .env only — not this file.
 # The server crashes on boot (by design) if JWT secrets are weak/placeholder or
 # CORS_ORIGIN is unset, since NODE_ENV=production here.
 services:
   # Public front door: terminates TLS (auto Let's Encrypt) and forwards to client.
+  # Reads DOMAIN / ACME_EMAIL from .env.
   caddy:
     image: caddy:2-alpine
     restart: unless-stopped
+    env_file: .env
     ports:
       - "80:80"
       - "443:443"
-    environment:
-      DOMAIN: ${DOMAIN:-localhost}
-      ACME_EMAIL: ${ACME_EMAIL:-}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy-data:/data
@@ -22,12 +23,10 @@ services:
 
   db:
     # PostGIS is preinstalled and the extension is auto-enabled on the default DB.
+    # Reads POSTGRES_USER / POSTGRES_PASSWORD / POSTGRES_DB from .env.
     image: postgis/postgis:16-3.4
     restart: unless-stopped
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-localeyes}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-localeyes}
-      POSTGRES_DB: ${POSTGRES_DB:-localeyes}
+    env_file: .env
     volumes:
       - db-data:/var/lib/postgresql/data
     healthcheck:
@@ -44,26 +43,23 @@ services:
   server:
     build: ./server
     restart: unless-stopped
+    # App config (JWT_*, CORS_ORIGIN, APP_URL, STORAGE_DRIVER, R2_*) comes from .env.
+    env_file: .env
     environment:
+      # Fixed/computed values that aren't user config (these override .env):
       NODE_ENV: production
       PORT: 3000
       # Two proxies in front of the server: Caddy -> Nginx -> here.
       TRUST_PROXY_HOPS: 2
+      # Assembled from the POSTGRES_* parts in .env; `db` is the compose network host.
       DATABASE_URL: postgres://${POSTGRES_USER:-localeyes}:${POSTGRES_PASSWORD:-localeyes}@db:5432/${POSTGRES_DB:-localeyes}
-      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
-      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
-      # Same-origin via Caddy + the client's Nginx proxy, so this is the public URL.
-      CORS_ORIGIN: ${CORS_ORIGIN}
-      APP_URL: ${APP_URL}
-      # Uploads: set STORAGE_DRIVER=r2 + R2_* in .env for a real deploy.
-      # With the default local driver, files are written to /app/uploads,
-      # persisted by the uploads-data volume below.
     depends_on:
       db:
         condition: service_healthy
     expose:
       - "3000"
     volumes:
+      # Persists local-driver uploads across rebuilds. Unused when STORAGE_DRIVER=r2.
       - uploads-data:/app/uploads
 
   client:
