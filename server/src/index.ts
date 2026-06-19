@@ -1,4 +1,5 @@
 ﻿import "dotenv/config";
+import { validateEnv } from "./common/env.js";
 import { mkdirSync } from "fs";
 import { createServer } from "node:http";
 import express from "express";
@@ -21,6 +22,9 @@ import { initSocket } from "./services/socket.js";
 import { globalLimiter, authLimiter } from "./common/rate-limit.js";
 import { corsOptions } from "./common/cors.js";
 import { storage } from "./services/storage.js";
+
+// Crash on boot if the environment is missing/insecure, before serving traffic.
+validateEnv();
 
 const app = express();
 const PORT = process.env.PORT ?? 3000;

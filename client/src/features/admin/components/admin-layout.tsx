@@ -1,6 +1,6 @@
 import { LayoutDashboard, FileText, Building2, Tags, Users, UserCircle, BarChart3, CircleUserRound, Shield, LogOut } from "lucide-react";
 import { NavLink, Outlet, useNavigate } from "react-router";
-import { useAuth } from "@/features/auth/auth-context";
+import { useAuth } from "@/features/auth/use-auth";
 import { ThemeToggle } from "@/features/theme/theme-toggle";
 
 const navItems = [

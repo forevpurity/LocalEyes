@@ -6,7 +6,7 @@ import { Link, useNavigate, useSearchParams } from "react-router";
 import { useMutation } from "@tanstack/react-query";
 import { api, ApiRequestError } from "@/lib/api";
 import type { User } from "@/types/api";
-import { useAuth } from "@/features/auth/auth-context";
+import { useAuth } from "@/features/auth/use-auth";
 import { AuthHeader } from "./components/auth-header";
 import { toast } from "sonner";
 

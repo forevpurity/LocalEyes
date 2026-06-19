@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router";
 import { api } from "@/lib/api";
 import { getSocket, disconnectSocket } from "@/lib/socket";
-import { useAuth } from "@/features/auth/auth-context";
+import { useAuth } from "@/features/auth/use-auth";
 import type {
   Notification,
   NotificationType,

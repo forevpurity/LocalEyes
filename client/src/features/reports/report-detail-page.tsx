@@ -19,7 +19,7 @@ import { useToggleVote } from "@/features/reports/hooks/use-toggle-vote";
 import { useToggleSubscribe } from "@/features/reports/hooks/use-toggle-subscribe";
 import { useWithdrawReport } from "@/features/reports/hooks/use-withdraw-report";
 import { useRemoveReportPhoto } from "@/features/reports/hooks/use-remove-report-photo";
-import { useAuth } from "@/features/auth/auth-context";
+import { useAuth } from "@/features/auth/use-auth";
 import { getCategoryIcon } from "@/features/reports/lib/category-icons";
 import { getStatusStyle } from "@/features/reports/lib/status-styles";
 import { getRelativeTime, cn } from "@/lib/utils";

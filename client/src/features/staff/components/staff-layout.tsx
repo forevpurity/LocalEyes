@@ -1,6 +1,6 @@
 import { LayoutDashboard, FileText, UserCircle, Briefcase, LogOut } from "lucide-react";
 import { NavLink, Outlet, useNavigate } from "react-router";
-import { useAuth } from "@/features/auth/auth-context";
+import { useAuth } from "@/features/auth/use-auth";
 import { ThemeToggle } from "@/features/theme/theme-toggle";
 import { NotificationBell } from "@/features/notifications/notification-bell";
 

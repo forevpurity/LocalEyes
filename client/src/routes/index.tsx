@@ -1,4 +1,4 @@
-import { useAuth } from "@/features/auth/auth-context";
+import { useAuth } from "@/features/auth/use-auth";
 import { CivicShield } from "@/components/civic-shield";
 import { ForcePasswordChangePage } from "@/features/auth/force-password-change-page";
 import { PublicRoutes } from "./public-routes";

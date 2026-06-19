@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Link, NavLink } from "react-router";
 import { LogOut, Menu, User, X } from "lucide-react";
 import { CivicShield } from "@/components/civic-shield";
-import { useAuth } from "@/features/auth/auth-context";
+import { useAuth } from "@/features/auth/use-auth";
 import { NotificationBell } from "@/features/notifications/notification-bell";
 import { ThemeToggle } from "@/features/theme/theme-toggle";
 

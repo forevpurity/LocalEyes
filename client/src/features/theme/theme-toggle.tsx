@@ -1,6 +1,5 @@
 import { Sun, Moon } from "lucide-react";
-import { useTheme } from "./theme-context";
-import type { Theme } from "./theme-context";
+import { useTheme, type Theme } from "./use-theme";
 
 const iconMap: Record<Theme, typeof Sun> = {
   light: Sun,

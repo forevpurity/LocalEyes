@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 import { toast } from "sonner";
 import { Eye, EyeOff, Lock } from "lucide-react";
-import { useAuth } from "@/features/auth/auth-context";
+import { useAuth } from "@/features/auth/use-auth";
 import { useCreateComment } from "@/features/reports/hooks/use-create-comment";
 import { useEditComment } from "@/features/reports/hooks/use-edit-comment";
 import { useToggleCommentHide } from "@/features/reports/hooks/use-toggle-comment-hide";

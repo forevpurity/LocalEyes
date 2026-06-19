@@ -4,7 +4,7 @@ import { z } from "zod";
 import { useMutation } from "@tanstack/react-query";
 import { api, apiUpload, ApiRequestError } from "@/lib/api";
 import type { User } from "@/types/api";
-import { useAuth } from "@/features/auth/auth-context";
+import { useAuth } from "@/features/auth/use-auth";
 import { Navbar } from "@/features/layout/components/navbar";
 import { Avatar } from "@/components/avatar";
 import { toast } from "sonner";

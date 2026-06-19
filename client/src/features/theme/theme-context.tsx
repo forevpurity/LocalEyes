@@ -1,14 +1,5 @@
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  useCallback,
-  type ReactNode,
-} from "react";
-
-export type Theme = "light" | "dark";
-type ResolvedTheme = "light" | "dark";
+import { useEffect, useState, useCallback, type ReactNode } from "react";
+import { ThemeContext, type Theme, type ResolvedTheme } from "./use-theme";
 
 const STORAGE_KEY = "localeyes-theme";
 const DARK_CLASS = "dark";
@@ -21,14 +12,6 @@ function applyTheme(resolved: ResolvedTheme) {
     root.classList.remove(DARK_CLASS);
   }
 }
-
-interface ThemeContextValue {
-  theme: Theme;
-  resolved: ResolvedTheme;
-  setTheme: (theme: Theme) => void;
-}
-
-const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>(() => {
@@ -54,12 +37,4 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       {children}
     </ThemeContext.Provider>
   );
-}
-
-export function useTheme(): ThemeContextValue {
-  const ctx = useContext(ThemeContext);
-  if (!ctx) {
-    throw new Error("useTheme must be used within a ThemeProvider");
-  }
-  return ctx;
 }

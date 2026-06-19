@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback } from "react";
 import { useSearchParams } from "react-router";
-import { useAuth } from "@/features/auth/auth-context";
+import { useAuth } from "@/features/auth/use-auth";
 import { Navbar } from "@/features/layout/components/navbar";
 import { MapSidebar } from "@/features/reports/components/map-sidebar";
 import { ReportMap } from "@/features/reports/components/report-map";

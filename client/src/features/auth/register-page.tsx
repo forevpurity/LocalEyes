@@ -6,7 +6,7 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { api, ApiRequestError } from "@/lib/api";
 import type { User } from "@/types/api";
-import { useAuth } from "@/features/auth/auth-context";
+import { useAuth } from "@/features/auth/use-auth";
 import { AuthHeader } from "./components/auth-header";
 import { toast } from "sonner";
 
@@ -68,8 +68,11 @@ export function RegisterPage() {
   });
 
   const onSubmit = (data: RegisterFormData) => {
-    const { confirmPassword: _, ...payload } = data;
-    registerMutation.mutate(payload);
+    registerMutation.mutate({
+      displayName: data.displayName,
+      email: data.email,
+      password: data.password,
+    });
   };
 
   return (

@@ -1,5 +1,5 @@
 import { TileLayer } from "react-leaflet";
-import { useTheme } from "@/features/theme/theme-context";
+import { useTheme } from "@/features/theme/use-theme";
 import { MAP_TILES } from "@/lib/map-constants";
 
 export function ThemedTileLayer() {

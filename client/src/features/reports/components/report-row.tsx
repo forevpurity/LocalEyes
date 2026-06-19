@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { cn, getRelativeTime } from "@/lib/utils";
 import { getStatusStyle } from "@/features/reports/lib/status-styles";
 import { canModerate } from "@/features/reports/lib/permissions";
-import { useAuth } from "@/features/auth/auth-context";
+import { useAuth } from "@/features/auth/use-auth";
 import type { Report } from "@/types/api";
 import { useSetReportHide } from "../hooks/use-set-report-hide";
 import { useSetReportLock } from "../hooks/use-set-report-lock";

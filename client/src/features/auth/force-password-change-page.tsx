@@ -5,7 +5,7 @@ import { useMutation } from "@tanstack/react-query";
 import { KeyRound } from "lucide-react";
 import { toast } from "sonner";
 import { api, ApiRequestError } from "@/lib/api";
-import { useAuth } from "@/features/auth/auth-context";
+import { useAuth } from "@/features/auth/use-auth";
 import { CivicShield } from "@/components/civic-shield";
 
 const schema = z
