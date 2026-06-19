@@ -1,0 +1,50 @@
+# Production-style local stack: PostGIS database + API server + Nginx-served client.
+# Copy .env.docker.example to .env and fill in real secrets before `docker compose up`.
+# The server crashes on boot (by design) if JWT secrets are weak/placeholder or
+# CORS_ORIGIN is unset, since NODE_ENV=production here.
+services:
+  db:
+    # PostGIS is preinstalled and the extension is auto-enabled on the default DB.
+    image: postgis/postgis:16-3.4
+    environment:
+      POSTGRES_USER: localeyes
+      POSTGRES_PASSWORD: localeyes
+      POSTGRES_DB: localeyes
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U localeyes"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    ports:
+      # Exposed so you can run `npm run db:push` / `db:seed` from the host once.
+      - "5432:5432"
+
+  server:
+    build: ./server
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgres://localeyes:localeyes@db:5432/localeyes
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      # Same-origin via the client's Nginx proxy, so this is the client's URL.
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:8080}
+      APP_URL: ${APP_URL:-http://localhost:8080}
+      # Uploads: set STORAGE_DRIVER=r2 + R2_* in .env for a real deploy.
+    depends_on:
+      db:
+        condition: service_healthy
+    expose:
+      - "3000"
+
+  client:
+    build: ./client
+    depends_on:
+      - server
+    ports:
+      - "8080:80"
+
+volumes:
+  db-data:
