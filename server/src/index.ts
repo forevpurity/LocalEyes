@@ -29,6 +29,14 @@ validateEnv();
 const app = express();
 const PORT = process.env.PORT ?? 3000;
 
+// Behind a TLS-terminating proxy (Nginx, Render, Railway, an ALB, Cloudflare),
+// trust the X-Forwarded-* headers so req.secure is correct (required for the
+// `secure` auth cookies to be set) and rate limiting keys off the real client
+// IP rather than the proxy's. `1` = one proxy hop in front of us.
+if (process.env.NODE_ENV === "production") {
+  app.set("trust proxy", 1);
+}
+
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());

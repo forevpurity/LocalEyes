@@ -41,6 +41,16 @@ export function validateEnv(): void {
       problems.push("JWT_ACCESS_SECRET and JWT_REFRESH_SECRET must differ.");
     }
 
+    // Without an explicit allow-list, CORS reflects any request origin with
+    // credentials:true — letting any site make authenticated requests on behalf
+    // of a logged-in user. Acceptable for local dev, a security hole in prod.
+    if (!process.env.CORS_ORIGIN?.trim()) {
+      problems.push(
+        "CORS_ORIGIN is unset; set it to a comma-separated list of allowed origins " +
+          "(e.g. https://localeyes.vn,https://www.localeyes.vn).",
+      );
+    }
+
     if (problems.length > 0) {
       fail("Insecure configuration for NODE_ENV=production:", ...problems);
     }
