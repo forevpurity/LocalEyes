@@ -10,7 +10,7 @@ export function useEditComment(reportId: string, commentId: string) {
     mutationFn: (body: string) =>
       api<Comment>(`/reports/${reportId}/comments/${commentId}`, {
         method: "PATCH",
-        body: JSON.stringify({ body }),
+        json: { body },
       }),
     onSuccess: (updated) => {
       queryClient.setQueryData<ReportDetail>(key, (old) =>

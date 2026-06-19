@@ -13,7 +13,7 @@ export function useUpdateCategory() {
     mutationFn: ({ id, ...data }: UpdateCategoryInput & { id: string }) =>
       api<Category>(`/categories/${id}`, {
         method: "PATCH",
-        body: JSON.stringify(data),
+        json: data,
       }),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["categories"] });

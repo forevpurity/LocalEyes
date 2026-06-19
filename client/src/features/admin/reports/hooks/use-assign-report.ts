@@ -9,7 +9,7 @@ export function useAssignReport(reportId: string) {
     mutationFn: (departmentId: string) =>
       api<Report>(`/reports/${reportId}/assign`, {
         method: "PATCH",
-        body: JSON.stringify({ departmentId }),
+        json: { departmentId },
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["reports"] });

@@ -46,7 +46,7 @@ export function RegisterPage() {
     mutationFn: (data: Omit<RegisterFormData, "confirmPassword">) =>
       api<User>("/auth/register", {
         method: "POST",
-        body: JSON.stringify(data),
+        json: data,
       }),
     onSuccess: (data) => {
       setUser(data);

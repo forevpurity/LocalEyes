@@ -19,7 +19,7 @@ export function useUpdateReportStatus(reportId: string) {
     mutationFn: (input: UpdateStatusInput) =>
       api<Comment>(`/reports/${reportId}/status`, {
         method: "POST",
-        body: JSON.stringify(input),
+        json: input,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["reports"] });

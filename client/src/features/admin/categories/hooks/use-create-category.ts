@@ -13,7 +13,7 @@ export function useCreateCategory() {
     mutationFn: (data: CreateCategoryInput) =>
       api<Category>("/categories", {
         method: "POST",
-        body: JSON.stringify(data),
+        json: data,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["categories"] });

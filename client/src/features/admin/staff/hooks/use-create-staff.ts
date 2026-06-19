@@ -16,7 +16,7 @@ export function useCreateStaff() {
     mutationFn: (data: CreateStaffInput) =>
       api<StaffListItem>("/admin/staff", {
         method: "POST",
-        body: JSON.stringify(data),
+        json: data,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["staff"] });

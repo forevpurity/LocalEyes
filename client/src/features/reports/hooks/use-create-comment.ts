@@ -10,7 +10,7 @@ export function useCreateComment(id: string) {
     mutationFn: (body: string) =>
       api<Comment>(`/reports/${id}/comments`, {
         method: "POST",
-        body: JSON.stringify({ body }),
+        json: { body },
       }),
     onSuccess: (comment) => {
       queryClient.setQueryData<ReportDetail>(key, (old) =>

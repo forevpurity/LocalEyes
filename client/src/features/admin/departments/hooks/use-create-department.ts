@@ -15,7 +15,7 @@ export function useCreateDepartment() {
     mutationFn: (data: CreateDepartmentInput) =>
       api<Department>("/departments", {
         method: "POST",
-        body: JSON.stringify(data),
+        json: data,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["departments"] });

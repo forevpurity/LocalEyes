@@ -58,7 +58,7 @@ export function ProfilePage() {
 
   const updateNameMutation = useMutation({
     mutationFn: (data: DisplayNameFormData) =>
-      api<User>("/auth/me", { method: "PATCH", body: JSON.stringify(data) }),
+      api<User>("/auth/me", { method: "PATCH", json: data }),
     onSuccess: (updated) => {
       setUser(updated);
       toast.success("Display name updated.");
@@ -80,7 +80,7 @@ export function ProfilePage() {
     mutationFn: ({ currentPassword, newPassword }: ChangePasswordFormData) =>
       api("/auth/password", {
         method: "PATCH",
-        body: JSON.stringify({ currentPassword, newPassword }),
+        json: { currentPassword, newPassword },
       }),
     onSuccess: () => {
       toast.success("Password changed successfully.");

@@ -14,7 +14,7 @@ export function useUpdateReport(id: string) {
     mutationFn: (body: UpdateReportBody) =>
       api<Report>(`/reports/${id}`, {
         method: "PATCH",
-        body: JSON.stringify(body),
+        json: body,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["reports"] });

@@ -39,7 +39,7 @@ export function ResetPasswordPage() {
     mutationFn: (data: Pick<ResetPasswordFormData, "newPassword">) =>
       api<User>("/auth/reset-password", {
         method: "POST",
-        body: JSON.stringify({ token, newPassword: data.newPassword }),
+        json: { token, newPassword: data.newPassword },
       }),
     onSuccess: (data) => {
       setUser(data);

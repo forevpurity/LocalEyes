@@ -40,7 +40,7 @@ export function LoginPage() {
     mutationFn: (data: LoginFormData) =>
       api<User>("/auth/login", {
         method: "POST",
-        body: JSON.stringify(data),
+        json: data,
       }),
     onSuccess: (data) => {
       if (redirectTo) {

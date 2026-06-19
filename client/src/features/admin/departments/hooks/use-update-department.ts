@@ -16,7 +16,7 @@ export function useUpdateDepartment() {
     mutationFn: ({ id, ...data }: UpdateDepartmentInput & { id: string }) =>
       api<Department>(`/departments/${id}`, {
         method: "PATCH",
-        body: JSON.stringify(data),
+        json: data,
       }),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["departments"] });

@@ -42,7 +42,7 @@ export function ForcePasswordChangePage() {
     mutationFn: ({ newPassword }: FormData) =>
       api("/auth/password", {
         method: "PATCH",
-        body: JSON.stringify({ newPassword }),
+        json: { newPassword },
       }),
     onSuccess: () => {
       if (user) setUser({ ...user, mustChangePassword: false });

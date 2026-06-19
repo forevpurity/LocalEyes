@@ -81,11 +81,15 @@ export async function fetchWithAuth(
   return res;
 }
 
-export async function api<T>(path: string, options?: RequestInit): Promise<T> {
+type ApiOptions = Omit<RequestInit, "body"> & { json?: unknown };
+
+export async function api<T>(path: string, options?: ApiOptions): Promise<T> {
   const url = path.startsWith("http") ? path : `${BASE}${path}`;
+  const { json, headers, ...rest } = options ?? {};
   const res = await fetchWithAuth(url, {
-    ...options,
-    headers: { "Content-Type": "application/json", ...options?.headers },
+    ...rest,
+    headers: { "Content-Type": "application/json", ...headers },
+    body: json !== undefined ? JSON.stringify(json) : undefined,
   });
 
   if (res.status === 204) {

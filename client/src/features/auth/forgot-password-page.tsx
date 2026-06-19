@@ -28,7 +28,7 @@ export function ForgotPasswordPage() {
     mutationFn: (data: ForgotPasswordFormData) =>
       api<{ message: string }>("/auth/forgot-password", {
         method: "POST",
-        body: JSON.stringify(data),
+        json: data,
       }),
     onSuccess: () => {
       setSubmitted(true);
