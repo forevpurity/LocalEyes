@@ -7,6 +7,9 @@ COPY package*.json ./
 RUN npm ci
 COPY tsconfig.json ./
 COPY src ./src
+# drizzle.config.ts is needed by `db:push` (drizzle-kit) when this stage is
+# reused as the compose `tools` service for one-off DB tasks (db:push / db:seed).
+COPY drizzle.config.ts ./
 RUN npm run build
 
 # --- Runtime stage: production deps + compiled output only ---

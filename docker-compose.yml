@@ -36,8 +36,9 @@ services:
       retries: 5
     ports:
       # Bound to the VPS's localhost only: NOT reachable from the internet.
-      # To run `npm run db:push` / `db:seed` or use pgAdmin from your laptop,
-      # open an SSH tunnel:  ssh -L 5432:127.0.0.1:5432 user@your-vps-ip
+      # For db:push / db:seed, prefer the `tools` service below (runs on the VPS,
+      # no tunnel). To use pgAdmin / psql from your laptop, open an SSH tunnel:
+      #   ssh -L 5432:127.0.0.1:5432 user@your-vps-ip
       - "127.0.0.1:5432:5432"
 
   server:
@@ -70,6 +71,26 @@ services:
     # No host port: Caddy reaches it over the internal network as client:80.
     expose:
       - "80"
+
+  # One-off DB admin tasks, run on the VPS without an SSH tunnel.
+  # Built from the server's `build` stage, which (unlike the lean runtime image)
+  # has the dev deps `db:push`/`db:seed` need — drizzle-kit, tsx — plus src/ and
+  # drizzle.config.ts. The `tools` profile keeps it out of `docker compose up`;
+  # it only runs when invoked explicitly:
+  #   docker compose run --rm tools npm run db:push
+  #   docker compose run --rm tools npm run db:seed
+  tools:
+    build:
+      context: ./server
+      target: build
+    profiles: ["tools"]
+    env_file: .env
+    environment:
+      # Same DB host as the server: `db` on the compose network.
+      DATABASE_URL: postgres://${POSTGRES_USER:-localeyes}:${POSTGRES_PASSWORD:-localeyes}@db:5432/${POSTGRES_DB:-localeyes}
+    depends_on:
+      db:
+        condition: service_healthy
 
 volumes:
   db-data:
