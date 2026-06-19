@@ -56,11 +56,15 @@ services:
       CORS_ORIGIN: ${CORS_ORIGIN}
       APP_URL: ${APP_URL}
       # Uploads: set STORAGE_DRIVER=r2 + R2_* in .env for a real deploy.
+      # With the default local driver, files are written to /app/uploads,
+      # persisted by the uploads-data volume below.
     depends_on:
       db:
         condition: service_healthy
     expose:
       - "3000"
+    volumes:
+      - uploads-data:/app/uploads
 
   client:
     build: ./client
@@ -75,3 +79,4 @@ volumes:
   db-data:
   caddy-data:
   caddy-config:
+  uploads-data:
