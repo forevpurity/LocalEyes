@@ -25,19 +25,21 @@ services:
     image: postgis/postgis:16-3.4
     restart: unless-stopped
     environment:
-      POSTGRES_USER: localeyes
-      POSTGRES_PASSWORD: localeyes
-      POSTGRES_DB: localeyes
+      POSTGRES_USER: ${POSTGRES_USER:-localeyes}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-localeyes}
+      POSTGRES_DB: ${POSTGRES_DB:-localeyes}
     volumes:
       - db-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U localeyes"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-localeyes}"]
       interval: 5s
       timeout: 5s
       retries: 5
     ports:
-      # Exposed so you can run `npm run db:push` / `db:seed` from the host once.
-      - "5432:5432"
+      # Bound to the VPS's localhost only: NOT reachable from the internet.
+      # To run `npm run db:push` / `db:seed` or use pgAdmin from your laptop,
+      # open an SSH tunnel:  ssh -L 5432:127.0.0.1:5432 user@your-vps-ip
+      - "127.0.0.1:5432:5432"
 
   server:
     build: ./server
@@ -47,7 +49,7 @@ services:
       PORT: 3000
       # Two proxies in front of the server: Caddy -> Nginx -> here.
       TRUST_PROXY_HOPS: 2
-      DATABASE_URL: postgres://localeyes:localeyes@db:5432/localeyes
+      DATABASE_URL: postgres://${POSTGRES_USER:-localeyes}:${POSTGRES_PASSWORD:-localeyes}@db:5432/${POSTGRES_DB:-localeyes}
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
       # Same-origin via Caddy + the client's Nginx proxy, so this is the public URL.
