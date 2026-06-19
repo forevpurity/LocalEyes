@@ -19,6 +19,7 @@ import {
   errorResponseSchema,
 } from "../../common/errors.js";
 import { optionalAuthenticate } from "../../common/auth.js";
+import { staffDepartmentFilter } from "./enforce-staff-scope.js";
 import { reportCoreColumns, shapeReportCore } from "./report-projection.js";
 import type { ReportCoreRow } from "./report-projection.js";
 import { reportCoreFields } from "./schemas.js";
@@ -93,7 +94,6 @@ export function listReports(router: Router) {
     const actor = req.actor ?? null;
     const query = parseAndValidate(listReportsQuerySchema, req.query);
 
-    const isStaff = actor?.role === "staff";
     const isAdmin = actor?.role === "admin";
     const isGuestOrCitizen = !actor || actor.role === "citizen";
     const hasBbox =
@@ -127,16 +127,12 @@ export function listReports(router: Router) {
       );
     }
 
-    let staffDepartmentId: string | null = null;
-    if (isStaff) {
-      const staffUser = await db.query.users.findFirst({
-        where: eq(users.id, actor!.id),
-        columns: { departmentId: true },
-      });
-      staffDepartmentId = staffUser?.departmentId ?? null;
-    }
-
     const conditions = [];
+
+    if (actor) {
+      const staffFilter = await staffDepartmentFilter(actor);
+      if (staffFilter) conditions.push(staffFilter);
+    }
 
     if (!query.mine && isGuestOrCitizen) {
       if (query.subscribed && actor?.role === "citizen") {
@@ -181,10 +177,6 @@ export function listReports(router: Router) {
       conditions.push(
         sql`EXISTS(SELECT 1 FROM ${subscriptions} WHERE ${subscriptions.reportId} = ${reports.id} AND ${subscriptions.citizenId} = ${actor.id})`,
       );
-    }
-
-    if (isStaff && staffDepartmentId) {
-      conditions.push(eq(reports.departmentId, staffDepartmentId));
     }
 
     if (isAdmin && query.departmentId) {
