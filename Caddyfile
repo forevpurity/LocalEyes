@@ -1,0 +1,18 @@
+# Caddy is the public front door: it terminates TLS and reverse-proxies
+# everything to the client container (which serves static files and proxies
+# /api, /uploads, /socket.io on to the server).
+#
+# Caddy automatically obtains and renews a Let's Encrypt certificate for $DOMAIN
+# and sets X-Forwarded-Proto/-For so the chain stays correct end-to-end.
+#
+# Local testing: set DOMAIN=localhost (Caddy serves https://localhost with its
+# own local CA). Production: set DOMAIN to your real hostname and ACME_EMAIL to
+# a real address, with DNS pointing at this box.
+
+{
+	email {$ACME_EMAIL}
+}
+
+{$DOMAIN} {
+	reverse_proxy client:80
+}

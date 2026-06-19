@@ -29,12 +29,13 @@ validateEnv();
 const app = express();
 const PORT = process.env.PORT ?? 3000;
 
-// Behind a TLS-terminating proxy (Nginx, Render, Railway, an ALB, Cloudflare),
-// trust the X-Forwarded-* headers so req.secure is correct (required for the
-// `secure` auth cookies to be set) and rate limiting keys off the real client
-// IP rather than the proxy's. `1` = one proxy hop in front of us.
+// Behind TLS-terminating proxies (Caddy, Nginx, an ALB, Cloudflare), trust the
+// X-Forwarded-* headers so req.secure is correct (required for the `secure` auth
+// cookies to be set) and rate limiting keys off the real client IP rather than a
+// proxy's. TRUST_PROXY_HOPS = the number of proxies in front of us (1 for a
+// single proxy; 2 for the Caddy -> Nginx -> server chain in docker-compose).
 if (process.env.NODE_ENV === "production") {
-  app.set("trust proxy", 1);
+  app.set("trust proxy", Number(process.env.TRUST_PROXY_HOPS ?? 1));
 }
 
 app.use(cors(corsOptions));
