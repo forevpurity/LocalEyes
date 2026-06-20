@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Link, NavLink } from "react-router";
+import { Link, NavLink, useLocation, useNavigate } from "react-router";
 import { LogOut, Menu, User, X } from "lucide-react";
 import { Avatar } from "@/components/avatar";
 import { CivicShield } from "@/components/civic-shield";
@@ -19,6 +19,8 @@ const mobileLinkClass = ({ isActive }: { isActive: boolean }) =>
 
 export function Navbar() {
   const { user, logout } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
   const isAuthenticated = !!user;
   const isAdmin = user?.role === "admin";
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -40,6 +42,25 @@ export function Navbar() {
   if (isAdmin) return null;
 
   const closeMobile = () => setMobileOpen(false);
+
+  const scrollToHowItWorks = () => {
+    const section = document.getElementById("how-it-works");
+
+    if (section) {
+      section.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
+  const handleHowItWorksClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+
+    if (location.pathname === "/") {
+      scrollToHowItWorks();
+      return;
+    }
+
+    navigate("/#how-it-works");
+  };
 
   return (
     <header className="bg-surface border-b border-outline-variant shadow-sm docked full-width top-0 sticky z-50 transition-all duration-300">
@@ -69,6 +90,7 @@ export function Navbar() {
               <a
                 className="font-label-md text-label-md text-on-surface-variant font-medium hover:text-primary transition-colors duration-200"
                 href="#how-it-works"
+                onClick={handleHowItWorksClick}
               >
                 How it Works
               </a>
@@ -197,7 +219,10 @@ export function Navbar() {
               <a
                 href="#how-it-works"
                 className="rounded-lg px-3 py-2 font-label-md text-label-md font-medium text-on-surface-variant hover:bg-muted hover:text-primary transition-colors"
-                onClick={closeMobile}
+                onClick={(e) => {
+                  closeMobile();
+                  handleHowItWorksClick(e);
+                }}
               >
                 How it Works
               </a>
