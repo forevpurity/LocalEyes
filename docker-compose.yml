@@ -59,6 +59,21 @@ services:
         condition: service_healthy
     expose:
       - "3000"
+    healthcheck:
+      # /api/health returns 503 when the DB is unreachable, so this gates on a
+      # genuinely working server, not just an open port. node 22 has global fetch,
+      # so no curl/wget is needed in the image. `docker compose up --wait` (used by
+      # the deploy workflow) blocks on this and fails the deploy if it never passes.
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      # Grace period for first boot (build/migrate/connect) before failures count.
+      start_period: 20s
     volumes:
       # Persists local-driver uploads across rebuilds. Unused when STORAGE_DRIVER=r2.
       - uploads-data:/app/uploads

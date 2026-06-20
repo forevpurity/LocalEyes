@@ -1,0 +1,92 @@
+name: CI & Deploy
+
+# Push to main runs CI (mirrors the Docker builds); only if it's green does the
+# deploy job SSH into the VPS and rebuild the stack in place. The manual button
+# (Run workflow) reuses the same path for re-deploys / rollbacks.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+# One deploy at a time. A second push waits for the first to finish rather than
+# racing it onto the box (we don't cancel an in-flight deploy mid-rebuild).
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  # Gate: typecheck / lint / bundle the app code with the same npm scripts the
+  # Dockerfiles run, so TS / lint / bundle breakage is caught before we touch the
+  # box. This does NOT build the Docker images or parse nginx / Caddy / compose
+  # config — those are validated by the deploy job's `docker compose up --build
+  # --wait`, which fails red on a broken image, bad compose file, or a container
+  # that won't come up healthy.
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22 # matches `engines.node >=22` and node:22-alpine
+          cache: npm
+          cache-dependency-path: |
+            client/package-lock.json
+            server/package-lock.json
+
+      - name: server — typecheck/build
+        working-directory: server
+        run: |
+          npm ci
+          npm run build
+
+      - name: client — lint + build
+        working-directory: client
+        run: |
+          npm ci
+          npm run lint
+          npm run build
+
+  # Deploy: raw ssh into the VPS, check out the exact commit CI just approved,
+  # rebuild in place, and block until the new stack reports healthy.
+  # Code-only — no db:push/db:seed (schema changes are a manual step on the box).
+  deploy:
+    needs: ci
+    runs-on: ubuntu-latest
+    # Belt-and-suspenders: only ever deploy from main, even via manual dispatch.
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: ssh → checkout this SHA → docker compose up --build --wait
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+          GIT_SHA: ${{ github.sha }}
+        run: |
+          # Write the deploy key and the pre-trusted VPS host key. umask 077 so
+          # ssh accepts the private key (it refuses group/world-readable keys).
+          umask 077
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+
+          # The remote command is one double-quoted string: the local shell expands
+          # only $GIT_SHA (a safe hex commit) into it; everything else runs on the
+          # VPS. IdentitiesOnly uses just this key; set -e aborts on any failure.
+          #
+          # We fetch & check out the exact commit that passed CI rather than `git
+          # pull`, so a newer, ungated push to main can't ride out on this deploy.
+          # That leaves the box in detached HEAD — fine, it's deploy-only.
+          #
+          # --wait blocks until the server healthcheck (/api/health, which also
+          # checks the DB) passes; --wait-timeout fails the deploy red if the new
+          # containers crash-loop or never become healthy instead of hanging.
+          ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes "$SSH_USER@$SSH_HOST" "
+            set -e
+            cd /root/localeyes
+            git fetch --depth 1 origin '$GIT_SHA'
+            git checkout --force --detach '$GIT_SHA'
+            docker compose up -d --build --wait --wait-timeout 120
+            docker image prune -f
+          "
