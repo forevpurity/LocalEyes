@@ -10,11 +10,21 @@ import {
   errorResponseSchema,
 } from "../../common/errors.js";
 import { authenticate } from "../../common/auth.js";
+import { parseAndValidate } from "../../common/validate.js";
 import { requireCanWithdrawReport } from "./lib/report-rules.js";
 import { getReportForActor } from "./lib/report-projection.js";
 import { reportCoreResponse } from "./lib/schemas.js";
 import { emitNotifications } from "../notifications/notify.js";
 import { createReportEventNotifications } from "./lib/report-notifications.js";
+
+const withdrawBodySchema = z
+  .object({
+    body: z
+      .string()
+      .min(1, "Withdrawal note is required")
+      .max(2000, "Note must be at most 2000 characters"),
+  })
+  .meta({ id: "WithdrawReportRequest" });
 
 export const withdrawReportDoc = {
   summary: "Withdraw a report",
@@ -22,6 +32,12 @@ export const withdrawReportDoc = {
   operationId: "withdrawReport",
   requestParams: {
     path: z.object({ id: z.uuid().meta({ description: "Report Id" }) }),
+  },
+  requestBody: {
+    required: true,
+    content: {
+      "application/json": { schema: withdrawBodySchema },
+    },
   },
   responses: {
     200: {
@@ -38,6 +54,12 @@ export const withdrawReportDoc = {
     },
     404: {
       description: "Report not found",
+      content: {
+        "application/json": { schema: errorResponseSchema },
+      },
+    },
+    400: {
+      description: "Validation failed (missing or invalid withdrawal note)",
       content: {
         "application/json": { schema: errorResponseSchema },
       },
@@ -59,6 +81,8 @@ export function withdrawReport(router: Router) {
     async (req, res) => {
       const actor = req.actor!;
       const { id } = req.params;
+
+      const data = parseAndValidate(withdrawBodySchema, req.body);
 
       const row = await db
         .select({
@@ -96,7 +120,7 @@ export function withdrawReport(router: Router) {
         await tx.insert(comments).values({
           reportId: id,
           authorId: actor.id,
-          body: "Report withdrawn by citizen",
+          body: data.body,
           type: "status_note",
           newStatus: "withdrawn",
         });

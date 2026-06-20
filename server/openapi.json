@@ -1637,6 +1637,16 @@
             "description": "Report Id"
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WithdrawReportRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Report withdrawn",
@@ -1644,6 +1654,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ReportResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed (missing or invalid withdrawal note)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -3629,6 +3649,19 @@
         },
         "required": [
           "newStatus",
+          "body"
+        ]
+      },
+      "WithdrawReportRequest": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          }
+        },
+        "required": [
           "body"
         ]
       },

@@ -17,7 +17,6 @@ import { Navbar } from "@/features/layout/components/navbar";
 import { useReport } from "@/features/reports/hooks/use-report";
 import { useToggleVote } from "@/features/reports/hooks/use-toggle-vote";
 import { useToggleSubscribe } from "@/features/reports/hooks/use-toggle-subscribe";
-import { useWithdrawReport } from "@/features/reports/hooks/use-withdraw-report";
 import { useRemoveReportPhoto } from "@/features/reports/hooks/use-remove-report-photo";
 import { useAuth } from "@/features/auth/use-auth";
 import { getCategoryIcon } from "@/features/reports/lib/category-icons";
@@ -30,6 +29,7 @@ import { ReportPhotoGallery } from "@/features/reports/components/detail/report-
 import { ResolutionPhotoUpload } from "@/features/reports/components/detail/resolution-photo-upload";
 import { ReportEditForm } from "@/features/reports/components/detail/report-edit-form";
 import { StatusChangeModal } from "@/features/reports/components/detail/status-change-modal";
+import { WithdrawReportModal } from "@/features/reports/components/detail/withdraw-report-modal";
 import { ReportFlagBadges } from "@/features/reports/components/report-flag-badges";
 import {
   canModerate,
@@ -90,10 +90,10 @@ export function ReportDetailPage() {
   const { user } = useAuth();
   const toggleVote = useToggleVote(id ?? "");
   const toggleSubscribe = useToggleSubscribe(id ?? "");
-  const withdrawReport = useWithdrawReport(id ?? "");
   const removePhoto = useRemoveReportPhoto(id ?? "");
   const [isEditing, setIsEditing] = useState(false);
   const [changingStatus, setChangingStatus] = useState(false);
+  const [withdrawing, setWithdrawing] = useState(false);
   const isStaff = user?.role === "staff";
   const isAdmin = user?.role === "admin";
   const usesManagedChrome = isStaff || isAdmin;
@@ -155,15 +155,7 @@ export function ReportDetailPage() {
   const isCitizen = user?.role === "citizen";
   const canMod = canModerate(report, user);
 
-  const handleWithdraw = () => {
-    if (withdrawReport.isPending) return;
-    if (!window.confirm("Withdraw this report? This cannot be undone.")) return;
-    withdrawReport.mutate(undefined, {
-      onSuccess: () => toast.success("Report withdrawn."),
-      onError: () =>
-        toast.error("Couldn't withdraw the report. Please try again."),
-    });
-  };
+  const handleWithdraw = () => setWithdrawing(true);
 
   return (
     <>
@@ -332,11 +324,10 @@ export function ReportDetailPage() {
                       </button>
                       <button
                         onClick={handleWithdraw}
-                        disabled={withdrawReport.isPending}
-                        className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-lg px-3 text-sm font-semibold text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none sm:justify-start"
+                        className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-lg px-3 text-sm font-semibold text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive sm:flex-none sm:justify-start"
                       >
                         <XCircle className="h-4 w-4" />
-                        {withdrawReport.isPending ? "Withdrawing…" : "Withdraw"}
+                        Withdraw
                       </button>
                     </div>
                   )}
@@ -391,6 +382,13 @@ export function ReportDetailPage() {
         <StatusChangeModal
           report={report}
           onClose={() => setChangingStatus(false)}
+        />
+      )}
+
+      {withdrawing && (
+        <WithdrawReportModal
+          reportId={report.id}
+          onClose={() => setWithdrawing(false)}
         />
       )}
     </>
