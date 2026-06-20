@@ -5,7 +5,7 @@ export function AuthHeader() {
   return (
     <header className="bg-surface shadow-sm fixed top-0 left-0 w-full z-50 flex justify-between items-center h-16 px-6 mx-auto">
       <div className="flex items-center gap-3">
-        <LocalEyesMark className="w-8 h-8" />
+        <LocalEyesMark className="w-8 h-8 text-primary" />
         <Link
           to="/"
           className="text-headline-sm font-headline-sm font-bold text-primary"
