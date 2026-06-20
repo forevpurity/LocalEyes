@@ -1,5 +1,5 @@
 import { useAuth } from "@/features/auth/use-auth";
-import { CivicShield } from "@/components/civic-shield";
+import { LocalEyesMark } from "@/components/localeyes-mark";
 import { ForcePasswordChangePage } from "@/features/auth/force-password-change-page";
 import { PublicRoutes } from "./public-routes";
 import { CitizenRoutes } from "./citizen-routes";
@@ -12,7 +12,7 @@ export function AppRoutes() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <CivicShield className="w-12 h-12 animate-pulse" />
+        <LocalEyesMark className="w-12 h-12 animate-pulse" />
       </div>
     );
   }

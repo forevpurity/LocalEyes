@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router";
 import { LogOut, Menu, User, X } from "lucide-react";
 import { Avatar } from "@/components/avatar";
-import { CivicShield } from "@/components/civic-shield";
+import { LocalEyesMark } from "@/components/localeyes-mark";
 import { useAuth } from "@/features/auth/use-auth";
 import { NotificationBell } from "@/features/notifications/notification-bell";
 import { ThemeToggle } from "@/features/theme/theme-toggle";
@@ -30,7 +30,10 @@ export function Navbar() {
   useEffect(() => {
     if (!userMenuOpen) return;
     function handleOutsideClick(e: MouseEvent) {
-      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+      if (
+        userMenuRef.current &&
+        !userMenuRef.current.contains(e.target as Node)
+      ) {
         setUserMenuOpen(false);
       }
     }
@@ -70,7 +73,7 @@ export function Navbar() {
           to="/"
           className="font-headline-md text-headline-md font-bold text-primary flex items-center gap-2"
         >
-          <CivicShield className="w-8 h-8" />
+          <LocalEyesMark className="w-8 h-8" />
           LocalEyes
         </Link>
 
@@ -115,7 +118,12 @@ export function Navbar() {
                   aria-haspopup="true"
                   aria-expanded={userMenuOpen}
                 >
-                  <Avatar src={user.avatarUrl} name={user.displayName} size="sm" className="select-none" />
+                  <Avatar
+                    src={user.avatarUrl}
+                    name={user.displayName}
+                    size="sm"
+                    className="select-none"
+                  />
                   <span className="text-sm text-on-surface-variant max-w-[120px] truncate">
                     {user.displayName}
                   </span>
@@ -132,7 +140,10 @@ export function Navbar() {
                     </Link>
                     <div className="my-1 h-px bg-outline-variant" />
                     <button
-                      onClick={() => { setUserMenuOpen(false); logout(); }}
+                      onClick={() => {
+                        setUserMenuOpen(false);
+                        logout();
+                      }}
                       className="flex w-full items-center gap-2 px-3 py-2 text-sm text-on-surface hover:bg-muted hover:text-destructive transition-colors"
                     >
                       <LogOut className="h-4 w-4" />
@@ -180,7 +191,11 @@ export function Navbar() {
         <nav className="flex flex-col gap-1 border-t border-outline-variant px-4 py-3 md:hidden">
           {isAuthenticated ? (
             <>
-              <NavLink to="/map" className={mobileLinkClass} onClick={closeMobile}>
+              <NavLink
+                to="/map"
+                className={mobileLinkClass}
+                onClick={closeMobile}
+              >
                 Map
               </NavLink>
               <NavLink
@@ -226,7 +241,11 @@ export function Navbar() {
               >
                 How it Works
               </a>
-              <NavLink to="/map" className={mobileLinkClass} onClick={closeMobile}>
+              <NavLink
+                to="/map"
+                className={mobileLinkClass}
+                onClick={closeMobile}
+              >
                 Explore Map
               </NavLink>
               <div className="my-1 h-px bg-outline-variant" />

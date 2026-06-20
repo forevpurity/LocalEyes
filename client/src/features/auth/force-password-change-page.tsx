@@ -6,7 +6,7 @@ import { KeyRound } from "lucide-react";
 import { toast } from "sonner";
 import { api, ApiRequestError } from "@/lib/api";
 import { useAuth } from "@/features/auth/use-auth";
-import { CivicShield } from "@/components/civic-shield";
+import { LocalEyesMark } from "@/components/localeyes-mark";
 
 const schema = z
   .object({
@@ -69,7 +69,7 @@ export function ForcePasswordChangePage() {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="w-full max-w-sm">
         <div className="mb-8 flex flex-col items-center gap-3 text-center">
-          <CivicShield className="h-10 w-10" />
+          <LocalEyesMark className="h-10 w-10" />
           <div>
             <h1 className="text-headline-sm font-semibold text-foreground">
               Set your password
