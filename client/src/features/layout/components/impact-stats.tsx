@@ -17,6 +17,9 @@ export function ImpactStats() {
             <span className="font-label-md text-label-md text-primary-foreground/80 uppercase tracking-wider">Neighborhoods Covered</span>
           </div>
         </div>
+        <p className="mt-8 text-center font-label-sm text-label-sm text-primary-foreground/70">
+          Illustrative figures shown for demonstration purposes.
+        </p>
       </div>
     </section>
   );
