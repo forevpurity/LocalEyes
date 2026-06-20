@@ -55,7 +55,7 @@ function ReportMarker({
         click: () => onClick(report),
       }}
     >
-      <Popup className="report-popup" closeButton={false}>
+      <Popup className="report-popup" closeButton={false} autoPan={false}>
         <ReportCard report={report} />
       </Popup>
     </Marker>
