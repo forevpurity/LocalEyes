@@ -1,23 +1,11 @@
 import { useEffect, useRef, useCallback } from "react";
 import { MapContainer, Marker, Popup, useMap } from "react-leaflet";
-import { useNavigate } from "react-router";
 import L from "leaflet";
-import {
-  Search,
-  Plus,
-  Minus,
-  Crosshair,
-  ArrowRight,
-  ThumbsUp,
-} from "lucide-react";
+import { Search, Plus, Minus, Crosshair } from "lucide-react";
 import { useState } from "react";
 import type { Report } from "@/types/api";
-import { getRelativeTime } from "@/lib/utils";
-import { getCategoryIcon } from "@/features/reports/lib/category-icons";
-import {
-  STATUS_COLORS,
-  getStatusStyle,
-} from "@/features/reports/lib/status-styles";
+import { ReportCard } from "@/features/reports/components/report-card";
+import { STATUS_COLORS } from "@/features/reports/lib/status-styles";
 import { HCM_CENTER, HCM_BOUNDS, DEFAULT_ZOOM } from "@/lib/map-constants";
 import { ThemedTileLayer } from "@/lib/themed-tile-layer";
 import type { ViewportChange } from "@/features/reports/hooks/use-map-reports";
@@ -53,13 +41,10 @@ function ReportMarker({
   isHighlighted: boolean;
   onClick: (report: Report) => void;
 }) {
-  const navigate = useNavigate();
   const markerRef = useRef<L.Marker>(null);
   const color = STATUS_COLORS[report.status] ?? "#6b7280";
   const icon = createMarkerIcon(color, isHighlighted);
   const position: [number, number] = [report.latitude, report.longitude];
-  const statusStyle = getStatusStyle(report.status);
-  const photo = report.photos?.[0]?.url;
 
   return (
     <Marker
@@ -70,58 +55,8 @@ function ReportMarker({
         click: () => onClick(report),
       }}
     >
-      <Popup className="report-popup">
-        <div className="flex gap-2.5">
-          {photo && (
-            <img
-              src={photo}
-              alt=""
-              className="mt-0.5 h-15 w-18 shrink-0 rounded-md border border-border object-cover"
-            />
-          )}
-          <div className="min-w-0 flex-1">
-            <div className="mb-1.5 flex items-start justify-between gap-1">
-              <span
-                className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase leading-none tracking-wide ${statusStyle.bg} ${statusStyle.text}`}
-              >
-                {statusStyle.label}
-              </span>
-              <div className="flex shrink-0 items-center gap-0.5 text-muted-foreground">
-                <ThumbsUp className="h-3 w-3" />
-                <span className="text-[11px] font-medium">
-                  {report.voteCount}
-                </span>
-              </div>
-            </div>
-            <div className="mb-0.5 flex items-center gap-1">
-              <span className="text-[13px]" aria-hidden="true">
-                {getCategoryIcon({
-                  id: report.categoryId,
-                  name: report.categoryName,
-                })}
-              </span>
-              <h3 className="truncate text-xs font-semibold text-primary">
-                {report.title}
-              </h3>
-            </div>
-            {report.address && (
-              <p className="mb-1.5 truncate text-[11px] text-muted-foreground">
-                📍 {report.address}
-              </p>
-            )}
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] text-muted-foreground/70">
-                {getRelativeTime(report.createdAt)}
-              </span>
-              <button
-                onClick={() => navigate(`/reports/${report.id}`)}
-                className="flex items-center gap-0.5 text-[11px] font-medium text-primary hover:underline"
-              >
-                View details <ArrowRight className="h-3 w-3" />
-              </button>
-            </div>
-          </div>
-        </div>
+      <Popup className="report-popup" closeButton={false}>
+        <ReportCard report={report} />
       </Popup>
     </Marker>
   );
@@ -301,11 +236,11 @@ function MapStyleInjector() {
       }
       .leaflet-control-zoom { display: none !important; }
       .leaflet-popup-content-wrapper { border-radius: 10px !important; padding: 0 !important; }
-      .leaflet-popup-content { margin: 10px !important; width: auto !important; min-width: 240px !important; max-width: 280px !important; }
       .leaflet-popup-tip { box-shadow: none !important; }
-      .report-popup .leaflet-popup-content-wrapper { box-shadow: 0 4px 20px rgba(0,0,0,0.12) !important; border: 1px solid hsl(var(--border)) !important; }
-      .report-popup .leaflet-popup-content { margin: 12px !important; }
-      .report-popup .leaflet-popup-tip { background: hsl(var(--surface)) !important; border: 1px solid hsl(var(--border)) !important; border-top: none !important; border-left: none !important; }
+      .report-popup .leaflet-popup-content-wrapper { background: transparent !important; box-shadow: none !important; border: none !important; }
+      .report-popup .leaflet-popup-content { margin: 0 !important; width: 348px !important; }
+      .report-popup .leaflet-popup-content p { margin: 0 !important; }
+      .report-popup .leaflet-popup-tip { background: hsl(var(--card)) !important; box-shadow: 0 4px 20px rgba(0,0,0,0.12) !important; }
     `;
     document.head.appendChild(style);
   }, []);
