@@ -17,7 +17,7 @@ export function HowItWorks() {
         <div className="grid sm:grid-cols-3 gap-10">
           {/* Step 1 */}
           <div className="flex flex-col items-center text-center gap-6 p-10 bg-surface rounded-2xl shadow-sm border border-outline-variant/40 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
-            <div className="w-16 h-16 rounded-full bg-primary-fixed flex items-center justify-center text-primary mb-2 shadow-inner">
+            <div className="w-16 h-16 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary-fixed-variant mb-2 shadow-inner">
               <span
                 className="material-symbols-outlined"
                 style={{
@@ -39,7 +39,7 @@ export function HowItWorks() {
 
           {/* Step 2 */}
           <div className="flex flex-col items-center text-center gap-6 p-10 bg-surface rounded-2xl shadow-sm border border-outline-variant/40 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
-            <div className="w-16 h-16 rounded-full bg-surface-container-high flex items-center justify-center text-primary mb-2 shadow-inner">
+            <div className="w-16 h-16 rounded-full bg-tertiary-fixed flex items-center justify-center text-on-tertiary-fixed-variant mb-2 shadow-inner">
               <span
                 className="material-symbols-outlined"
                 style={{
@@ -61,7 +61,7 @@ export function HowItWorks() {
 
           {/* Step 3 */}
           <div className="flex flex-col items-center text-center gap-6 p-10 bg-surface rounded-2xl shadow-sm border border-outline-variant/40 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
-            <div className="w-16 h-16 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container mb-2 shadow-inner">
+            <div className="w-16 h-16 rounded-full bg-secondary-fixed flex items-center justify-center text-on-secondary-fixed-variant mb-2 shadow-inner">
               <span
                 className="material-symbols-outlined"
                 style={{

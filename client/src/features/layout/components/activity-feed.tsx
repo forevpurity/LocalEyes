@@ -23,8 +23,8 @@ export function ActivityFeed() {
             <h2 className="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface flex items-center gap-3">
               Live Activity Feed
               <span className="relative flex h-3 w-3 mt-1">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-error opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-error"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-70 dark:bg-red-500"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.45)] dark:bg-red-400 dark:shadow-[0_0_12px_rgba(248,113,113,0.4)]"></span>
               </span>
             </h2>
             <p className="font-body-md text-body-md text-on-surface-variant">
