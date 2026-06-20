@@ -173,6 +173,7 @@ export function LoginPage() {
                     className={`block w-full pl-16 pr-3 py-3 border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary bg-surface-bright text-on-surface text-body-md font-body-md transition-all outline-none placeholder-on-surface-variant/50 ${errors.email ? "border-error" : "border-outline-variant"}`}
                     id="email"
                     type="email"
+                    autoComplete="username"
                     placeholder="citizen@hcmc.gov.vn"
                     {...register("email")}
                   />
