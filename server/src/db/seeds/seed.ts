@@ -1,62 +1,36 @@
 import "dotenv/config";
-import { hashSync } from "bcryptjs";
-import { eq } from "drizzle-orm";
-import { db } from "../client.js";
-import { users, type UserRole } from "../schema/users.js";
-import { categories } from "../schema/categories.js";
-import { users as seedUsers } from "./users.js";
-import { categories as seedCategories } from "./categories.js";
+import { sql } from "drizzle-orm";
+import { db, pool } from "../client.js";
+import { runSeedChecks } from "./checks.js";
+import { seedCategoryRows, seedDepartments } from "./departments.js";
+import { createRng } from "./lib/rng.js";
+import { seedPhotos } from "./photos.js";
+import { seedReports } from "./reports.js";
+import { seedUsers, SHARED_PASSWORD } from "./users.js";
 
-interface SeedUser {
-  email: string;
-  password: string;
-  displayName: string;
-  role?: UserRole;
+if (process.env.NODE_ENV === "production" && process.env.SEED_RESET !== "true") {
+  throw new Error("Refusing to run destructive demo seed in production. Set SEED_RESET=true to explicitly allow it.");
 }
 
-let created = 0;
-let updated = 0;
+const now = new Date();
+const rng = createRng(0x4c4f4341);
 
-for (const record of seedUsers as SeedUser[]) {
-  const passwordHash = hashSync(record.password, 12);
-  const role = record.role ?? "citizen";
-  const displayName = record.displayName ?? record.email;
+try {
+  console.log("Resetting demo data...");
+  await db.execute(sql`TRUNCATE TABLE categories, departments, users, reports RESTART IDENTITY CASCADE`);
 
-  const existing = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(eq(users.email, record.email))
-    .limit(1);
+  const categoryRows = await seedCategoryRows();
+  const departmentRows = await seedDepartments(categoryRows);
+  // Routing uses the module-level connection, so geography must be committed before reports.
+  const userRows = await seedUsers(departmentRows, now);
+  const reportRows = await seedReports({ now, rng, departments: departmentRows, categoryRows, userRows });
+  const photoCount = await seedPhotos(reportRows);
+  await runSeedChecks({ now, reports: reportRows, departments: departmentRows, users: userRows });
 
-  if (existing.length > 0) {
-    await db
-      .update(users)
-      .set({ passwordHash, displayName, role })
-      .where(eq(users.email, record.email));
-    updated++;
-  } else {
-    await db
-      .insert(users)
-      .values({ email: record.email, passwordHash, displayName, role });
-    created++;
-  }
+  console.log(`Seeded ${categoryRows.length} categories, ${departmentRows.length} departments, ${userRows.length} users, ${reportRows.length} reports, and ${photoCount} report photos.`);
+  console.log(`Hero accounts: admin@localeyes.vn, staff.d1@localeyes.vn, citizen1@localeyes.vn`);
+  console.log(`Shared password: ${SHARED_PASSWORD}`);
+  console.log("Seed self-checks passed.");
+} finally {
+  await pool.end();
 }
-
-console.log(`Users: ${created} created, ${updated} updated`);
-
-let catCreated = 0;
-for (const cat of seedCategories) {
-  const existing = await db
-    .select({ id: categories.id })
-    .from(categories)
-    .where(eq(categories.name, cat.name))
-    .limit(1);
-
-  if (existing.length === 0) {
-    await db.insert(categories).values(cat);
-    catCreated++;
-  }
-}
-console.log(`Categories: ${catCreated} created`);
-
-process.exit(0);
