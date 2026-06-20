@@ -243,6 +243,13 @@ export function ReportDetailPage() {
                   />
                 </div>
 
+                {!report.departmentName && report.isOwner && (
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Outside current department coverage — an admin will route it
+                    shortly. No action needed.
+                  </p>
+                )}
+
                 <div className="mt-4 flex flex-col gap-3 border-t border-border pt-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
                   <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
                     <button
