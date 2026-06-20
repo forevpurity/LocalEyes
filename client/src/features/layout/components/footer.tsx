@@ -18,40 +18,34 @@ export function Footer() {
             LocalEyes
           </Link>
           <p className="font-body-sm text-body-sm text-on-surface-variant max-w-sm">
-            &copy; 2024 LocalEyes Ho Chi Minh City. Dedicated to transparent civic progress.
+            &copy; {new Date().getFullYear()} LocalEyes Ho Chi Minh City. Dedicated to transparent civic progress.
           </p>
         </div>
         <nav className="flex flex-wrap justify-center md:justify-end gap-6 md:gap-10 mt-6 md:mt-0">
-          <a
+          <Link
             className="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors duration-200"
-            href="#"
+            to="/map"
           >
-            About Us
-          </a>
-          <a
+            Live Map
+          </Link>
+          <Link
             className="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors duration-200"
-            href="#"
+            to="/reports/new"
           >
-            Terms of Service
-          </a>
-          <a
+            Report an Issue
+          </Link>
+          <Link
             className="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors duration-200"
-            href="#"
+            to="/login"
           >
-            Privacy Policy
-          </a>
-          <a
+            Sign In
+          </Link>
+          <Link
             className="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors duration-200"
-            href="#"
+            to="/register"
           >
-            Contact Support
-          </a>
-          <a
-            className="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors duration-200"
-            href="#"
-          >
-            City Council Portal
-          </a>
+            Create Account
+          </Link>
         </nav>
       </div>
     </footer>
