@@ -3,6 +3,7 @@
 > A civic issue-reporting platform for Ho Chi Minh City — citizens pin problems on a map, the responsible city department resolves them, and admins manage the whole operation.
 
 <p>
+  <a href="https://github.com/forevpurity/LocalEyes/actions/workflows/deploy.yml"><img alt="CI &amp; Deploy" src="https://github.com/forevpurity/LocalEyes/actions/workflows/deploy.yml/badge.svg?branch=main"></a>
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white">
   <img alt="React 19" src="https://img.shields.io/badge/React_19-20232A?logo=react&logoColor=61DAFB">
   <img alt="Express 5" src="https://img.shields.io/badge/Express_5-000000?logo=express&logoColor=white">
@@ -21,31 +22,41 @@ moderation, and analytics from a dedicated panel.
 Built as an end-to-end product: geospatial routing, real-time notifications, role-based
 access, image uploads, moderation tooling, and CSV/GeoJSON data export.
 
-<!-- Live demo: add the URL here once deployed, e.g. **[Live demo →](https://localeyes.vn)** -->
+**[Live demo →](https://localeyes.click)** — running on the demo seed. Sign in with any of the [demo logins](#demo-logins). It's a shared sandbox, so anything you create may be wiped when the demo data is re-seeded.
 
 ## Screenshots
 
-<!--
-📸 Capture checklist — drop the PNGs in docs/screenshots/ and uncomment the block below.
-Seed first (see Quickstart) so screens have realistic data.
-  1. public-map.png     — public report map, centred on HCM City, with clustered pins
-  2. report-detail.png  — a report's detail + comment/status timeline
-  3. staff-queue.png    — staff view of their department's report queue
-  4. admin-analytics.png— admin dashboard (counts by status/category, trends)
-
 <table>
   <tr>
-    <td><img src="docs/screenshots/public-map.png" alt="Public report map"></td>
-    <td><img src="docs/screenshots/report-detail.png" alt="Report detail and timeline"></td>
+    <td width="50%"><img src="docs/screenshots/public-map.png" alt="Public report map centred on Ho Chi Minh City with clustered status pins"></td>
+    <td width="50%"><img src="docs/screenshots/report-detail.png" alt="Report detail with photos and a status timeline"></td>
   </tr>
   <tr>
-    <td><img src="docs/screenshots/staff-queue.png" alt="Staff department queue"></td>
-    <td><img src="docs/screenshots/admin-analytics.png" alt="Admin analytics dashboard"></td>
+    <td><img src="docs/screenshots/staff-queue.png" alt="Staff view of their department's report queue"></td>
+    <td><img src="docs/screenshots/admin-analytics.png" alt="Admin analytics dashboard with status, category and trend charts"></td>
   </tr>
 </table>
--->
 
-> _Screenshots coming soon._ Run the Quickstart with the demo seed to see the populated UI.
+<p align="center"><em>Public map · report detail &amp; status timeline · staff department queue · admin analytics.</em></p>
+
+## Features
+
+**Citizens** — file a report with photos and a map pin, auto-routed to the department whose
+area contains it; vote on, comment on, withdraw, and subscribe to reports; track personal
+report stats; manage their profile and avatar.
+
+**Staff** — work a department-scoped report queue, advance each report through its status
+lifecycle (every change requires a note), comment, and moderate — hide/unhide reports and
+comments, and lock/unlock reports (freezing comments, votes, and subscriptions) — backed by a
+per-department dashboard.
+
+**Admins** — manage departments and their PostGIS boundaries, categories, and staff/citizen
+accounts (including ban/unban); moderate content site-wide; assign reports that landed outside
+every boundary; view system-wide analytics; and export reports as CSV or GeoJSON.
+
+**Cross-cutting** — real-time notifications over Socket.io with newly created reports
+appearing live on the map, JWT auth with refresh tokens and password reset, role-based access
+control, and cursor pagination for large list endpoints.
 
 ## Highlights
 
@@ -62,14 +73,20 @@ Seed first (see Quickstart) so screens have realistic data.
   share table and channel infrastructure.
   → [ADR-0006](docs/adr/0006-queue-signals-share-notifications-table.md)
 
-- **📜 One schema for validation *and* API docs.** A single Zod schema per endpoint drives
-  both request/response validation and the auto-generated OpenAPI spec (via `zod-openapi`),
-  so the Swagger docs can never drift from the code. Browse them at `/api/docs` in dev.
+- **📜 One schema for request validation *and* API docs.** For JSON endpoints a single Zod
+  schema both validates the incoming request at runtime and generates that request's OpenAPI
+  spec (via `zod-openapi`), so the documented request body can't drift from what the handler
+  actually accepts. Response schemas describe each payload's shape for the docs, but responses
+  are assembled by hand and **not** runtime-validated against them. The `multipart/form-data`
+  upload endpoints document their wire-level form separately: Multer plus manual checks validate
+  the files, and report creation additionally parses its non-file fields (title, coordinates,
+  category) through a runtime schema — the photo and avatar uploads carry files only.
+  Browse the docs at `/api/docs` in dev.
 
 - **🧱 Vertical-slice architecture.** Feature-per-folder, **one file = one mounted
   endpoint**, with shared domain rules in per-feature `lib/` folders. JWT access/refresh
   tokens in HTTP-only cookies with transparent `401 → refresh → retry`, department-scoped
-  staff access, and cursor-based pagination throughout.
+  staff access, and cursor-based pagination on the large list endpoints.
   → [ADR-0002](docs/adr/0002-vertical-slice-architecture.md)
 
 ## Architecture
@@ -114,7 +131,7 @@ server talks to PostGIS and to image storage (local disk or Cloudflare R2).
 The fastest way to see LocalEyes running with realistic demo data. Requires Docker.
 
 ```bash
-git clone <repo-url> LocalEyes
+git clone https://github.com/forevpurity/LocalEyes.git
 cd LocalEyes
 
 # 1. Create the env file (DOMAIN defaults to localhost → Caddy uses its own local CA)
@@ -148,7 +165,13 @@ All seeded accounts share the password **`password123`**.
 ## Development (manual)
 
 For working on the code, run the two packages directly. **Prerequisites:** Node ≥22 and a
-PostgreSQL 16 instance with the **PostGIS** extension available.
+PostgreSQL 16 instance with the **PostGIS** extension available. Enable the extension in your
+database **before** `db:push` (the Docker image does this automatically; a manual Postgres
+does not):
+
+```sql
+CREATE EXTENSION IF NOT EXISTS postgis;
+```
 
 This is a **two-package repo (no npm workspaces)** — `client/` and `server/` are installed
 and run independently.
@@ -157,12 +180,21 @@ and run independently.
 
 ```bash
 cd server
-cp .env.example .env          # set DATABASE_URL + JWT_ACCESS_SECRET + JWT_REFRESH_SECRET
+cp .env.example .env          # DATABASE_URL + the two JWT secrets are all you need to run
 npm install
 npm run db:push               # push the Drizzle schema
-npm run db:seed               # optional: load demo data
+npm run db:seed               # optional: load demo data — see warning below
 npm run dev                   # tsx watch + live OpenAPI regen
 ```
+
+Two optional integrations are documented in `server/.env.example`: image uploads default to
+local `/uploads` unless you configure **Cloudflare R2**, and password reset needs **SMTP** —
+without it, the reset link is logged to the server console instead of emailed.
+
+> ⚠️ **`db:seed` is destructive.** It `TRUNCATE`s the `categories`, `departments`, `users`,
+> and `reports` tables (cascading) before loading demo data — only run it against a database
+> you're happy to wipe. As a safeguard it refuses to run when `NODE_ENV=production` unless you
+> explicitly set `SEED_RESET=true`.
 
 **Client** (`client/`, Vite dev server on port 5173, proxies `/api`, `/uploads`,
 `/socket.io` to the server):
@@ -179,6 +211,17 @@ Then open **http://localhost:5173**. Interactive API docs (dev only) are at
 > There is no test runner configured; the client has `npm run lint` (ESLint). Verify
 > changes by running the apps and exercising the Swagger UI. See [AGENTS.md](AGENTS.md) for
 > full command reference and conventions.
+
+### Verification
+
+There's no test suite, but CI (`.github/workflows/deploy.yml`) gates every push to `main` on
+the same typecheck/lint/build the Dockerfiles run, and deploys only if it's green. Reproduce
+that gate locally before pushing:
+
+```bash
+cd server && npm run build           # tsc typecheck + build
+cd ../client && npm run lint && npm run build   # ESLint, then tsc -b + vite build
+```
 
 ## Report lifecycle
 
