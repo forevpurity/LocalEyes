@@ -40,9 +40,11 @@ import {
 function MetaItem({
   icon: Icon,
   value,
+  oneLine = false,
 }: {
   icon: typeof MapPin;
   value: string;
+  oneLine?: boolean;
 }) {
   return (
     <span className="flex min-w-0 max-w-full items-start gap-1.5 text-sm text-on-surface-variant sm:items-center">
@@ -50,7 +52,12 @@ function MetaItem({
         className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground sm:mt-0"
         aria-hidden="true"
       />
-      <span className="wrap-break-word sm:truncate">{value}</span>
+      <span
+        className={cn("min-w-0", oneLine ? "truncate" : "wrap-break-word sm:truncate")}
+        title={oneLine ? value : undefined}
+      >
+        {value}
+      </span>
     </span>
   );
 }
@@ -221,11 +228,15 @@ export function ReportDetailPage() {
                   )}
                 </div>
 
-                <div className="mt-4 flex flex-col gap-2 border-t border-border pt-4 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-4 sm:gap-y-2">
+                <div className="mt-4 border-t border-border pt-4">
                   <MetaItem
                     icon={MapPin}
                     value={report.address ?? "Pinned location"}
+                    oneLine
                   />
+                </div>
+
+                <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-4 sm:gap-y-2">
                   <MetaItem
                     icon={CalendarClock}
                     value={getRelativeTime(report.createdAt)}
