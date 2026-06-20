@@ -84,7 +84,18 @@ services:
       context: ./server
       target: build
     profiles: ["tools"]
+    # Run as the same non-root user as the server so files written by db:seed into
+    # the shared uploads volume are node-owned — otherwise root-created dirs block
+    # the runtime server (which runs as node) from writing new uploads (EACCES).
+    user: "node"
     env_file: .env
+    volumes:
+      # Share the server's uploads volume so local-driver seed photos (db:seed)
+      # land where the server serves them from at /uploads. Unused with STORAGE_DRIVER=r2.
+      # Start the stack with `docker compose up -d` before running tools so the
+      # server initializes this volume as node:node (the build stage also pre-creates
+      # /app/uploads as node:node, so ordering is not load-bearing).
+      - uploads-data:/app/uploads
     environment:
       # Same DB host as the server: `db` on the compose network.
       DATABASE_URL: postgres://${POSTGRES_USER:-localeyes}:${POSTGRES_PASSWORD:-localeyes}@db:5432/${POSTGRES_DB:-localeyes}

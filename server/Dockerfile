@@ -12,6 +12,12 @@ COPY src ./src
 COPY drizzle.config.ts ./
 RUN npm run build
 
+# Pre-create the uploads dir owned by `node` here too — this stage is reused as
+# the compose `tools` service, whose `db:seed` writes local-driver photos. Matching
+# the runtime stage's ownership makes the shared uploads-data volume initialize as
+# node:node no matter which service mounts it first (order-independent).
+RUN mkdir -p /app/uploads && chown -R node:node /app/uploads
+
 # --- Runtime stage: production deps + compiled output only ---
 FROM node:22-alpine AS runtime
 ENV NODE_ENV=production
