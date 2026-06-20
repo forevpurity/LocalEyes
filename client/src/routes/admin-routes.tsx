@@ -15,6 +15,8 @@ import { ProfilePage } from "@/features/profile/profile-page";
 export function AdminRoutes() {
   return (
     <Routes>
+      {/* Citizen-only path; redirect admin to their home instead of 404-ing on id="new" */}
+      <Route path="reports/new" element={<Navigate to="/dashboard" replace />} />
       <Route path="reports/:id" element={<ReportDetailPage />} />
       <Route element={<AdminLayout />}>
         <Route path="dashboard" element={<AdminDashboard />} />

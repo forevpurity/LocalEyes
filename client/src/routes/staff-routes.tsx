@@ -8,6 +8,9 @@ import { ProfilePage } from "@/features/profile/profile-page";
 export function StaffRoutes() {
   return (
     <Routes>
+      {/* Citizen-only path; redirect staff to their home instead of 404-ing on id="new" */}
+      <Route path="reports/new" element={<Navigate to="/queue" replace />} />
+
       {/* Full-page views rendered outside the sidebar layout (they carry their own top bar) */}
       <Route path="reports/:id" element={<ReportDetailPage />} />
 
