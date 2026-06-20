@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, NavLink } from "react-router";
 import { LogOut, Menu, User, X } from "lucide-react";
+import { Avatar } from "@/components/avatar";
 import { CivicShield } from "@/components/civic-shield";
 import { useAuth } from "@/features/auth/use-auth";
 import { NotificationBell } from "@/features/notifications/notification-bell";
@@ -92,9 +93,7 @@ export function Navbar() {
                   aria-haspopup="true"
                   aria-expanded={userMenuOpen}
                 >
-                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-on-primary text-label-sm font-label-sm select-none">
-                    {user.displayName.charAt(0).toUpperCase()}
-                  </span>
+                  <Avatar src={user.avatarUrl} name={user.displayName} size="sm" className="select-none" />
                   <span className="text-sm text-on-surface-variant max-w-[120px] truncate">
                     {user.displayName}
                   </span>

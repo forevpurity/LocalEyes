@@ -13,6 +13,10 @@ type Actor = { id: string; role: UserRole; displayName: string };
 export const anonymizedCitizenName = sql<string | null>`
   CASE WHEN ${users.bannedAt} IS NULL THEN ${users.displayName} ELSE NULL END`;
 
+// The report citizen's avatar obeys the same ban-rule as their name.
+export const anonymizedCitizenAvatar = sql<string | null>`
+  CASE WHEN ${users.bannedAt} IS NULL THEN ${users.avatarUrl} ELSE NULL END`;
+
 // Comments: only anonymise banned *citizens*; preserve staff/admin authorship
 // on status notes for accountability.
 export const anonymizedAuthorName = sql<string | null>`

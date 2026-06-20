@@ -24,6 +24,7 @@ export const reportCoreFields = {
   departmentId: z.uuid().nullable(),
   departmentName: z.string().nullable(),
   citizenName: z.string().nullable(),
+  citizenAvatarUrl: z.string().nullable(),
   photos: z.array(reportPhotoSchema),
   voteCount: z.number(),
   hasVoted: z.boolean(),

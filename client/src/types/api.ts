@@ -63,6 +63,7 @@ export interface Report {
   departmentId: string | null;
   departmentName: string | null;
   citizenName: string | null;
+  citizenAvatarUrl: string | null;
 }
 
 export interface ReportDetail extends Report {

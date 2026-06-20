@@ -32,7 +32,7 @@ function buildEvents(report: ReportDetail): TimelineEvent[] {
     title: "Issue Submitted",
     body: null,
     author: report.citizenName,
-    authorAvatarUrl: null,
+    authorAvatarUrl: report.citizenAvatarUrl,
     createdAt: report.createdAt,
   };
 

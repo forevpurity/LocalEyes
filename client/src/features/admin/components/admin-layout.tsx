@@ -1,6 +1,7 @@
 import { LayoutDashboard, FileText, Building2, Tags, Users, UserCircle, BarChart3, CircleUserRound, Shield, LogOut } from "lucide-react";
 import { NavLink, Outlet, useNavigate } from "react-router";
 import { useAuth } from "@/features/auth/use-auth";
+import { Avatar } from "@/components/avatar";
 import { ThemeToggle } from "@/features/theme/theme-toggle";
 
 const navItems = [
@@ -62,9 +63,7 @@ export function AdminLayout() {
         <div className="border-t border-border px-4 py-3">
           {user && (
             <div className="flex items-center gap-3">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground">
-                {user.displayName.charAt(0).toUpperCase()}
-              </div>
+              <Avatar src={user.avatarUrl} name={user.displayName} size="sm" />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium text-foreground">
                   {user.displayName}

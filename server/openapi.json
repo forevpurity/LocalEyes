@@ -4395,6 +4395,16 @@
               }
             ]
           },
+          "citizenAvatarUrl": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "photos": {
             "type": "array",
             "items": {
@@ -4463,6 +4473,7 @@
           "departmentId",
           "departmentName",
           "citizenName",
+          "citizenAvatarUrl",
           "photos",
           "voteCount",
           "hasVoted",
@@ -4575,6 +4586,16 @@
               }
             ]
           },
+          "citizenAvatarUrl": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "photos": {
             "type": "array",
             "items": {
@@ -4643,6 +4664,7 @@
           "departmentId",
           "departmentName",
           "citizenName",
+          "citizenAvatarUrl",
           "photos",
           "voteCount",
           "hasVoted",
@@ -4718,6 +4740,16 @@
             ]
           },
           "citizenName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "citizenAvatarUrl": {
             "anyOf": [
               {
                 "type": "string"
@@ -4902,6 +4934,7 @@
           "departmentId",
           "departmentName",
           "citizenName",
+          "citizenAvatarUrl",
           "photos",
           "voteCount",
           "hasVoted",

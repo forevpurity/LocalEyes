@@ -6,7 +6,7 @@ import { departments } from "../../../db/schema/departments.js";
 import { users } from "../../../db/schema/users.js";
 import { reportPhotos } from "../../../db/schema/report-photos.js";
 import { NotFoundError } from "../../../common/errors.js";
-import { anonymizedCitizenName } from "./report-rules.js";
+import { anonymizedCitizenName, anonymizedCitizenAvatar } from "./report-rules.js";
 import type { UserRole } from "../../../db/schema/users.js";
 
 export type Actor = { id: string; role: UserRole } | null;
@@ -35,6 +35,7 @@ export function reportCoreColumns(actor: Actor) {
     categoryName: categories.name,
     departmentName: departments.name,
     citizenName: hideName ? anonymizedCitizenName : users.displayName,
+    citizenAvatarUrl: hideName ? anonymizedCitizenAvatar : users.avatarUrl,
     voteCount: sql<number>`(SELECT COUNT(*)::int FROM votes WHERE votes.report_id = ${reports.id})`,
     hasVoted:
       actor?.role === "citizen"
@@ -64,6 +65,7 @@ export type ReportCoreRow = {
   categoryName: string;
   departmentName: string | null;
   citizenName: string | null;
+  citizenAvatarUrl: string | null;
   voteCount: number;
   hasVoted: boolean;
   isSubscribed: boolean;
@@ -87,6 +89,7 @@ export function shapeReportCore(row: ReportCoreRow, actor: Actor) {
     departmentId: row.departmentId,
     departmentName: row.departmentName,
     citizenName: row.citizenName,
+    citizenAvatarUrl: row.citizenAvatarUrl,
     voteCount: row.voteCount,
     hasVoted: row.hasVoted,
     isHidden: row.isHidden,
