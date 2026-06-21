@@ -35,7 +35,7 @@ function formatPeriod(iso: string, granularity: AnalyticsGranularity): string {
 interface TrendsLineChartProps {
   data: TrendPoint[];
   granularity: AnalyticsGranularity;
-  onGranularityChange: (granularity: AnalyticsGranularity) => void;
+  onGranularityChange?: (granularity: AnalyticsGranularity) => void;
 }
 
 export function TrendsLineChart({
@@ -56,22 +56,24 @@ export function TrendsLineChart({
           <CardTitle>Reports over time</CardTitle>
           <CardDescription>New reports per {granularity}</CardDescription>
         </div>
-        <label className="flex items-center gap-2 text-label-sm text-muted-foreground">
-          <span className="sr-only">Trend interval</span>
-          <select
-            value={granularity}
-            onChange={(e) =>
-              onGranularityChange(e.target.value as AnalyticsGranularity)
-            }
-            className="rounded-lg border border-border bg-background px-3 py-1.5 text-sm text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary/20"
-          >
-            {GRANULARITIES.map((g) => (
-              <option key={g} value={g}>
-                By {g}
-              </option>
-            ))}
-          </select>
-        </label>
+        {onGranularityChange && (
+          <label className="flex items-center gap-2 text-label-sm text-muted-foreground">
+            <span className="sr-only">Trend interval</span>
+            <select
+              value={granularity}
+              onChange={(e) =>
+                onGranularityChange(e.target.value as AnalyticsGranularity)
+              }
+              className="rounded-lg border border-border bg-background px-3 py-1.5 text-sm text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary/20"
+            >
+              {GRANULARITIES.map((g) => (
+                <option key={g} value={g}>
+                  By {g}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
       </CardHeader>
       <CardContent>
         {chartData.length === 0 ? (
