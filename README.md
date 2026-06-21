@@ -250,6 +250,33 @@ stateDiagram-v2
 `closed`, `rejected`, and `withdrawn` are terminal. `withdrawn` is the Citizen's own choice
 and is never reversible, even by an Admin.
 
+## Roadmap & limitations
+
+LocalEyes covers the report lifecycle end-to-end, but it's scoped as a portfolio
+product. The notable features it doesn't have yet:
+
+- **No duplicate detection or merging** — several citizens reporting the same physical
+  issue create separate reports; there's no clustering or merge-into-one.
+- **In-app notifications only, with no preferences** — updates surface in the app and
+  over Socket.io, but citizens aren't emailed or pushed when a report changes status
+  (email is wired up only for password reset), and subscription is a binary per-report
+  toggle — no digests, event-type filters, or quiet hours.
+- **No per-report ownership or bulk actions** — the queue is department-scoped, so any
+  staffer can act on any report; there's no "this is mine", delegation, or personal
+  worklist, and every status change, hide, or lock is one report at a time.
+- **No public API or webhooks** — there are no API keys, no webhooks, and no documented
+  machine-to-machine contract, so partner systems and transparency portals can't subscribe
+  to status changes (public reads back the SPA's own map, but nothing is built for
+  programmatic consumers).
+- **No admin audit log** — bans, hides, locks, reassignments, polygon edits, and category
+  changes leave only their resulting state, with no record of who did what and when.
+- **Minimal trust-and-safety** — uploaded photos aren't screened for NSFW or off-topic
+  content, and comments are covered only by the global rate limiter; there's no profanity
+  filter, captcha, or image-hash duplicate detection.
+- **Single-city, not multi-tenant** — Ho Chi Minh City is baked into the map centre, the
+  geocoding queries, the seeds, and the deployment, so standing up another municipality is
+  a code change, not config.
+
 ## Documentation
 
 | Doc | What it covers |
