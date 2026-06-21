@@ -42,7 +42,8 @@ the apps and, for the API, the Swagger UI (dev only) at `/api/docs`.
 
 The server needs a `.env` (see `server/.env.example`): `DATABASE_URL`,
 `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, plus token TTL/max-age vars. `NODE_ENV`
-gates Swagger UI (dev only). PostGIS must be available in the Postgres instance.
+gates Swagger UI (dev only); set `ENABLE_API_DOCS=true` to also expose it in
+production (e.g. a public demo). PostGIS must be available in the Postgres instance.
 
 ## Architecture
 

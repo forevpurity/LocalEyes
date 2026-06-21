@@ -162,6 +162,23 @@ All seeded accounts share the password **`password123`**.
 | **Staff** | `staff.d1@localeyes.vn` | District 1's report queue with status/moderation actions |
 | **Citizen** | `citizen1@localeyes.vn` | Submit reports, vote, comment, manage subscriptions |
 
+### Scheduled demo reset
+
+To keep a public demo's data fresh, schedule the existing reset command with a host
+cron entry on the VPS — no extra service or endpoint needed, it just reuses the `tools`
+profile from step 4. A nightly run at a low-traffic hour avoids wiping data mid-demo.
+`CRON_TZ` pins the schedule to Vietnam time regardless of the VPS's system timezone
+(which is usually UTC), so `0 4` means 04:00 ICT:
+
+```cron
+# Reset LocalEyes demo data nightly at 04:00 Vietnam time
+CRON_TZ=Asia/Ho_Chi_Minh
+0 4 * * * cd /path/to/LocalEyes && docker compose run --rm -e SEED_RESET=true tools npm run db:seed >> /var/log/localeyes-seed.log 2>&1
+```
+
+`SEED_RESET=true` lives only in the cron line, never in `.env` — `db:seed` is destructive
+(see the warning below) and refuses to run in production without that explicit per-run flag.
+
 ## Development (manual)
 
 For working on the code, run the two packages directly. **Prerequisites:** Node ≥22 and a

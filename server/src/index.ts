@@ -68,7 +68,11 @@ api.use("/admin/exports", exportsRouter);
 api.use("/notifications", notificationsRouter);
 app.use("/api", api);
 
-if (process.env.NODE_ENV !== "production") {
+// API docs are served outside production by default. Set ENABLE_API_DOCS=true to
+// expose Swagger UI on a production deployment (e.g. a public demo). The docs are
+// just an OpenAPI viewer, but "Try it out" fires live requests at the real DB, so
+// only enable this on a deployment with disposable/seeded data.
+if (process.env.NODE_ENV !== "production" || process.env.ENABLE_API_DOCS === "true") {
   app.use("/openapi.json", express.static("openapi.json"));
   app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(null, { swaggerUrl: "/openapi.json" }));
 }
