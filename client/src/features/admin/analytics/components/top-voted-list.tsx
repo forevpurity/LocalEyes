@@ -19,7 +19,9 @@ export function TopVotedList({ reports }: TopVotedListProps) {
     <Card>
       <CardHeader>
         <CardTitle>Top voted reports</CardTitle>
-        <CardDescription>Most upvoted reports across the city</CardDescription>
+        <CardDescription>
+          Most upvoted reports across the city, all time
+        </CardDescription>
       </CardHeader>
       <CardContent>
         {reports.length === 0 ? (

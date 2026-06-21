@@ -16,8 +16,6 @@ import {
 } from "@/features/reports/lib/status-styles";
 import type { AnalyticsGranularity } from "@/types/api";
 
-const GRANULARITIES: AnalyticsGranularity[] = ["day", "week", "month"];
-
 export function AdminAnalyticsPage() {
   const [granularity, setGranularity] = useState<AnalyticsGranularity>("day");
   const { data, isLoading, error } = useAnalyticsSummary(granularity);
@@ -48,22 +46,7 @@ export function AdminAnalyticsPage() {
             System-wide trends and metrics
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <select
-            value={granularity}
-            onChange={(e) =>
-              setGranularity(e.target.value as AnalyticsGranularity)
-            }
-            className="rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary/20"
-          >
-            {GRANULARITIES.map((g) => (
-              <option key={g} value={g}>
-                By {g}
-              </option>
-            ))}
-          </select>
-          <ExportButtons />
-        </div>
+        <ExportButtons />
       </div>
 
       {isLoading && (
@@ -94,28 +77,44 @@ export function AdminAnalyticsPage() {
       {!isLoading && !error && data && (
         <div className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-3">
-            <StatCard label="Total reports" value={data.totalReports} />
+            <StatCard
+              label="Total reports"
+              value={data.totalReports}
+              hint="All time"
+            />
             <StatCard
               label="Avg. time to resolve"
               value={formatResolution(data.averageResolution.averageHours)}
               icon={Clock}
+              hint="All time"
             />
             <StatCard
               label="Resolved reports"
               value={data.averageResolution.resolvedCount}
+              hint="All time"
             />
           </div>
 
           <TrendsLineChart
             data={data.reportsOverTime}
             granularity={granularity}
+            onGranularityChange={setGranularity}
           />
 
           <div className="grid gap-4 lg:grid-cols-2">
-            <CountBarChart title="Reports by status" data={statusData} />
-            <CountBarChart title="Reports by category" data={categoryData} />
+            <CountBarChart
+              title="Reports by status"
+              description="All time"
+              data={statusData}
+            />
+            <CountBarChart
+              title="Reports by category"
+              description="All time"
+              data={categoryData}
+            />
             <CountBarChart
               title="Reports by department"
+              description="All time"
               data={departmentData}
             />
             <TopVotedList reports={data.topVotedReports} />
