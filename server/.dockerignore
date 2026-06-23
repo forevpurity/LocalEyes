@@ -4,5 +4,4 @@ dist
 .env.*
 *.log
 uploads
-openapi.json
 .DS_Store
