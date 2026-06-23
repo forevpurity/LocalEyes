@@ -73,8 +73,11 @@ app.use("/api", api);
 // just an OpenAPI viewer, but "Try it out" fires live requests at the real DB, so
 // only enable this on a deployment with disposable/seeded data.
 if (process.env.NODE_ENV !== "production" || process.env.ENABLE_API_DOCS === "true") {
-  app.use("/openapi.json", express.static("openapi.json"));
-  app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(null, { swaggerUrl: "/openapi.json" }));
+  // Serve the spec under /api so the reverse proxy (which only forwards /api,
+  // /uploads, /socket.io) reaches it — a root-path /openapi.json would be
+  // swallowed by the SPA fallback and Swagger UI couldn't load the definition.
+  app.use("/api/openapi.json", express.static("openapi.json"));
+  app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(null, { swaggerUrl: "/api/openapi.json" }));
 }
 
 app.use(notFoundHandler);

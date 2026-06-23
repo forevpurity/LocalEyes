@@ -25,6 +25,9 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci --omit=dev && npm cache clean --force
 COPY --from=build /app/dist ./dist
+# Swagger UI loads this spec at runtime (when ENABLE_API_DOCS=true). It lives at
+# the cwd (/app) because express.static("openapi.json") resolves relative to it.
+COPY openapi.json ./
 
 # Local storage driver writes uploads here (UPLOAD_DIR defaults to "uploads",
 # i.e. /app/uploads). /app is root-owned, so pre-create the dir owned by the
